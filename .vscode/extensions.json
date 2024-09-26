@@ -1,0 +1,26 @@
+{
+  "recommendations": [
+    "formulahendry.auto-rename-tag",
+    "EditorConfig.EditorConfig",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "oderwat.indent-rainbow",
+    "mikestead.dotenv",
+    "ronnidc.nunjucks",
+    "okitavera.vscode-nunjucks-formatter",
+    "quicktype.quicktype",
+    "esbenp.prettier-vscode",
+    "mrmlnc.vscode-scss",
+    "standard.vscode-standard",
+    "bradlc.vscode-tailwindcss",
+    "Gruntfuggly.todo-tree",
+    "shardulm94.trailing-spaces",
+    "ChakrounAnas.turbo-console-log",
+    "GitHub.copilot",
+    "GitHub.copilot-labs",
+    "GitHub.copilot-chat",
+    "Codium.codium",
+    "vscode-icons-team.vscode-icons"
+  ]
+}
