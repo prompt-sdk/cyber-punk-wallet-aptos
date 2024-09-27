@@ -36,6 +36,7 @@
     "app:up": "docker-compose up -d app"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^1.28.0",
     "@artsy/fresnel": "^7.1.4",
     "@ckeditor/ckeditor5-core": "^41.3.1",
     "@ckeditor/ckeditor5-react": "^6.2.0",
@@ -103,6 +104,7 @@
     "react-sortablejs": "^6.1.4",
     "react-string-replace": "^1.1.1",
     "reselect": "^5.1.0",
+    "sonner": "^1.5.0",
     "sortablejs": "^1.15.2",
     "swiper": "^11.0.4",
     "tailwind-merge": "^2.3.0",

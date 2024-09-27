@@ -1,13 +1,21 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 import classNames from 'classnames';
 import { SettingsIcon } from 'lucide-react';
 import { ComponentBaseProps } from '@/common/interfaces';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
 
 import BoderImage from '@/components/common/border-image';
+
+import GoogleLogo from '@/modules/auth/components/GoogleLogo';
+import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
+import { useGetNFTInBalance } from '@/modules/auth/hooks/use-query';
+import { collapseAddress } from '@/modules/auth/utils/address';
 
 import AvatarImage from '@/assets/images/avatar/avatar-1.jpeg';
 import ProfileElementDecor1 from '@/assets/svgs/profile-element-decor-1.svg';
@@ -18,6 +26,56 @@ import DashboardTopProfileDecor from './dashboard-top-profile-decor';
 type DashboardProfileProps = ComponentBaseProps;
 
 const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
+  const [balance, setBalance] = useState<string | null>(null);
+  const { keylessAccount } = useKeylessAccount();
+
+  const { fetchNFTs } = useGetNFTInBalance();
+
+  const loadBalance = useCallback(async () => {
+    const options = {
+      method: 'GET',
+      headers: { accept: 'application/json' }
+    };
+    const respo = await axios.get(
+      `https://aptos-testnet.nodit.io/${
+        process.env.NEXT_PUBLIC_API_KEY_NODIT
+      }/v1/accounts/${keylessAccount?.accountAddress.toString()}/resources`,
+      options
+    );
+    const datas = respo?.data[1];
+    const resBalance = datas?.data?.coin.value;
+    const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
+
+    setBalance(formatBalance.toFixed(2));
+  }, [keylessAccount]);
+
+  useEffect(() => {
+    if (keylessAccount?.accountAddress) {
+      loadBalance();
+      fetchNFTs();
+    }
+  }, [keylessAccount?.accountAddress]);
+
+  if (!keylessAccount) {
+    return (
+      <div className="flex h-screen w-screen flex-col items-center justify-center px-4">
+        <div>
+          <h1 className="mb-2 text-4xl font-bold">Welcome to Aptos!</h1>
+          <p className="mb-8 text-lg">Please login</p>
+          <div className="grid gap-2">
+            <Link
+              href="/"
+              className="flex cursor-not-allowed items-center justify-center rounded-lg border px-8 py-2 shadow-sm"
+            >
+              <GoogleLogo />
+              Login
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <BoderImage className={classNames('relative flex w-full max-w-[483px] justify-center', className)}>
       <DashboardTopProfileDecor />
@@ -26,7 +84,9 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
           <div className="flex grow flex-wrap items-center gap-2 md:flex-nowrap">
             <DashboardAvatar className="shrink-0" imageUrl={AvatarImage.src} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
-              <p className="text-wrap break-words text-xl font-bold">quangchinh.unwallet</p>
+              <p className="text-wrap break-words text-xl font-bold">
+                {collapseAddress(keylessAccount?.accountAddress.toString())}
+              </p>
               <p className="text-sm">Welcome back</p>
             </div>
           </div>
@@ -36,7 +96,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
         <div className="relative flex flex-wrap justify-between gap-2">
           <div className="flex grow flex-col gap-2">
             <p className="text-base text-[#636363]">Total balance</p>
-            <p className="text-h2">$17,200</p>
+            <p className="text-h2">{balance}</p>
           </div>
           <div
             className="flex shrink-0 flex-col justify-end font-semibold underline"

@@ -1,6 +1,4 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { NextIntlClientProvider } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import {
   COMPANY_NAME,
@@ -11,26 +9,17 @@ import {
 } from '@/common/constants/site.constant';
 import { LayoutProps } from '@/common/interfaces';
 
-import { locales } from '@/navigation';
+import { KeylessAccountProvider } from '@/modules/auth/context/keyless-account-context';
+import { GeoTargetly } from '@/modules/auth/utils/geo-targetly';
 
 export default async function RootLayout({ children, params: { locale } }: LayoutProps) {
   unstable_setRequestLocale(locale);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (!locales.includes(locale as any)) notFound();
-
-  let messages;
-
-  try {
-    messages = (await import(`@/locales/${locale}.json`)).default;
-  } catch (error) {
-    notFound();
-  }
-
   return (
-    <NextIntlClientProvider timeZone="America/New_York" locale={locale} messages={messages}>
-      {children}
-    </NextIntlClientProvider>
+    <>
+      <KeylessAccountProvider>{children}</KeylessAccountProvider>
+      <GeoTargetly />
+    </>
   );
 }
 

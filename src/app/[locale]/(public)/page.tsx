@@ -2,9 +2,14 @@
 
 import { PageBaseProps } from '@/common/interfaces';
 
+import ClientOnly from '@/modules/auth/components/ClientOnly';
 import LoginRoot from '@/modules/login/components/login-root';
 
 type PageProps = PageBaseProps;
 export default function LoginPage(_pageProps: PageProps) {
-  return <LoginRoot />;
+  return (
+    <ClientOnly>
+      <LoginRoot />
+    </ClientOnly>
+  );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import Image from 'next/image';
 import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,8 @@ import { useRouter } from '@/navigation';
 
 import { LoginFormData } from '../interfaces/login.interface';
 
+import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
+import useEphemeralKeyPair from '@/modules/auth/hooks/use-ephemeral-key-pair';
 import FormNameField from '@/modules/form/components/form-name-field';
 
 import ModalLoginFrame from '@/assets/svgs/modal-login-frame.svg';
@@ -35,12 +37,42 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     watch
   } = form;
 
-  const onSubmit = (_data: LoginFormData) => {
-    router.push('/dashboard');
+  const onSubmit = (data: LoginFormData) => {
     // console.log(data);
     // Handle form submission
   };
   const name = watch('name');
+
+  if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
+    throw new Error('Google Client ID is not set in env');
+  }
+
+  const { keylessAccount } = useKeylessAccount();
+  const ephemeralKeyPair = useEphemeralKeyPair();
+
+  useEffect(() => {
+    if (keylessAccount) {
+      router.push('/dashboard');
+    }
+  }, [keylessAccount]);
+
+  const redirectUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+  const searchParams = new URLSearchParams({
+    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    // local
+    redirect_uri: 'http://localhost:5173' + '/callback',
+    // vercel
+    // redirect_uri:
+    //   typeof window !== 'undefined'
+    //     ? `${window.location.origin}/callback`
+    //     : (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_VERCEL_URL) +
+    //       '/callback',
+    response_type: 'id_token',
+    scope: 'openid email profile',
+    nonce: ephemeralKeyPair.nonce
+  });
+
+  redirectUrl.search = searchParams.toString();
 
   return (
     <div className={classNames('flex grow items-center justify-center', className)}>
@@ -70,14 +102,14 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
                 <Image src={WhiteBtnFrame.src} alt="create" width={WhiteBtnFrame.width} height={WhiteBtnFrame.height} />
               </button>
               <hr />
-              <button>
+              <a href={redirectUrl.toString()}>
                 <Image
                   src={TransparentBtnFrame.src}
                   alt="sign in with google"
                   width={TransparentBtnFrame.width}
                   height={TransparentBtnFrame.height}
                 />
-              </button>
+              </a>
             </div>
           </form>
         </div>

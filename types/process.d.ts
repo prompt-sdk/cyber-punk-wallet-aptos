@@ -11,5 +11,8 @@ declare namespace NodeJS {
     FACEBOOK_CLIENT_SECRET: string;
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: string;
+    NEXT_PUBLIC_VERCEL_URL: string;
+    NEXT_PUBLIC_API_KEY_NODIT: string;
   }
 }
