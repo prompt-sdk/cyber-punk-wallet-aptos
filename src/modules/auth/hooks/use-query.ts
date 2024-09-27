@@ -11,7 +11,6 @@ export const useGetTokenInBalance = () => {
   const { keylessAccount } = useKeylessAccount();
   const [isLoading, setisLoading] = useState<boolean>(false);
 
-  isLoading;
   const [tokens, setTokens] = useState<any>([]);
   const fetchToken = useCallback(async () => {
     if (!keylessAccount) return;
@@ -63,7 +62,6 @@ export const useGetNFTInBalance = () => {
   const { keylessAccount } = useKeylessAccount();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  isLoading;
   const [NFTs, setNFTs] = useState<any>([]);
   const fetchNFTs = useCallback(async () => {
     if (!keylessAccount) return;
