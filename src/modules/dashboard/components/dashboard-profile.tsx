@@ -3,7 +3,6 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import classNames from 'classnames';
 import { SettingsIcon } from 'lucide-react';

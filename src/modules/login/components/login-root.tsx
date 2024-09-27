@@ -37,7 +37,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     watch
   } = form;
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = (_data: LoginFormData) => {
     // console.log(data);
     // Handle form submission
   };
