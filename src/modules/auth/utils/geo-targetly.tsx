@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import Script from "next/script";
+import Script from 'next/script';
 
 export const GeoTargetly = () => {
   return (
@@ -13,7 +13,7 @@ export const GeoTargetly = () => {
             y.src='https://g9904216750.co/gb?id=-NkwFHOr-budQ-E4x08r&refurl='+g.referrer+'&winurl='+encodeURIComponent(window.location);
             t.parentNode.insertBefore(y,t);
             })(document,'script','head');
-        `,
+        `
       }}
     />
   );
