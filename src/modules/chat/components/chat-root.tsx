@@ -52,7 +52,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
   useEffect(() => {
     if (!keylessAccount) {
-      router.push('/');
+      router.push('/login');
     }
   }, [keylessAccount]);
 
