@@ -45,7 +45,7 @@ function CallbackPage() {
 
       await createKeylessAccount(jwt, ephemeralKeyPair);
 
-      push('/dashboard');
+      push('/chat');
     }
 
     deriveAccount();
