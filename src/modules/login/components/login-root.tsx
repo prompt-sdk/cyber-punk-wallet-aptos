@@ -11,6 +11,7 @@ import { useRouter } from '@/navigation';
 
 import { LoginFormData } from '../interfaces/login.interface';
 
+import AugementedButton from '@/modules/augmented/components/chat-area';
 import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
 import useEphemeralKeyPair from '@/modules/auth/hooks/use-ephemeral-key-pair';
 import FormNameField from '@/modules/form/components/form-name-field';

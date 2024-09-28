@@ -36,6 +36,7 @@
     "app:up": "docker-compose up -d app"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.63",
     "@aptos-labs/ts-sdk": "^1.28.0",
     "@artsy/fresnel": "^7.1.4",
     "@ckeditor/ckeditor5-core": "^41.3.1",
@@ -75,6 +76,9 @@
     "@tanstack/react-query": "^4.35.3",
     "@tanstack/react-query-persist-client": "^4.35.5",
     "@tanstack/react-table": "^8.12.0",
+    "@vercel/kv": "^3.0.0",
+    "ai": "^3.4.7",
+    "augmented-ui": "^2.0.0",
     "axios": "^1.6.8",
     "chart.js": "^4.4.2",
     "class-variance-authority": "^0.7.0",
@@ -91,6 +95,7 @@
     "next": "^14.2.3",
     "next-auth": "^4.24.7",
     "next-intl": "^3.12.0",
+    "openai": "^4.65.0",
     "react": "^18.2.0",
     "react-accessible-treeview": "^2.8.3",
     "react-day-picker": "^8.10.0",
@@ -110,7 +115,7 @@
     "swiper": "^11.0.4",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.5",
+    "zod": "^3.23.8",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

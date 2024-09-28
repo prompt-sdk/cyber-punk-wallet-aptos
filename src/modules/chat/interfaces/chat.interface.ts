@@ -11,6 +11,7 @@ export type UserChatHistoryItem = {
   userId: string;
   botId: string;
   date: Date;
+  message?: string;
 };
 
 export type ChatMessage = {

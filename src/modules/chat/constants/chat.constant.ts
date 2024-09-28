@@ -37,8 +37,8 @@ export const USERS: User[] = [
 // Sample user chat history items
 export const USER_CHAT_HISTORY: UserChatHistoryItem[] = [
   {
-    title: 'NFT Holdings',
-    id: 'history1',
+    title: 'Test',
+    id: 'GCFXOP1',
     userId: 'user1',
     botId: 'smart-action',
     date: new Date('2023-10-01T10:00:00Z')

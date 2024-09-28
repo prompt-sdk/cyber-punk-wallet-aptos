@@ -13,7 +13,7 @@ const ChatPromptItem: FC<IChatPromptItemProps> = ({ title, onClick, className })
   return (
     <li className={classNames('flex items-center justify-between', className)} onClick={onClick}>
       <span className="line-clamp-1 max-w-44 grow">{title}</span>
-      <span className="ico-more-vertical shrink-0 px-3 text-xl" />
+      <button className="ico-more-vertical shrink-0 px-3 text-xl" />
     </li>
   );
 };
