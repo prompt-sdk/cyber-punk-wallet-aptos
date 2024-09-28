@@ -23,9 +23,9 @@ const fontOrbitron = Orbitron({
   weight: ['400', '500', '700', '800', '900']
 });
 
-export default async function PublicLayout({ children, params }: LayoutProps) {
+export default async function PublicLayout({ children }: LayoutProps) {
   return (
-    <Html locale={params.locale}>
+    <Html>
       <Head />
       <Body className={classNames(fontNunito.variable, fontOrbitron.variable, fontOrbitron.className)}>
         <Root className="overflow-hidden">

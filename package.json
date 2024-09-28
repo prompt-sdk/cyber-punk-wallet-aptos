@@ -103,6 +103,7 @@
     "react-resizable-panels": "^2.0.17",
     "react-sortablejs": "^6.1.4",
     "react-string-replace": "^1.1.1",
+    "react-toastify": "^10.0.5",
     "reselect": "^5.1.0",
     "sonner": "^1.5.0",
     "sortablejs": "^1.15.2",

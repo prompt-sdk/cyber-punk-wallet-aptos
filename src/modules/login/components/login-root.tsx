@@ -14,6 +14,7 @@ import { LoginFormData } from '../interfaces/login.interface';
 import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
 import useEphemeralKeyPair from '@/modules/auth/hooks/use-ephemeral-key-pair';
 import FormNameField from '@/modules/form/components/form-name-field';
+import { useToast } from '@/modules/toast/context/toast.context';
 
 import ModalLoginFrame from '@/assets/svgs/modal-login-frame.svg';
 import TransparentBtnFrame from '@/assets/svgs/transparent-btn-frame.svg';
@@ -25,6 +26,7 @@ type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -38,6 +40,8 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   } = form;
 
   const onSubmit = (_data: LoginFormData) => {
+    showToast('This is a success message!', 'success');
+
     // console.log(data);
     // Handle form submission
   };

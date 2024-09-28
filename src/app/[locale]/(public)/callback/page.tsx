@@ -35,7 +35,6 @@ function CallbackPage() {
 
       const jwtNonce = payload.nonce;
 
-      console.log('🚀 ~ deriveAccount ~ jwtNonce:', jwtNonce);
       const ephemeralKeyPair = getLocalEphemeralKeyPair(jwtNonce);
 
       if (!ephemeralKeyPair) {
@@ -44,9 +43,8 @@ function CallbackPage() {
         return;
       }
 
-      const tst = await createKeylessAccount(jwt, ephemeralKeyPair);
+      await createKeylessAccount(jwt, ephemeralKeyPair);
 
-      console.log('🚀 ~ deriveAccount ~ tst:', tst);
       push('/dashboard');
     }
 
@@ -54,14 +52,11 @@ function CallbackPage() {
   }, []);
 
   const createKeylessAccount = async (jwt: string, ephemeralKeyPair: EphemeralKeyPair) => {
-    console.log('🚀 ~ createKeylessAccount ~ jwt:', jwt);
     const aptosClient = getAptosClient();
     const keylessAccount = await aptosClient.deriveKeylessAccount({
       jwt,
       ephemeralKeyPair
     });
-
-    console.log('🚀 ~ createKeylessAccount ~ keylessAccount:', keylessAccount);
 
     const accountCoinsData = await aptosClient.getAccountCoinsData({
       accountAddress: keylessAccount?.accountAddress.toString()
@@ -79,7 +74,6 @@ function CallbackPage() {
       }
     }
 
-    console.log('Keyless Account: ', keylessAccount.accountAddress.toString());
     setKeylessAccount(keylessAccount);
   };
 

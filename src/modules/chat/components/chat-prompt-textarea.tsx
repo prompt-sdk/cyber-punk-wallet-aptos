@@ -2,6 +2,7 @@
 
 import { FC, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { MenuIcon } from 'lucide-react';
 import { ComponentBaseProps } from '@/common/interfaces';
 
 import { insertNewParagraph } from '../utils/chat-promt-bot.util';
@@ -50,6 +51,9 @@ const ChatPromptTextarea: FC<ChatPromptTextareaProps> = ({ className, onSend, pl
 
   return (
     <div className="flex w-full items-start justify-between rounded-[8px] border-4 border-[#5F5C64] bg-[#141A20] px-4 py-5">
+      <div>
+        <MenuIcon />
+      </div>
       <div className="relative flex-1 text-gray-50">
         {isEmpty && <div className="pointer-events-none absolute left-0 top-0">{placeholder}</div>}
         <div
