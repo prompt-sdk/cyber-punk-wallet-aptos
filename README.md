@@ -1,5 +1,5 @@
 # Prompt Wallet - Customize Your Wallet in Just a Minute
- 
+
 ## Introduction
 
 **Prompt Wallet** is the first crypto wallet that allows you to customize it in a completely unique way. With
