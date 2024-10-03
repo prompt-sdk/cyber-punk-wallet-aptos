@@ -15,12 +15,6 @@ const ChatPromptTextarea: FC<ChatPromptTextareaProps> = ({ className, onSend, pl
   const contentEditableRef = useRef<HTMLDivElement | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
 
-  const handleInput = () => {
-    const content = contentEditableRef.current?.innerHTML || '';
-
-    setIsEmpty(!content.length);
-  };
-
   const handleSend = () => {
     const content = contentEditableRef.current?.innerHTML || '';
 
@@ -46,6 +40,12 @@ const ChatPromptTextarea: FC<ChatPromptTextareaProps> = ({ className, onSend, pl
         handleSend();
       }
     }
+  };
+
+  const handleInput = () => {
+    const content = contentEditableRef.current?.innerHTML || '';
+
+    setIsEmpty(!content.length);
   };
 
   return (

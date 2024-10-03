@@ -20,7 +20,7 @@
   --aug-bl1: 10px;
   color: #cccccc;
   text-align: center;
-  padding: 20px;
+  padding: 30px;
   width: 50%;
   margin: 0.25rem auto;
   font-size: 0.75rem;
@@ -80,8 +80,69 @@
   --aug-clip-br1: initial;
 }
 
+.aug-round-tl1 {
+  --aug-round-tl1: initial;
+}
+.aug-round-tr1 {
+  --aug-round-tr1: initial;
+}
+.aug-round-bl1 {
+  --aug-round-bl1: initial;
+}
+.aug-round-br1 {
+  --aug-round-br1: initial;
+}
+
+.aug-round-tl2 {
+  --aug-round-tl2: initial;
+}
+.aug-round-tr2 {
+  --aug-round-tr2: initial;
+}
+.aug-round-bl2 {
+  --aug-round-bl2: initial;
+}
+.aug-round-br2 {
+  --aug-round-br2: initial;
+}
+
+.aug-round {
+  --aug-round-tl1: initial;
+  --aug-round-tr1: initial;
+  --aug-round-bl1: initial;
+  --aug-round-br1: initial;
+  --aug-round-tl2: initial;
+  --aug-round-tr2: initial;
+  --aug-round-bl2: initial;
+  --aug-round-br2: initial;
+}
+
+.aug-round-1 {
+  --aug-round-tl1: initial;
+  --aug-round-tr1: initial;
+  --aug-round-bl1: initial;
+  --aug-round-br1: initial;
+}
+
+.aug-round-r1 {
+  --aug-round-tr1: initial;
+  --aug-round-br1: initial;
+}
+
+.aug-round-l1 {
+  --aug-round-tl1: initial;
+  --aug-round-bl1: initial;
+}
+
+.aug-round-2 {
+  --aug-round-tl2: initial;
+  --aug-round-tr2: initial;
+  --aug-round-bl2: initial;
+  --aug-round-br2: initial;
+}
+
 /* Generate utility classes for corner sizes */
-@for $i from 0 through 20 {
+@for $i from 0 through 30 {
   .aug-tl1-#{$i} {
     --aug-tl1: #{$i}px;
   }
@@ -96,7 +157,7 @@
   }
 }
 
-@for $i from 0 through 20 {
+@for $i from 0 through 30 {
   .aug-tl-#{$i} {
     --aug-tl1: #{$i}px;
     --aug-tl2: #{$i}px;
@@ -115,7 +176,7 @@
   }
 }
 
-@for $i from 0 through 20 {
+@for $i from 0 through 30 {
   .aug-tl2-#{$i} {
     --aug-tl2: #{$i}px;
   }
@@ -161,6 +222,13 @@
   --aug-border-bg: gray;
 }
 /* Add more colors as needed */
+
+.aug-border-bg-primary {
+  --aug-border-bg: #141a20;
+}
+.aug-border-bg-secondary {
+  --aug-border-bg: #5f5c64;
+}
 
 /* Generate utility classes for inlay opacity */
 @for $i from 1 through 9 {

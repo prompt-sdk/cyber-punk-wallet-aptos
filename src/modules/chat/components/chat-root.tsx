@@ -36,6 +36,7 @@ import ChatPromptTextarea from './chat-prompt-textarea';
 
 import { nanoid } from '../utils/utils';
 import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
+import { useTypingEffect } from '@/modules/auth/hooks/use-typing-effect';
 
 type ChatRootProps = ComponentBaseProps;
 
@@ -220,8 +221,6 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const HandlePromptItemClick = (itemId: string) => {
     router.push(`/chat/${itemId}`);
   };
-
-  const groupedChatHistory = groupChatHistoryByDate(USER_CHAT_HISTORY);
 
   const handleNewChat = () => {
     router.push(`/chat/${id}`);

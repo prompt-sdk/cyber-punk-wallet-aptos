@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Image from 'next/image';
 import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
@@ -22,12 +22,14 @@ import TransparentBtnFrame from '@/assets/svgs/transparent-btn-frame.svg';
 import WhiteBtnFrame from '@/assets/svgs/white-btn-frame.svg';
 
 import { loginFormSchema } from '../validations/login-form';
+import ChatPopup from '@/modules/chat/components/chat-popup';
 
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
   const { showToast } = useToast();
+  const [openPopup, setOpenPopup] = useState(false);
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -118,7 +120,9 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
             </div>
           </form>
         </div>
+        <button onClick={() => setOpenPopup(true)}>chat popup</button>
       </div>
+      <ChatPopup visible={openPopup} onClose={() => setOpenPopup(false)} />
     </div>
   );
 };
