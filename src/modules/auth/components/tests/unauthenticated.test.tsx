@@ -6,8 +6,8 @@ import Unauthenticated from '../unauthenticated';
 
 vi.mock('@/navigation', () => ({
   useRouter: vi.fn().mockReturnValue({
-    push: vi.fn(),
-  }),
+    push: vi.fn()
+  })
 }));
 
 describe('Unauthenticated Component', () => {

@@ -1,18 +1,17 @@
 import { Session, User } from 'next-auth';
 
 import { useAuthState } from '@/modules/auth/states/auth.state';
-import { PreferenceEntity } from '@/modules/settings/interfaces/settings.interface';
 
 import { act, fireEvent, render, screen } from '@tests/unit/utils/test.util';
 
 import Authenticated from '../authenticated';
 
 const mockUseAuthState = {
-  signOut: vi.fn(),
+  signOut: vi.fn()
 };
 
 vi.mock('@/modules/auth/states/auth.state', () => ({
-  useAuthState: () => mockUseAuthState,
+  useAuthState: () => mockUseAuthState
 }));
 
 describe('Authenticated Component', () => {
@@ -25,14 +24,10 @@ describe('Authenticated Component', () => {
       id: 'user-id',
       name: 'Company',
       email: 'hello@email.com',
-      image: '',
-      preference: {
-        language: 'en-us',
-        theme: 'dark',
-      } as PreferenceEntity,
+      image: ''
     } as User,
     accessToken: 'access_token',
-    expires: '2025-10-10T10:10:10.000Z',
+    expires: '2025-10-10T10:10:10.000Z'
   };
 
   test('should not renders the component if userSession is null', async () => {
@@ -67,7 +62,7 @@ describe('Authenticated Component', () => {
     expect(useAuthState().signOut).toHaveBeenCalledTimes(1);
     expect(useAuthState().signOut).toHaveBeenCalledWith({
       redirect: true,
-      callbackUrl: '/',
+      callbackUrl: '/'
     });
   });
 });

@@ -33,7 +33,7 @@ export const useAuthState = create<State & Actions>()(
       },
       signOut: options => {
         signOut(options);
-      },
+      }
     })),
     { enabled: process.env.NODE_ENV === 'development' }
   )

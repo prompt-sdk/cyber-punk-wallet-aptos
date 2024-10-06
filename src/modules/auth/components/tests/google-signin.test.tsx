@@ -6,8 +6,8 @@ import OAuthGoogleSignInButton from '../oauth-google-sign-in-button';
 
 vi.mock('@/modules/auth/states/auth.state', () => ({
   useAuthState: vi.fn().mockReturnValue({
-    googleSignIn: vi.fn(),
-  }),
+    googleSignIn: vi.fn()
+  })
 }));
 
 describe('OAuthGoogleSignInButton Component', () => {
@@ -31,7 +31,7 @@ describe('OAuthGoogleSignInButton Component', () => {
     expect(btnElm).toBeInTheDocument();
     expect(useAuthState().googleSignIn).toHaveBeenCalledWith({
       redirect: true,
-      callbackUrl: '/',
+      callbackUrl: '/'
     });
   });
 });

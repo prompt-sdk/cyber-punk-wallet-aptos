@@ -6,8 +6,8 @@ import OAuthFacebookSignInButton from '../oauth-facebook-sign-in-button';
 
 vi.mock('@/modules/auth/states/auth.state', () => ({
   useAuthState: vi.fn().mockReturnValue({
-    facebookSignIn: vi.fn(),
-  }),
+    facebookSignIn: vi.fn()
+  })
 }));
 
 describe('OAuthFacebookSignInButton Component', () => {
@@ -31,7 +31,7 @@ describe('OAuthFacebookSignInButton Component', () => {
     expect(btnElm).toBeInTheDocument();
     expect(useAuthState().facebookSignIn).toHaveBeenCalledWith({
       redirect: true,
-      callbackUrl: '/',
+      callbackUrl: '/'
     });
   });
 });

@@ -10,5 +10,5 @@ export const API_ENDPOINTS = {
   POSTS: '/api/v1/posts',
   CONTACTS: '/api/v1/contacts',
   FAQS: '/api/v1/faqs',
-  CONTENTS: '/api/v1/contents',
+  CONTENTS: '/api/v1/contents'
 };

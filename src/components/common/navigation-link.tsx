@@ -2,30 +2,34 @@
 
 import { ComponentProps } from 'react';
 import { useSelectedLayoutSegment } from 'next/navigation';
+import classNames from 'classnames';
+import type { pathnames } from '@/config';
 
-import { Link, pathnames } from '@/navigation';
+import { Link } from '@/navigation';
 
-import { cn } from '../utils';
+interface INavigationLinkProps<Pathname extends keyof typeof pathnames> extends ComponentProps<typeof Link<Pathname>> {
+  className?: string;
+  activeClassName?: string;
+}
 
 export default function NavigationLink<Pathname extends keyof typeof pathnames>({
   href,
   className,
-  children,
+  activeClassName,
   ...rest
-}: ComponentProps<typeof Link<Pathname>>) {
+}: INavigationLinkProps<Pathname>) {
   const selectedLayoutSegment = useSelectedLayoutSegment();
+
   const pathname = selectedLayoutSegment ? `/${selectedLayoutSegment}` : '/';
+
   const isActive = pathname === href;
 
   return (
     <Link
-      className={cn(className)}
       aria-current={isActive ? 'page' : undefined}
+      className={classNames(className, { [activeClassName ?? '']: isActive })}
       href={href}
-      style={{ fontWeight: isActive ? 'bold' : 'normal' }}
       {...rest}
-    >
-      {children}
-    </Link>
+    />
   );
 }
