@@ -11,7 +11,6 @@ type ErrorFallbackProps = {
 };
 
 const ErrorFallback: FC<ErrorFallbackProps> = ({ error }) => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { resetBoundary } = useErrorBoundary();
 
@@ -24,9 +23,6 @@ const ErrorFallback: FC<ErrorFallbackProps> = ({ error }) => {
             <h2 className="my-4 text-2xl font-bold leading-tight tracking-tighter md:text-3xl">{error.name}</h2>
             <p className="mb-6 text-lg text-gray-400 md:text-xl">{error.message}</p>
             <div className="flex flex-wrap space-x-2">
-              <button onClick={() => router.push({ pathname: '/', query: { sidebar: searchParams.get('sidebar') } })}>
-                Go back to Homepage
-              </button>
               <button onClick={resetBoundary}>Try Again</button>
             </div>
           </div>

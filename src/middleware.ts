@@ -1,22 +1,38 @@
 import type { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from 'next-auth/middleware';
 import createIntlMiddleware from 'next-intl/middleware';
+import { defaultLocale, localeDetection, localePrefix, locales, pathnames, publicPages } from './config';
 
-import { defaultLocale, localeDetection, localePrefix, locales, pathnames } from './navigation';
+const intlMiddleware = createIntlMiddleware({ locales, pathnames, defaultLocale, localePrefix, localeDetection });
+const authMiddleware = withAuth(
+  function onSuccess(req) {
+    return intlMiddleware(req);
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => token != null
+    },
+    pages: {
+      signIn: '/login'
+    }
+  }
+);
 
-const intlMiddleware = createIntlMiddleware({
-  locales,
-  pathnames,
-  defaultLocale,
-  localePrefix,
-  localeDetection
-});
+export default async function middleware(req: NextRequest) {
+  const publicPathnameRegex = RegExp(
+    `^(/(${locales.join('|')}))?(${publicPages.flatMap(p => (p === '/' ? ['', '/'] : p)).join('|')})/?$`,
+    'i'
+  );
+  const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
 
-export default async function middleware(request: NextRequest) {
-  const locale = request.headers.get('x-default-locale') || defaultLocale;
+  let response: NextResponse;
 
-  const response: NextResponse = intlMiddleware(request);
-
-  response.headers.set('x-default-locale', locale);
+  if (isPublicPage) {
+    response = intlMiddleware(req);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    response = (authMiddleware as any)(req);
+  }
 
   return response;
 }

@@ -12,8 +12,8 @@ import { useRouter } from '@/navigation';
 import { LoginFormData } from '../interfaces/login.interface';
 
 import AugementedButton from '@/modules/augmented/components/chat-area';
-import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
-import useEphemeralKeyPair from '@/modules/auth/hooks/use-ephemeral-key-pair';
+import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
+import useEphemeralKeyPair from '@/modules/auth-aptos/hooks/use-ephemeral-key-pair';
 import FormNameField from '@/modules/form/components/form-name-field';
 import { useToast } from '@/modules/toast/context/toast.context';
 
@@ -23,6 +23,7 @@ import WhiteBtnFrame from '@/assets/svgs/white-btn-frame.svg';
 
 import { loginFormSchema } from '../validations/login-form';
 import ChatPopup from '@/modules/chat/components/chat-popup';
+import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
 
 type LoginRootProps = ComponentBaseProps;
 
@@ -120,6 +121,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
             </div>
           </form>
         </div>
+        <OAuthGoogleSignInButton />
         <button onClick={() => setOpenPopup(true)}>chat popup</button>
       </div>
       <ChatPopup visible={openPopup} onClose={() => setOpenPopup(false)} />

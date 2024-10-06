@@ -9,8 +9,8 @@ import {
 } from '@/common/constants/site.constant';
 import { LayoutProps } from '@/common/interfaces';
 
-import { KeylessAccountProvider } from '@/modules/auth/context/keyless-account-context';
-import { GeoTargetly } from '@/modules/auth/utils/geo-targetly';
+import { KeylessAccountProvider } from '@/modules/auth-aptos/context/keyless-account-context';
+import { GeoTargetly } from '@/modules/auth-aptos/utils/geo-targetly';
 
 export default async function RootLayout({ children, params: { locale } }: LayoutProps) {
   unstable_setRequestLocale(locale);

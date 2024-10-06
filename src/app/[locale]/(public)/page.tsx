@@ -2,7 +2,7 @@
 
 import { PageBaseProps } from '@/common/interfaces';
 
-import ClientOnly from '@/modules/auth/components/ClientOnly';
+import ClientOnly from '@/modules/auth-aptos/components/ClientOnly';
 import LoginRoot from '@/modules/login/components/login-root';
 
 type PageProps = PageBaseProps;

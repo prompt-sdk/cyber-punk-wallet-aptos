@@ -6,9 +6,9 @@ import { jwtDecode } from 'jwt-decode';
 import { toast } from 'sonner';
 import { EphemeralKeyPair } from '@aptos-labs/ts-sdk';
 
-import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
-import { getLocalEphemeralKeyPair } from '@/modules/auth/hooks/use-ephemeral-key-pair';
-import { getAptosClient } from '@/modules/auth/utils/aptos-client';
+import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
+import { getLocalEphemeralKeyPair } from '@/modules/auth-aptos/hooks/use-ephemeral-key-pair';
+import { getAptosClient } from '@/modules/auth-aptos/utils/aptos-client';
 
 const parseJWTFromURL = (url: string): string | null => {
   const urlObject = new URL(url);

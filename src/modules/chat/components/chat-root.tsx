@@ -35,8 +35,8 @@ import ChatPromptList from './chat-prompt-list';
 import ChatPromptTextarea from './chat-prompt-textarea';
 
 import { nanoid } from '../utils/utils';
-import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
-import { useTypingEffect } from '@/modules/auth/hooks/use-typing-effect';
+import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
+import { useTypingEffect } from '@/modules/auth-aptos/hooks/use-typing-effect';
 
 type ChatRootProps = ComponentBaseProps;
 

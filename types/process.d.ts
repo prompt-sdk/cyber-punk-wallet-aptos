@@ -14,5 +14,7 @@ declare namespace NodeJS {
     NEXT_PUBLIC_GOOGLE_CLIENT_ID: string;
     NEXT_PUBLIC_VERCEL_URL: string;
     NEXT_PUBLIC_API_KEY_NODIT: string;
+    AUTH_GOOGLE_ID: string;
+    AUTH_GOOGLE_SECRET: string;
   }
 }

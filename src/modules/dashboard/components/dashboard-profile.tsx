@@ -11,10 +11,10 @@ import CustomButton from '@/libs/svg-icons/input/custom-button';
 
 import BoderImage from '@/components/common/border-image';
 
-import GoogleLogo from '@/modules/auth/components/GoogleLogo';
-import { useKeylessAccount } from '@/modules/auth/context/keyless-account-context';
-import { useGetNFTInBalance } from '@/modules/auth/hooks/use-query';
-import { collapseAddress } from '@/modules/auth/utils/address';
+import GoogleLogo from '@/modules/auth-aptos/components/GoogleLogo';
+import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
+import { useGetNFTInBalance } from '@/modules/auth-aptos/hooks/use-query';
+import { collapseAddress } from '@/modules/auth-aptos/utils/address';
 
 import AvatarImage from '@/assets/images/avatar/avatar-1.jpeg';
 import ProfileElementDecor1 from '@/assets/svgs/profile-element-decor-1.svg';
