@@ -68,13 +68,13 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const searchParams = new URLSearchParams({
     client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     // local
-    // redirect_uri: 'http://localhost:5173' + '/callback',
+    redirect_uri: 'http://localhost:5173' + '/callback',
     // vercel
-    redirect_uri:
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/callback`
-        : (process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_VERCEL_URL) +
-          '/callback',
+    // redirect_uri:
+    //   typeof window !== 'undefined'
+    //     ? `${window.location.origin}/callback`
+    //     : (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : process.env.NEXT_PUBLIC_VERCEL_URL) +
+    //       '/callback',
     response_type: 'id_token',
     scope: 'openid email profile',
     nonce: ephemeralKeyPair.nonce

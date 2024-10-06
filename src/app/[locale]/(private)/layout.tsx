@@ -33,7 +33,7 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
         <Root>
           <MainHeader title="Agent Wallet" />
           <ToastProvider>
-            <div className="flex w-full grow flex-col">{children}</div>
+            <div className="flex w-full grow flex-col overflow-hidden">{children}</div>
           </ToastProvider>
           <MainFooter />
         </Root>
