@@ -37,6 +37,8 @@ import ChatPromptTextarea from './chat-prompt-textarea';
 import { nanoid } from '../utils/utils';
 import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
 import { useTypingEffect } from '@/modules/auth-aptos/hooks/use-typing-effect';
+import ChatPromptItem from './chat-prompt-item';
+import '@/modules/augmented/style.scss';
 
 type ChatRootProps = ComponentBaseProps;
 
@@ -227,7 +229,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   };
 
   const handleBack = () => {
-    router.back();
+    router.push('/dashboard');
   };
 
   return (
@@ -269,6 +271,11 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                 {chatHistory.map((item: any, idx: number) => (
                   <ChatPromptList key={idx} title={item[0].message} items={item} onItemClick={HandlePromptItemClick} />
                 ))}
+                <ChatPromptItem
+                  className="cursor-pointer"
+                  title={'truncateTitle(items[0].message as string)'}
+                  onClick={() => {}} // Pass the item label to the click handler
+                />
               </div>
             </div>
             <div className="flex grow flex-col gap-6 overflow-hidden p-8">
@@ -279,6 +286,37 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                 messagesEndRef={messagesEndRef}
                 userAddress={keylessAccount?.accountAddress.toString() as string}
               />
+
+              <div className="grid shrink-0 grid-cols-2 gap-5">
+                <div
+                  data-augmented-ui
+                  className={classNames(
+                    'border-none outline-none',
+                    'aug-tl1-2 aug-clip-tl',
+                    'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
+                    'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
+                    'flex cursor-pointer flex-col gap-2'
+                  )}
+                  onClick={() => {}}
+                >
+                  <p className="text=[#6B7280]">{'Select tool'}</p>
+                  <p className="text-[#9CA3AF]">{'For APT'}</p>
+                </div>
+                <div
+                  data-augmented-ui
+                  className={classNames(
+                    'border-none outline-none',
+                    'aug-tl1-2 aug-clip-tl',
+                    'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
+                    'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
+                    'flex cursor-pointer flex-col gap-2'
+                  )}
+                  onClick={() => {}}
+                >
+                  <p className="text=[#6B7280]">{'Select widget'}</p>
+                  <p className="text-[#9CA3AF]">{'For APT'}</p>
+                </div>
+              </div>
 
               <div className="shrink-0">
                 <ChatPromptTextarea placeholder={selectedOption.message} onSend={handleSend} />
