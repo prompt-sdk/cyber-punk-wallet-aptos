@@ -12,9 +12,20 @@ type ChatPromptListProps = ComponentBaseProps & {
   title: string;
   items: UserChatHistoryItem[]; // Define the structure of the items prop
   onItemClick?: (itemLabel: string) => void; // Function to handle item clicks
+  onDelete?: (itemLabel: string) => void; // Function to handle item clicks
+  onSave?: (itemLabel: string) => void; // Function to handle item clicks
+  onShare?: (itemLabel: string) => void; // Function to handle item clicks
 };
 
-const ChatPromptList: FC<ChatPromptListProps> = ({ className, items, title, onItemClick }) => {
+const ChatPromptList: FC<ChatPromptListProps> = ({
+  className,
+  items,
+  title,
+  onItemClick,
+  onDelete,
+  onSave,
+  onShare
+}) => {
   const truncateTitle = (title: string): string => {
     return title.length > 20 ? `${title.slice(0, 20)}...` : title;
   };
@@ -26,6 +37,9 @@ const ChatPromptList: FC<ChatPromptListProps> = ({ className, items, title, onIt
         <ChatPromptItem
           className="cursor-pointer"
           title={truncateTitle(items[0].message as string)}
+          onDelete={() => onDelete?.(items[0].id)} // Pass the item label to the click handler
+          onSave={() => onSave?.(items[0].id)} // Pass the item label to the click handler
+          onShare={() => onShare?.(items[0].id)} // Pass the item label to the click handler
           onClick={() => onItemClick?.(items[0].id)} // Pass the item label to the click handler
         />
       </ul>
