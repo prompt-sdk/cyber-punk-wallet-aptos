@@ -13,7 +13,6 @@ import {
   WEBSITE_URL
 } from '@/common/constants/site.constant';
 import { LayoutProps } from '@/common/interfaces';
-import { KeylessAccountProvider } from '@/modules/auth-aptos/context/keyless-account-context';
 import { GeoTargetly } from '@/modules/auth-aptos/utils/geo-targetly';
 import { WalletProvider } from '@/components/context/WalletProvider';
 

@@ -12,7 +12,6 @@ import CustomButton from '@/libs/svg-icons/input/custom-button';
 import BoderImage from '@/components/common/border-image';
 
 import GoogleLogo from '@/modules/auth-aptos/components/GoogleLogo';
-import { useGetNFTInBalance } from '@/modules/auth-aptos/hooks/use-query';
 import { collapseAddress } from '@/modules/auth-aptos/utils/address';
 
 import AvatarImage from '@/assets/images/avatar/avatar-1.jpeg';
@@ -27,8 +26,6 @@ type DashboardProfileProps = ComponentBaseProps;
 const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const [balance, setBalance] = useState<string | null>(null);
   const { account } = useWallet();
-
-  const { fetchNFTs } = useGetNFTInBalance();
 
   const loadBalance = useCallback(async () => {
     const options = {
@@ -51,7 +48,6 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   useEffect(() => {
     if (account?.address) {
       loadBalance();
-      fetchNFTs();
     }
   }, [account?.address]);
 
