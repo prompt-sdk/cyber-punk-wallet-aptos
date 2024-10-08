@@ -270,11 +270,6 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                 {chatHistory.map((item: any, idx: number) => (
                   <ChatPromptList key={idx} title={item[0].message} items={item} onItemClick={HandlePromptItemClick} />
                 ))}
-                <ChatPromptItem
-                  className="cursor-pointer"
-                  title={'truncateTitle(items[0].message as string)'}
-                  onClick={() => {}} // Pass the item label to the click handler
-                />
               </div>
             </div>
             <div className="flex grow flex-col gap-6 overflow-hidden p-8">
