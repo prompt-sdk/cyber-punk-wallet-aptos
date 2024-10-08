@@ -42,9 +42,11 @@ import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import FormTextField from '@/modules/form/components/form-text-field';
 import { CreateToolFromContactFormSchema } from '@/modules/create-tool/validations/create-tool-from-contact-form';
 import { CreateToolFromContactFormData } from '@/modules/create-tool/interfaces/create-tool.dto';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
+
+import axios from 'axios';
 
 type ChatRootProps = ComponentBaseProps;
 
@@ -55,6 +57,10 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [id, setId] = useState<string>(nanoid());
   const [isOpenCreateTool, setIsOpenCreateTool] = useState(false);
+  const [moduleData, setModuleData] = useState<any>(null);
+  const [functions, setFunctions] = useState<any>(null);
+  const [sourceData, setSourceData] = useState<any>(null);
+  const [isLoadingSourceData, setIsLoadingSourceData] = useState(false);
 
   const { id: chatId } = useParams();
   const router = useRouter();
@@ -248,9 +254,14 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     mode: 'onChange',
     defaultValues: {
       address: '',
-      functions: []
+      packages: [],
+      functions: [],
+      modules: []
     }
   });
+
+  const { control, setValue } = form;
+  const selectedModules = useWatch({ control, name: 'modules' });
 
   const {
     handleSubmit,
@@ -258,10 +269,91 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     watch
   } = form;
 
-  const onSubmit = (data: CreateToolFromContactFormData) => {
-    console.log('🚀 ~ onSubmit ~ data:', data);
-    // Handle form submission
+  const loadSourceData = async (account: string, packages: string[], modules: string[], functions: string[]) => {
+    setIsLoadingSourceData(true);
+    try {
+      const response = await axios.get('/api/source', {
+        params: { account, package: packages.join(','), module: modules.join(','), functions: functions.join(',') }
+      });
+      if (response.data?.returns.length > 0) {
+        setSourceData(response.data?.returns[0]);
+      } else {
+        setSourceData(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching source data:', error);
+    } finally {
+      setIsLoadingSourceData(false);
+    }
   };
+
+  //console.log('sourceData', sourceData);
+
+  const fetchModuleData = async (account: string) => {
+    try {
+      const response = await axios.get(`/api/modules?account=${account}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching module data:', error);
+      return null;
+    }
+  };
+
+  const fetchFunctions = async (account: string) => {
+    try {
+      const response = await axios.get(`/api/abis?account=${account}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching functions:', error);
+      return null;
+    }
+  };
+
+  const handleFetchModuleData = async () => {
+    const accountAddress = form.getValues('address');
+    if (accountAddress) {
+      const moduleData = await fetchModuleData(accountAddress);
+      const functionsData = await fetchFunctions(accountAddress);
+      if (moduleData) {
+        setModuleData(moduleData);
+      }
+      if (functionsData) {
+        setFunctions(functionsData);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const subscription = watch((value, { name }) => {
+      if (name === 'address' && value.address) {
+        handleFetchModuleData();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
+  //console.log('form', form.getValues());
+
+  const handleCheckboxChange = (name: 'packages' | 'modules' | 'functions', value: string) => {
+    const currentValues = form.getValues(name);
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((v: string) => v !== value)
+      : [...currentValues, value];
+    setValue(name, newValues, { shouldValidate: true });
+
+    if (name === 'functions') {
+      const { address, packages, modules } = form.getValues();
+      loadSourceData(address, packages, modules, newValues);
+    }
+  };
+
+  const onSubmit = async (data: CreateToolFromContactFormData) => {
+    setIsOpenCreateTool(false);
+    console.log('🚀 ~ onSubmit ~ data:', data);
+  };
+
+  //console.log('functions', functions);
 
   return (
     <>
@@ -373,26 +465,103 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         </div>
       </div>
       <AugmentedPopup visible={isOpenCreateTool} onClose={handleClose} textHeading={'Create Tool from contact'}>
-        <form className="flex flex-col gap-3 p-8" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
           <FormTextField error={errors.address} form={form} label="Contract address" name="address" isValid={isValid} />
-          <p className="text-xl text-white">Description</p>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function1" />
-            {'Function 1'}
-          </label>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 2'}
-          </label>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 3'}
-          </label>{' '}
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 4'}
-          </label>
-          <Button type="submit">create</Button>
+
+          {moduleData && (
+            <div className="mb-4">
+              <p className="mb-2 text-xl text-white">Packages</p>
+              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
+                {moduleData &&
+                  moduleData.map((item: any, idx: number) => (
+                    <label key={idx} className="mb-2 flex items-center text-[#6B7280]">
+                      <input
+                        type="checkbox"
+                        className="mr-2"
+                        checked={form.getValues('packages').includes(item.name)}
+                        onChange={() => handleCheckboxChange('packages', item.name)}
+                      />
+                      {item.name}
+                    </label>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {functions && (
+            <div className="mb-4">
+              <p className="mb-2 text-xl text-white">Modules</p>
+              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
+                {functions.map((item: any, idx: number) => (
+                  <label key={idx} className="mb-2 flex items-center text-[#6B7280]">
+                    <input
+                      type="checkbox"
+                      className="mr-2"
+                      checked={form.getValues('modules').includes(item.name)}
+                      onChange={() => handleCheckboxChange('modules', item.name)}
+                    />
+                    {item.name}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {functions && selectedModules && selectedModules?.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-xl text-white">Functions</p>
+              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
+                {functions
+                  .filter((item: any) => selectedModules.includes(item.name))
+                  .flatMap((item: any) =>
+                    item.exposed_functions.map((func: any) => (
+                      <label key={`${item.name}-${func.name}`} className="mb-2 flex items-center text-[#6B7280]">
+                        <input
+                          type="checkbox"
+                          className="mr-2"
+                          checked={form.getValues('functions').includes(func.name)}
+                          onChange={() => handleCheckboxChange('functions', func.name)}
+                        />
+                        {func.name}
+                      </label>
+                    ))
+                  )}
+              </div>
+            </div>
+          )}
+          <div className="mb-4">
+            <div className="">
+              {isLoadingSourceData ? (
+                <p>Loading source data...</p>
+              ) : sourceData ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-white">Name: {sourceData.name}</p>
+                  <div className="flex flex-col gap-2">
+                    <p className="text-white">Description: </p>
+                    <textarea
+                      value={sourceData.description}
+                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
+                      rows={3}
+                    />
+                  </div>
+                  <p className="text-white">Params</p>
+                  {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
+                    <div key={paramName} className="flex flex-col gap-2">
+                      <p className="capitalize text-white">{paramName}</p>
+                      <p className="text-xs text-gray-400">{paramData.description}</p>
+                      <input
+                        type="text"
+                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
+                        placeholder={`Enter ${paramName}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <Button type="submit">Create</Button>
         </form>
       </AugmentedPopup>
     </>
