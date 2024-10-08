@@ -32,12 +32,12 @@ describe('Unauthenticated Component', () => {
 
     const btnSignIn = await findByTestId('btn-signin');
 
-    expect(btnSignIn.innerHTML).toBe('Sign in');
+    expect(btnSignIn.innerHTML).toBe('signin');
 
     act(() => {
       fireEvent.click(btnSignIn);
     });
 
-    expect(useRouter().push).toHaveBeenCalledWith({ pathname: '/sign-in' });
+    expect(useRouter().push).toHaveBeenCalledWith({ pathname: '/login' });
   });
 });
