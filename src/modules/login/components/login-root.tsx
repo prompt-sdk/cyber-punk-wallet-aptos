@@ -12,8 +12,6 @@ import { useRouter } from '@/navigation';
 import { LoginFormData } from '../interfaces/login.interface';
 
 import AugementedButton from '@/modules/augmented/components/chat-area';
-import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
-import useEphemeralKeyPair from '@/modules/auth-aptos/hooks/use-ephemeral-key-pair';
 import FormNameField from '@/modules/form/components/form-name-field';
 import { useToast } from '@/modules/toast/context/toast.context';
 
@@ -24,6 +22,7 @@ import WhiteBtnFrame from '@/assets/svgs/white-btn-frame.svg';
 import { loginFormSchema } from '../validations/login-form';
 import ChatPopup from '@/modules/chat/components/chat-popup';
 import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
+import { WalletSelector } from '@/components/context/WalletSelector';
 
 type LoginRootProps = ComponentBaseProps;
 
@@ -55,33 +54,6 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     throw new Error('Google Client ID is not set in env');
   }
 
-  const { keylessAccount } = useKeylessAccount();
-  const ephemeralKeyPair = useEphemeralKeyPair();
-
-  useEffect(() => {
-    if (keylessAccount) {
-      router.push('/chat');
-    }
-  }, [keylessAccount]);
-
-  const redirectUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  const searchParams = new URLSearchParams({
-    client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    // local
-    redirect_uri: 'http://localhost:5173' + '/callback',
-    // vercel
-    // redirect_uri:
-    //   typeof window !== 'undefined'
-    //     ? `${window.location.origin}/callback`
-    //     : (process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : process.env.NEXT_PUBLIC_VERCEL_URL) +
-    //       '/callback',
-    response_type: 'id_token',
-    scope: 'openid email profile',
-    nonce: ephemeralKeyPair.nonce
-  });
-
-  redirectUrl.search = searchParams.toString();
-
   return (
     <div className={classNames('flex grow items-center justify-center', className)}>
       <div className="container flex flex-col items-center justify-center">
@@ -110,14 +82,15 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
                 <Image src={WhiteBtnFrame.src} alt="create" width={WhiteBtnFrame.width} height={WhiteBtnFrame.height} />
               </button>
               <hr />
-              <a href={redirectUrl.toString()}>
+              {/* <a href={redirectUrl.toString()}>
                 <Image
                   src={TransparentBtnFrame.src}
                   alt="sign in with google"
                   width={TransparentBtnFrame.width}
                   height={TransparentBtnFrame.height}
                 />
-              </a>
+              </a> */}
+              <WalletSelector />
             </div>
           </form>
         </div>

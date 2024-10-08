@@ -12,7 +12,6 @@ import CustomButton from '@/libs/svg-icons/input/custom-button';
 import BoderImage from '@/components/common/border-image';
 
 import GoogleLogo from '@/modules/auth-aptos/components/GoogleLogo';
-import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
 import { useGetNFTInBalance } from '@/modules/auth-aptos/hooks/use-query';
 import { collapseAddress } from '@/modules/auth-aptos/utils/address';
 
@@ -21,12 +20,13 @@ import ProfileElementDecor1 from '@/assets/svgs/profile-element-decor-1.svg';
 
 import DashboardAvatar from './dashboard-avatar';
 import DashboardTopProfileDecor from './dashboard-top-profile-decor';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 type DashboardProfileProps = ComponentBaseProps;
 
 const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const [balance, setBalance] = useState<string | null>(null);
-  const { keylessAccount } = useKeylessAccount();
+  const { account } = useWallet();
 
   const { fetchNFTs } = useGetNFTInBalance();
 
@@ -38,7 +38,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
     const respo = await axios.get(
       `https://aptos-testnet.nodit.io/${
         process.env.NEXT_PUBLIC_API_KEY_NODIT
-      }/v1/accounts/${keylessAccount?.accountAddress.toString()}/resources`,
+      }/v1/accounts/${account?.address.toString()}/resources`,
       options
     );
     const datas = respo?.data[1];
@@ -46,16 +46,16 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
     const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
 
     setBalance(formatBalance.toFixed(2));
-  }, [keylessAccount]);
+  }, [account]);
 
   useEffect(() => {
-    if (keylessAccount?.accountAddress) {
+    if (account?.address) {
       loadBalance();
       fetchNFTs();
     }
-  }, [keylessAccount?.accountAddress]);
+  }, [account?.address]);
 
-  if (!keylessAccount) {
+  if (!account?.address) {
     return (
       <div className="flex h-screen w-screen flex-col items-center justify-center px-4">
         <div>
@@ -84,7 +84,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
             <DashboardAvatar className="shrink-0" imageUrl={AvatarImage.src} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
               <p className="text-wrap break-words text-xl font-bold">
-                {collapseAddress(keylessAccount?.accountAddress.toString())}
+                {collapseAddress(account?.address.toString() as string)}
               </p>
               <p className="text-sm">Welcome back</p>
             </div>

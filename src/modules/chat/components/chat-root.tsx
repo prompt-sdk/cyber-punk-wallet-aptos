@@ -35,40 +35,28 @@ import ChatPromptList from './chat-prompt-list';
 import ChatPromptTextarea from './chat-prompt-textarea';
 
 import { nanoid } from '../utils/utils';
-import { useKeylessAccount } from '@/modules/auth-aptos/context/keyless-account-context';
-import { useTypingEffect } from '@/modules/auth-aptos/hooks/use-typing-effect';
-import '@/modules/augmented/style.scss';
-import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
-import FormTextField from '@/modules/form/components/form-text-field';
-import { CreateToolFromContactFormSchema } from '@/modules/create-tool/validations/create-tool-from-contact-form';
-import { CreateToolFromContactFormData } from '@/modules/create-tool/interfaces/create-tool.dto';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
 
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import ChatPromptItem from './chat-prompt-item';
 type ChatRootProps = ComponentBaseProps;
 
 const ChatRoot: FC<ChatRootProps> = ({ className }) => {
-  const { keylessAccount } = useKeylessAccount();
   const [selectedOption, setSelectedOption] = useState<AIChat>(AI_CHAT_LIST[0]);
   const [conversationList, setConversationList] = useState<ChatMessage[]>([]);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [id, setId] = useState<string>(nanoid());
-  const [isOpenCreateTool, setIsOpenCreateTool] = useState(false);
 
   const { id: chatId } = useParams();
   const router = useRouter();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  const handleClose = () => {
-    setIsOpenCreateTool(false);
-  };
+  const { account, connected, disconnect, wallet } = useWallet();
 
   useEffect(() => {
-    if (!keylessAccount) {
+    if (!connected) {
       router.push('/login');
     }
-  }, [keylessAccount]);
+  }, [connected]);
 
   const handleSelectAi = useCallback(
     (value: string) => {
@@ -98,7 +86,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         message: message,
         avatar: '',
         type: 'user',
-        creator: keylessAccount?.accountAddress.toString() as string
+        creator: account?.address.toString() as string
       }
     ]);
 
@@ -169,8 +157,8 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
   useEffect(() => {
     const fetchChats = async () => {
-      if (keylessAccount) {
-        const userChats = await getChatFromKV(keylessAccount.accountAddress.toString());
+      if (account) {
+        const userChats = await getChatFromKV(account.address.toString());
         console.log('userChats', userChats);
         setChatHistory(userChats as any);
       }
@@ -178,13 +166,13 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
     fetchChats();
     //removeAllDataFromKV();
-  }, [keylessAccount]);
+  }, [account]);
 
   const saveChatToKV = async (conversationList: any) => {
     try {
       const pipeline = kv.pipeline();
       pipeline.hmset(`chat:${chatId ? (chatId as string) : id}`, conversationList);
-      pipeline.zadd(`user:chat:${keylessAccount?.accountAddress.toString()}`, {
+      pipeline.zadd(`user:chat:${account?.address.toString()}`, {
         score: Date.now(),
         member: `chat:${chatId ? (chatId as string) : id}`
       });
@@ -193,7 +181,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         'Chat saved successfully with ID:',
         chatId ? (chatId as string) : id,
         'for user:',
-        keylessAccount?.accountAddress.toString()
+        account?.address.toString()
       );
     } catch (error) {
       console.error('Error saving chat to KV:', error);
@@ -229,7 +217,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     };
 
     fetchChatFromDatabase();
-  }, [chatId, keylessAccount]);
+  }, [chatId, account]);
 
   const HandlePromptItemClick = (itemId: string) => {
     router.push(`/chat/${itemId}`);
@@ -243,159 +231,99 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     router.push('/dashboard');
   };
 
-  const form = useForm<CreateToolFromContactFormData>({
-    resolver: zodResolver(CreateToolFromContactFormSchema),
-    mode: 'onChange',
-    defaultValues: {
-      address: '',
-      functions: []
-    }
-  });
-
-  const {
-    handleSubmit,
-    formState: { errors, isValid },
-    watch
-  } = form;
-
-  const onSubmit = (data: CreateToolFromContactFormData) => {
-    console.log('🚀 ~ onSubmit ~ data:', data);
-    // Handle form submission
-  };
-
   return (
-    <>
-      <div className={classNames('flex w-full grow flex-col overflow-hidden py-4', className)}>
-        <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
-          <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
-            <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-              <button className="h-10 w-10" onClick={handleBack}>
-                <Image
-                  src={BackIcon.src}
-                  alt="Back Icon"
-                  className="h-full w-full translate-y-1 object-contain"
-                  width={BackIcon.width}
-                  height={BackIcon.height}
+    <div className={classNames('flex w-full grow flex-col overflow-hidden py-4', className)}>
+      <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
+        <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
+          <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
+            <button className="h-10 w-10" onClick={handleBack}>
+              <Image
+                src={BackIcon.src}
+                alt="Back Icon"
+                className="h-full w-full translate-y-1 object-contain"
+                width={BackIcon.width}
+                height={BackIcon.height}
+              />
+            </button>
+            <button className="flex h-8 items-center justify-center gap-2" onClick={handleNewChat}>
+              <Image
+                src={EditIcon.src}
+                alt="Back Icon"
+                className="h-full w-full object-contain"
+                width={EditIcon.width}
+                height={EditIcon.height}
+              />
+              <span className="text-nowrap">New Chat</span>
+            </button>
+          </div>
+          <div className="flex grow overflow-hidden rounded-b-3xl">
+            <div className="item flex h-full min-w-80 shrink-0 flex-col overflow-hidden border-r-2 border-[#292F36]">
+              <div className="flex shrink-0 items-center gap-6 border-b-2 border-[#292F36] px-7 py-6 font-semibold">
+                <p>AI chat</p>
+                <DropdownSelect
+                  initialValue={selectedOption.id}
+                  options={aiDropdownOptionList}
+                  onSelect={handleSelectAi}
                 />
-              </button>
-              <button className="flex h-8 items-center justify-center gap-2" onClick={handleNewChat}>
-                <Image
-                  src={EditIcon.src}
-                  alt="Back Icon"
-                  className="h-full w-full object-contain"
-                  width={EditIcon.width}
-                  height={EditIcon.height}
-                />
-                <span className="text-nowrap">New Chat</span>
-              </button>
-            </div>
-            <div className="flex grow overflow-hidden rounded-b-3xl">
-              <div className="item flex h-full min-w-80 shrink-0 flex-col overflow-hidden border-r-2 border-[#292F36]">
-                <div className="flex shrink-0 items-center gap-6 border-b-2 border-[#292F36] px-7 py-6 font-semibold">
-                  <p>AI chat</p>
-                  <DropdownSelect
-                    initialValue={selectedOption.id}
-                    options={aiDropdownOptionList}
-                    onSelect={handleSelectAi}
-                  />
-                </div>
-                <div className="scrollbar flex grow flex-col overflow-auto">
-                  {chatHistory.map((item: any, idx: number) => (
-                    <ChatPromptList
-                      key={idx}
-                      title={item[0].message}
-                      items={item}
-                      onItemClick={HandlePromptItemClick}
-                    />
-                  ))}
-                </div>
               </div>
-              <div className="flex grow flex-col gap-6 overflow-hidden p-8">
-                <p className="shrink-0 text-center capitalize text-gray-500">{selectedOption.name}</p>
-
-                <ChatArea
-                  conversationList={conversationList}
-                  messagesEndRef={messagesEndRef}
-                  userAddress={keylessAccount?.accountAddress.toString() as string}
+              <div className="scrollbar flex grow flex-col overflow-auto">
+                {chatHistory.map((item: any, idx: number) => (
+                  <ChatPromptList key={idx} title={item[0].message} items={item} onItemClick={HandlePromptItemClick} />
+                ))}
+                <ChatPromptItem
+                  className="cursor-pointer"
+                  title={'truncateTitle(items[0].message as string)'}
+                  onClick={() => {}} // Pass the item label to the click handler
                 />
-
-                <div className="gird-cols-2 grid shrink-0 gap-5 md:grid-cols-3">
-                  <div
-                    data-augmented-ui
-                    className={classNames(
-                      'border-none outline-none',
-                      'aug-tl1-2 aug-clip-tl',
-                      'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
-                      'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
-                      'flex cursor-pointer flex-col gap-2'
-                    )}
-                    onClick={() => {}}
-                  >
-                    <p className="text=[#6B7280]">{'Select tool'}</p>
-                    <p className="text-[#9CA3AF]">{'For APT'}</p>
-                  </div>
-                  <div
-                    data-augmented-ui
-                    className={classNames(
-                      'border-none outline-none',
-                      'aug-tl1-2 aug-clip-tl',
-                      'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
-                      'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
-                      'flex cursor-pointer flex-col gap-2'
-                    )}
-                    onClick={() => setIsOpenCreateTool(true)}
-                  >
-                    <p className="text=[#6B7280]">{'Create tool'}</p>
-                    <p className="text-[#9CA3AF]">{'For APT'}</p>
-                  </div>
-                  <div
-                    data-augmented-ui
-                    className={classNames(
-                      'border-none outline-none',
-                      'aug-tl1-2 aug-clip-tl',
-                      'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
-                      'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
-                      'flex cursor-pointer flex-col gap-2'
-                    )}
-                    onClick={() => {}}
-                  >
-                    <p className="text=[#6B7280]">{'Select widget'}</p>
-                    <p className="text-[#9CA3AF]">{'For APT'}</p>
-                  </div>
-                </div>
-
-                <div className="shrink-0">
-                  <ChatPromptTextarea placeholder={selectedOption.message} onSend={handleSend} />
-                </div>
               </div>
             </div>
-          </BoderImage>
-        </div>
+            <div className="flex grow flex-col gap-6 overflow-hidden p-8">
+              <p className="shrink-0 text-center capitalize text-gray-500">{selectedOption.name}</p>
+
+              <ChatArea
+                conversationList={conversationList}
+                messagesEndRef={messagesEndRef}
+                userAddress={account?.address.toString() as string}
+              />
+
+              <div className="grid shrink-0 grid-cols-2 gap-5">
+                <div
+                  data-augmented-ui
+                  className={classNames(
+                    'border-none outline-none',
+                    'aug-tl1-2 aug-clip-tl',
+                    'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
+                    'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
+                    'flex cursor-pointer flex-col gap-2'
+                  )}
+                  onClick={() => {}}
+                >
+                  <p className="text=[#6B7280]">{'Select tool'}</p>
+                  <p className="text-[#9CA3AF]">{'For APT'}</p>
+                </div>
+                <div
+                  data-augmented-ui
+                  className={classNames(
+                    'border-none outline-none',
+                    'aug-tl1-2 aug-clip-tl',
+                    'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
+                    'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
+                    'flex cursor-pointer flex-col gap-2'
+                  )}
+                  onClick={() => {}}
+                >
+                  <p className="text=[#6B7280]">{'Select widget'}</p>
+                  <p className="text-[#9CA3AF]">{'For APT'}</p>
+                </div>
+              </div>
+              <div className="shrink-0">
+                <ChatPromptTextarea placeholder={selectedOption.message} onSend={handleSend} />
+              </div>
+            </div>
+          </div>
+        </BoderImage>
       </div>
-      <AugmentedPopup visible={isOpenCreateTool} onClose={handleClose} textHeading={'Create Tool from contact'}>
-        <form className="flex flex-col gap-3 p-8" onSubmit={handleSubmit(onSubmit)}>
-          <FormTextField error={errors.address} form={form} label="Contract address" name="address" isValid={isValid} />
-          <p className="text-xl text-white">Description</p>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function1" />
-            {'Function 1'}
-          </label>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 2'}
-          </label>
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 3'}
-          </label>{' '}
-          <label className="text=[#6B7280]">
-            <input {...form.register('functions')} type="checkbox" value="function2" />
-            {'Function 4'}
-          </label>
-          <Button type="submit">create</Button>
-        </form>
-      </AugmentedPopup>
-    </>
+    </div>
   );
 };
 
