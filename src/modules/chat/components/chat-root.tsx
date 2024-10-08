@@ -535,15 +535,6 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                 <p>Loading source data...</p>
               ) : sourceData ? (
                 <div className="flex flex-col gap-2">
-                  <p className="text-white">Name: {sourceData.name}</p>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-white">Description: </p>
-                    <textarea
-                      value={sourceData.description}
-                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
-                      rows={3}
-                    />
-                  </div>
                   <p className="text-white">Params</p>
                   {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
                     <div key={paramName} className="flex flex-col gap-2">
@@ -551,8 +542,8 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                       <p className="text-xs text-gray-400">{paramData.description}</p>
                       <input
                         type="text"
-                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
-                        placeholder={`Enter ${paramName}`}
+                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                        placeholder={`${paramName}: ${paramData.type}`}
                       />
                     </div>
                   ))}
