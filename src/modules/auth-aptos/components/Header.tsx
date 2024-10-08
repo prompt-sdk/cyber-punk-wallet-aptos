@@ -1,11 +1,10 @@
 'use client';
 
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { collapseAddress } from '../utils/address';
 
-import { useKeylessAccount } from '../context/keyless-account-context';
-
 const Header = () => {
-  const { keylessAccount } = useKeylessAccount();
+  const { account, connected, disconnect, wallet } = useWallet();
 
   return (
     <div className="h-20 w-full border-b border-gray-200 shadow-sm">
@@ -14,7 +13,7 @@ const Header = () => {
           <span className="text-3xl font-semibold">AptosKeyless</span>
           <div className="">
             <span className="rounded-md bg-blue-300 bg-opacity-30 px-3 py-2">
-              {keylessAccount ? collapseAddress(keylessAccount?.accountAddress.toString()) : 'Not Connected'}
+              {connected ? collapseAddress(account?.address.toString() as string) : 'Not Connected'}
             </span>
           </div>
         </div>

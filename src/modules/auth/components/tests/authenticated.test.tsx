@@ -58,7 +58,7 @@ describe('Authenticated Component', () => {
       fireEvent.click(btnSignOut);
     });
 
-    expect(btnSignOut.innerHTML).toBe('Sign out');
+    expect(btnSignOut.innerHTML).toBe('signout');
     expect(useAuthState().signOut).toHaveBeenCalledTimes(1);
     expect(useAuthState().signOut).toHaveBeenCalledWith({
       redirect: true,

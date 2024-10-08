@@ -13,8 +13,8 @@ import {
   WEBSITE_URL
 } from '@/common/constants/site.constant';
 import { LayoutProps } from '@/common/interfaces';
-import { KeylessAccountProvider } from '@/modules/auth-aptos/context/keyless-account-context';
 import { GeoTargetly } from '@/modules/auth-aptos/utils/geo-targetly';
+import { WalletProvider } from '@/components/context/WalletProvider';
 
 export default async function RootLayout({ children, params: { locale } }: LayoutProps) {
   unstable_setRequestLocale(locale);
@@ -32,7 +32,7 @@ export default async function RootLayout({ children, params: { locale } }: Layou
 
   return (
     <NextIntlClientProvider timeZone="America/New_York" locale={locale} messages={messages}>
-      <KeylessAccountProvider>{children}</KeylessAccountProvider>
+      <WalletProvider>{children}</WalletProvider>
       <GeoTargetly />
     </NextIntlClientProvider>
   );
