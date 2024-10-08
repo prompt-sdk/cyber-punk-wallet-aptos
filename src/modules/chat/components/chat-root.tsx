@@ -510,47 +510,80 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
           {functions && selectedModules && selectedModules?.length > 0 && (
             <div className="mb-4">
               <p className="mb-2 text-xl text-white">Functions</p>
-              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
+              <div className="flex flex-col gap-3">
                 {functions
                   .filter((item: any) => selectedModules.includes(item.name))
                   .flatMap((item: any) =>
                     item.exposed_functions.map((func: any) => (
-                      <label key={`${item.name}-${func.name}`} className="mb-2 flex items-center text-[#6B7280]">
-                        <input
-                          type="checkbox"
-                          className="mr-2"
-                          checked={form.getValues('functions').includes(func.name)}
-                          onChange={() => handleCheckboxChange('functions', func.name)}
-                        />
-                        {func.name}
-                      </label>
+                      <div key={`${item.name}-${func.name}`}>
+                        <label className="mb-2 flex items-center text-[#6B7280]">
+                          <input
+                            type="checkbox"
+                            className="mr-2"
+                            checked={form.getValues('functions').includes(func.name)}
+                            onChange={() => handleCheckboxChange('functions', func.name)}
+                          />
+                          {func.name}
+                        </label>
+                        {form.getValues('functions').includes(func.name) && (
+                          <div className="ml-6 mt-2">
+                            {isLoadingSourceData ? (
+                              <p>Loading source data...</p>
+                            ) : sourceData ? (
+                              <div className="flex flex-col gap-2">
+                                {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
+                                  <div key={paramName} className="flex flex-col gap-2">
+                                    <p className="capitalize text-white">{paramName}</p>
+                                    <textarea
+                                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                                      value={paramData.description}
+                                      rows={2}
+                                    />
+                                    <input
+                                      type="text"
+                                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                                      placeholder={`Default value`}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
                     ))
                   )}
               </div>
             </div>
           )}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <div className="">
               {isLoadingSourceData ? (
                 <p>Loading source data...</p>
               ) : sourceData ? (
                 <div className="flex flex-col gap-2">
+                  <p className="text-white">Name: {sourceData.name}</p>
                   <p className="text-white">Params</p>
                   {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
                     <div key={paramName} className="flex flex-col gap-2">
                       <p className="capitalize text-white">{paramName}</p>
-                      <p className="text-xs text-gray-400">{paramData.description}</p>
+                      <textarea
+                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                        value={paramData.description}
+                        rows={2}
+                        // placeholder={`${paramName}: ${paramData.type}`}
+                      />
                       <input
                         type="text"
                         className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
-                        placeholder={`${paramName}: ${paramData.type}`}
+                        placeholder={`Default value`}
                       />
                     </div>
                   ))}
                 </div>
               ) : null}
             </div>
-          </div>
+          </div> */}
 
           <Button type="submit">Create</Button>
         </form>
