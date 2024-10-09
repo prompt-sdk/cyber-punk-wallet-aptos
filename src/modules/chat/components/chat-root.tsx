@@ -59,7 +59,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [isOpenCreateTool, setIsOpenCreateTool] = useState(false);
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
-  const [sourceData, setSourceData] = useState<any>(null);
+  const [sourceData, setSourceData] = useState<Record<string, any>>({});
   const [isLoadingSourceData, setIsLoadingSourceData] = useState(false);
 
   const { id: chatId } = useParams();
@@ -272,14 +272,21 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const loadSourceData = async (account: string, packages: string[], modules: string[], functions: string[]) => {
     setIsLoadingSourceData(true);
     try {
-      const response = await axios.get('/api/source', {
-        params: { account, package: packages.join(','), module: modules.join(','), functions: functions.join(',') }
-      });
-      if (response.data?.returns.length > 0) {
-        setSourceData(response.data?.returns[0]);
-      } else {
-        setSourceData(response.data);
-      }
+      const responses = await Promise.all(
+        functions.map(func =>
+          axios.get('/api/source', {
+            params: { account, package: packages.join(','), module: modules.join(','), functions: func }
+          })
+        )
+      );
+
+      const newSourceData = responses.reduce((acc: any, response, index) => {
+        const funcName = functions[index];
+        acc[funcName] = response.data?.returns.length > 0 ? response.data?.returns[0] : response.data;
+        return acc;
+      }, {});
+
+      setSourceData(newSourceData);
     } catch (error) {
       console.error('Error fetching source data:', error);
     } finally {
@@ -348,12 +355,75 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     }
   };
 
-  const onSubmit = async (data: CreateToolFromContactFormData) => {
-    setIsOpenCreateTool(false);
-    console.log('🚀 ~ onSubmit ~ data:', data);
+  const uploadDataToApi = async (data: any) => {
+    try {
+      const response = await axios.post('/api/tools', data);
+      console.log('Data uploaded successfully:', response.data);
+    } catch (error) {
+      console.error('Error uploading data:', error);
+    }
   };
 
-  //console.log('functions', functions);
+  // Function to handle changes in the default value
+  const handleDefaultValueChange = (funcName: string, paramName: string, newValue: string) => {
+    setSourceData((prevData: any) => {
+      const funcData = prevData[funcName] || {};
+      const params = funcData.params || {};
+      return {
+        ...prevData,
+        [funcName]: {
+          ...funcData,
+          params: {
+            ...params,
+            [paramName]: {
+              ...params[paramName],
+              default: newValue
+            }
+          }
+        }
+      };
+    });
+  };
+
+  // Function to handle changes in the description
+  const handleDescriptionChange = (funcName: string, paramName: string, newDescription: string) => {
+    setSourceData((prevData: any) => {
+      const funcData = prevData[funcName] || {};
+      const params = funcData.params || {};
+      return {
+        ...prevData,
+        [funcName]: {
+          ...funcData,
+          params: {
+            ...params,
+            [paramName]: {
+              ...params[paramName],
+              description: newDescription
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const onSubmit = async (data: CreateToolFromContactFormData) => {
+    setIsOpenCreateTool(false);
+    const selectedFunctions = form.getValues('functions');
+
+    for (const funcName of selectedFunctions) {
+      const toolData = {
+        type: 'contractTool',
+        name: sourceData[funcName].name, // Unique name for each tool
+        user_id: keylessAccount?.accountAddress.toString() as string,
+        tool: sourceData[funcName]
+      };
+
+      console.log('Uploading tool data:', toolData);
+      await uploadDataToApi(toolData);
+    }
+  };
+
+  //console.log('sourceData', sourceData);
 
   return (
     <>
@@ -471,39 +541,46 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
           {moduleData && (
             <div className="mb-4">
               <p className="mb-2 text-xl text-white">Packages</p>
-              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
-                {moduleData &&
-                  moduleData.map((item: any, idx: number) => (
-                    <label key={idx} className="mb-2 flex items-center text-[#6B7280]">
-                      <input
-                        type="checkbox"
-                        className="mr-2"
-                        checked={form.getValues('packages').includes(item.name)}
-                        onChange={() => handleCheckboxChange('packages', item.name)}
-                      />
-                      {item.name}
-                    </label>
-                  ))}
-              </div>
+              <select
+                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
+                value={form.getValues('packages')}
+                onChange={e => {
+                  const selectedOption = e.target.value;
+                  setValue('packages', [selectedOption], { shouldValidate: true });
+                }}
+              >
+                <option value="" disabled className="text-[#6B7280]">
+                  Choose package
+                </option>
+                {moduleData.map((item: any, idx: number) => (
+                  <option key={idx} value={item.name} className="text-[#6B7280]">
+                    {item.name}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
           {functions && (
             <div className="mb-4">
               <p className="mb-2 text-xl text-white">Modules</p>
-              <div className="max-h-40 overflow-y-auto rounded border border-gray-700 p-2">
+              <select
+                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
+                value={form.getValues('modules')}
+                onChange={e => {
+                  const selectedOption = e.target.value;
+                  setValue('modules', [selectedOption], { shouldValidate: true });
+                }}
+              >
+                <option value="" disabled className="text-[#6B7280]">
+                  Choose module
+                </option>
                 {functions.map((item: any, idx: number) => (
-                  <label key={idx} className="mb-2 flex items-center text-[#6B7280]">
-                    <input
-                      type="checkbox"
-                      className="mr-2"
-                      checked={form.getValues('modules').includes(item.name)}
-                      onChange={() => handleCheckboxChange('modules', item.name)}
-                    />
+                  <option key={idx} value={item.name} className="text-[#6B7280]">
                     {item.name}
-                  </label>
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
           )}
 
@@ -529,23 +606,28 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                           <div className="ml-6 mt-2">
                             {isLoadingSourceData ? (
                               <p>Loading source data...</p>
-                            ) : sourceData ? (
+                            ) : sourceData[func.name] ? (
                               <div className="flex flex-col gap-2">
-                                {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
-                                  <div key={paramName} className="flex flex-col gap-2">
-                                    <p className="capitalize text-white">{paramName}</p>
-                                    <textarea
-                                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
-                                      value={paramData.description}
-                                      rows={2}
-                                    />
-                                    <input
-                                      type="text"
-                                      className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
-                                      placeholder={`Default value`}
-                                    />
-                                  </div>
-                                ))}
+                                {Object.entries(sourceData[func.name].params).map(
+                                  ([paramName, paramData]: [string, any]) => (
+                                    <div key={paramName} className="flex flex-col gap-2">
+                                      <p className="capitalize text-white">{paramName}</p>
+                                      <textarea
+                                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                                        value={paramData.description}
+                                        onChange={e => handleDescriptionChange(func.name, paramName, e.target.value)}
+                                        rows={2}
+                                      />
+                                      <input
+                                        type="text"
+                                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
+                                        value={paramData.default || ''}
+                                        onChange={e => handleDefaultValueChange(func.name, paramName, e.target.value)}
+                                        placeholder={`Default value`}
+                                      />
+                                    </div>
+                                  )
+                                )}
                               </div>
                             ) : null}
                           </div>
@@ -556,36 +638,9 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
               </div>
             </div>
           )}
-          {/* <div className="mb-4">
-            <div className="">
-              {isLoadingSourceData ? (
-                <p>Loading source data...</p>
-              ) : sourceData ? (
-                <div className="flex flex-col gap-2">
-                  <p className="text-white">Name: {sourceData.name}</p>
-                  <p className="text-white">Params</p>
-                  {Object.entries(sourceData.params).map(([paramName, paramData]: [string, any]) => (
-                    <div key={paramName} className="flex flex-col gap-2">
-                      <p className="capitalize text-white">{paramName}</p>
-                      <textarea
-                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
-                        value={paramData.description}
-                        rows={2}
-                        // placeholder={`${paramName}: ${paramData.type}`}
-                      />
-                      <input
-                        type="text"
-                        className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
-                        placeholder={`Default value`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </div> */}
-
-          <Button type="submit">Create</Button>
+          <Button onClick={handleSubmit(onSubmit)} type="submit">
+            Create
+          </Button>
         </form>
       </AugmentedPopup>
     </>

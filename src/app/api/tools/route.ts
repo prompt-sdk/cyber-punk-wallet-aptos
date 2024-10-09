@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const data: any = await req.json();
+    console.log('data', data);
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
