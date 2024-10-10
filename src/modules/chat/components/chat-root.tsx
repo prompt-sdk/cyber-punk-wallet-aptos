@@ -65,6 +65,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
+  const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
 
   const { id: chatId } = useParams();
   const router = useRouter();
@@ -278,27 +279,32 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   } = form;
 
   const loadSourceData = async (account: string, packages: string[], modules: string[], functions: string[]) => {
-    setIsLoadingSourceData(true);
+    const newFunctions = functions.filter(func => !sourceData[func]);
+    if (newFunctions.length === 0) return;
+
+    const newLoadingFunctions = newFunctions.reduce((acc, func) => ({ ...acc, [func]: true }), {});
+    setLoadingFunctions(prev => ({ ...prev, ...newLoadingFunctions }));
+
     try {
       const responses = await Promise.all(
-        functions.map(func =>
-          axios.get('/api/source', {
+        newFunctions.map(async func => {
+          const response = await axios.get('/api/source', {
             params: { account, package: packages.join(','), module: modules.join(','), functions: func }
-          })
-        )
+          });
+          setLoadingFunctions(prev => ({ ...prev, [func]: false }));
+          return { func, data: response.data };
+        })
       );
 
-      const newSourceData = responses.reduce((acc: any, response, index) => {
-        const funcName = functions[index];
-        acc[funcName] = response.data?.returns.length > 0 ? response.data?.returns[0] : response.data;
+      const newSourceData = responses.reduce((acc: any, { func, data }) => {
+        acc[func] = data?.returns.length > 0 ? data?.returns[0] : data;
         return acc;
       }, {});
 
-      setSourceData(newSourceData);
+      setSourceData(prev => ({ ...prev, ...newSourceData }));
     } catch (error) {
       console.error('Error fetching source data:', error);
-    } finally {
-      setIsLoadingSourceData(false);
+      setLoadingFunctions(prev => Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}));
     }
   };
 
@@ -359,7 +365,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
     if (name === 'functions') {
       const { address, packages, modules } = form.getValues();
-      loadSourceData(address, packages, modules, newValues);
+      loadSourceData(address, packages, modules, [value]); // Load data only for the newly selected function
     }
   };
 
@@ -633,8 +639,11 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                         </label>
                         {form.getValues('functions').includes(func.name) && (
                           <div className="ml-6 mt-2">
-                            {isLoadingSourceData ? (
-                              <p>Loading source data...</p>
+                            {loadingFunctions[func.name] ? (
+                              <div className="flex items-center gap-2">
+                                {/* <Spinner size="sm" /> */}
+                                <p>Loading source data for {func.name}...</p>
+                              </div>
                             ) : sourceData[func.name] ? (
                               <div className="flex flex-col gap-2">
                                 {Object.entries(sourceData[func.name].params).map(
@@ -658,7 +667,9 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                                   )
                                 )}
                               </div>
-                            ) : null}
+                            ) : (
+                              <p>No source data available for {func.name}</p>
+                            )}
                           </div>
                         )}
                       </div>
