@@ -442,7 +442,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
       const userId = keylessAccount?.accountAddress.toString();
       const response = await axios.get(`/api/tools?userId=${userId}`);
       setTools(response.data);
-      //console.log('tools', response.data);
+      // console.log('tools', response.data);
     } catch (error) {
       console.error('Error fetching tools:', error);
     }
@@ -668,7 +668,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                                 )}
                               </div>
                             ) : (
-                              <p>No source data available for {func.name}</p>
+                              <p>Please select a function {func.name} again</p>
                             )}
                           </div>
                         )}
@@ -683,12 +683,26 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
           </Button>
         </form>
       </AugmentedPopup>
-      <AugmentedPopup visible={isOpenSelectTool} onClose={handleCloseSelectTool} textHeading={'Tools'}>
+      <AugmentedPopup
+        visible={isOpenSelectTool}
+        onClose={handleCloseSelectTool}
+        textHeading={'Tools'}
+        className="min-w-full md:min-w-[700px]"
+      >
         <div className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
           <p className="mb-5 text-white">Select what external tools your agents have access to.</p>
           {tools?.map(tool => (
-            <div key={tool.id} className="mb-4 flex items-center justify-between text-xs">
-              <label className="text-white">{tool.name}</label>
+            <div
+              key={tool.id}
+              className="mb-4 flex items-center justify-between rounded-lg border border-gray-100 p-4 text-xs"
+            >
+              <div className="flex flex-row items-center gap-2">
+                <img src="/openai-white.png" alt="OpenAI" className="h-10 w-10" />
+                <div className="flex flex-col gap-1">
+                  <label className="text-white">{tool.name}</label>
+                  <small className="text-[#c5cee2]">{tool.tool.description}</small>
+                </div>
+              </div>
               <Switch
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white"
                 checked={selectedTools.includes(tool.name)}
