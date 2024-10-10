@@ -5,7 +5,7 @@ export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   try {
-    const user_id = req.nextUrl.searchParams.get('user_id') || '';
+    const user_id = req.nextUrl.searchParams.get('userId') || '';
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');

@@ -45,6 +45,7 @@ import { CreateToolFromContactFormData } from '@/modules/create-tool/interfaces/
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 import axios from 'axios';
 
@@ -61,6 +62,9 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
   const [isLoadingSourceData, setIsLoadingSourceData] = useState(false);
+  const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
+  const [tools, setTools] = useState<any[]>([]);
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
 
   const { id: chatId } = useParams();
   const router = useRouter();
@@ -68,6 +72,10 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
   const handleClose = () => {
     setIsOpenCreateTool(false);
+  };
+
+  const handleCloseSelectTool = () => {
+    setIsOpenSelectTool(false);
   };
 
   useEffect(() => {
@@ -423,6 +431,27 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     }
   };
 
+  const fetchTools = useCallback(async () => {
+    try {
+      const userId = keylessAccount?.accountAddress.toString();
+      const response = await axios.get(`/api/tools?userId=${userId}`);
+      setTools(response.data);
+      //console.log('tools', response.data);
+    } catch (error) {
+      console.error('Error fetching tools:', error);
+    }
+  }, [keylessAccount]);
+
+  useEffect(() => {
+    if (isOpenSelectTool) {
+      fetchTools();
+    }
+  }, [isOpenSelectTool, fetchTools]);
+
+  const handleToolSelection = (toolId: string) => {
+    setSelectedTools(prev => (prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]));
+  };
+
   //console.log('sourceData', sourceData);
 
   return (
@@ -491,7 +520,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                       'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
                       'flex cursor-pointer flex-col gap-2'
                     )}
-                    onClick={() => {}}
+                    onClick={() => setIsOpenSelectTool(true)}
                   >
                     <p className="text=[#6B7280]">{'Select tool'}</p>
                     <p className="text-[#9CA3AF]">{'For APT'}</p>
@@ -642,6 +671,29 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
             Create
           </Button>
         </form>
+      </AugmentedPopup>
+      <AugmentedPopup visible={isOpenSelectTool} onClose={handleCloseSelectTool} textHeading={'Tools'}>
+        <div className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
+          <p className="mb-5 text-white">Select what external tools your agents have access to.</p>
+          {tools?.map(tool => (
+            <div key={tool.id} className="mb-4 flex items-center justify-between text-xs">
+              <label className="text-white">{tool.name}</label>
+              <Switch
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white"
+                checked={selectedTools.includes(tool.name)}
+                onCheckedChange={() => handleToolSelection(tool.name)}
+              />
+            </div>
+          ))}
+          <Button
+            onClick={() => {
+              console.log('Selected tools:', selectedTools);
+              handleCloseSelectTool();
+            }}
+          >
+            Close
+          </Button>
+        </div>
       </AugmentedPopup>
     </>
   );
