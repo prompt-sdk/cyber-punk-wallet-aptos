@@ -694,13 +694,13 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
           {tools?.map(tool => (
             <div
               key={tool.id}
-              className="mb-4 flex items-center justify-between rounded-lg border border-gray-100 p-4 text-xs"
+              className="mb-4 flex items-center justify-between gap-5 rounded-lg border border-gray-100 p-4 text-xs"
             >
               <div className="flex flex-row items-center gap-2">
                 <img src="/openai-white.png" alt="OpenAI" className="h-10 w-10" />
                 <div className="flex flex-col gap-1">
                   <label className="text-white">{tool.name}</label>
-                  <small className="text-[#c5cee2]">{tool.tool.description}</small>
+                  <small className="text-[#c5cee2]">{tool.tool.description.slice(0, 100) + '...'}</small>
                 </div>
               </div>
               <Switch
