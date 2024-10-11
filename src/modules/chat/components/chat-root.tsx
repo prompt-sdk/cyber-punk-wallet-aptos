@@ -46,7 +46,8 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-
+import { Textarea } from '@/components/ui/textarea';
+import MultiSelectTools from '@/components/common/multi-select';
 import axios from 'axios';
 
 type ChatRootProps = ComponentBaseProps;
@@ -69,6 +70,12 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
   const [coinList, setCoinList] = useState<Array<{ symbol: string; name: string; address: string }>>([]);
+  const [isOpenCreateWidget, setIsOpenCreateWidget] = useState(false);
+  const [widgetName, setWidgetName] = useState('');
+  const [widgetDescription, setWidgetDescription] = useState('');
+  const [widgetPrompt, setWidgetPrompt] = useState('');
+  const [widgetCode, setWidgetCode] = useState('');
+  const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
 
   const { id: chatId } = useParams();
   const router = useRouter();
@@ -446,9 +453,9 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     for (const funcName of selectedFunctions) {
       const toolData = {
         type: 'contractTool',
-        name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
+        name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
         tool: {
-          name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
+          name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
           description: sourceData[funcName].description,
           params: Object.entries(sourceData[funcName].params).reduce((acc: any, [key, value]: [string, any]) => {
             acc[key] = {
@@ -483,10 +490,8 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   }, [keylessAccount]);
 
   useEffect(() => {
-    if (isOpenSelectTool) {
-      fetchTools();
-    }
-  }, [isOpenSelectTool, fetchTools]);
+    fetchTools();
+  }, [fetchTools]);
 
   const handleToolSelection = (toolId: string) => {
     setSelectedTools(prev => (prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]));
@@ -512,6 +517,32 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   useEffect(() => {
     fetchCoinList();
   }, [fetchCoinList]);
+
+  const widgetForm = useForm({
+    defaultValues: {
+      name: '',
+      description: ''
+    }
+  });
+
+  const handleCreateWidget = () => {
+    // Implement the logic to save the widget
+    console.log('Widget created:', {
+      name: widgetForm.getValues('name'),
+      description: widgetForm.getValues('description'),
+      tools: selectedWidgetTools,
+      prompt: widgetPrompt,
+      code: widgetCode
+    });
+    setIsOpenCreateWidget(false);
+  };
+
+  const handlePreviewWidget = () => {
+    // Implement the logic to preview the widget
+    console.log('Previewing widget');
+  };
+
+  //console.log('tools', tools);
 
   return (
     <>
@@ -569,7 +600,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                   userAddress={keylessAccount?.accountAddress.toString() as string}
                 />
 
-                <div className="gird-cols-2 grid shrink-0 gap-5 md:grid-cols-3">
+                <div className="gird-cols-2 grid shrink-0 gap-5 md:grid-cols-4">
                   <div
                     data-augmented-ui
                     className={classNames(
@@ -596,6 +627,20 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                     onClick={() => setIsOpenCreateTool(true)}
                   >
                     <p className="text=[#6B7280]">{'Create tool'}</p>
+                    <p className="text-[#9CA3AF]">{'For APT'}</p>
+                  </div>
+                  <div
+                    data-augmented-ui
+                    className={classNames(
+                      'border-none outline-none',
+                      'aug-tl1-2 aug-clip-tl',
+                      'aug-border-bg-secondary aug-border aug-border-2 bg-[#2C3035] p-3',
+                      'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
+                      'flex cursor-pointer flex-col gap-2'
+                    )}
+                    onClick={() => setIsOpenCreateWidget(true)}
+                  >
+                    <p className="text=[#6B7280]">{'Create widget'}</p>
                     <p className="text-[#9CA3AF]">{'For APT'}</p>
                   </div>
                   <div
@@ -787,6 +832,40 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
             Close
           </Button>
         </div>
+      </AugmentedPopup>
+      <AugmentedPopup
+        visible={isOpenCreateWidget}
+        onClose={() => setIsOpenCreateWidget(false)}
+        textHeading={'Create Widget'}
+      >
+        <form className="flex max-h-[80vh] flex-col gap-4 overflow-y-auto p-8">
+          <FormTextField form={widgetForm} name="name" label="Name" />
+          <FormTextField form={widgetForm} name="description" label="Description" />
+          <div>
+            <label className="mb-2 block text-sm font-medium text-white">Select Tools</label>
+            <MultiSelectTools
+              tools={tools || []}
+              selectedTools={selectedWidgetTools}
+              onChangeSelectedTools={setSelectedWidgetTools}
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-white">Prompt</label>
+            <Textarea value={widgetPrompt} onChange={e => setWidgetPrompt(e.target.value)} className="min-h-[100px]" />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-white">Code</label>
+            <Textarea
+              value={widgetCode}
+              onChange={e => setWidgetCode(e.target.value)}
+              className="font-mono min-h-[150px]"
+            />
+          </div>
+          <div className="flex justify-end gap-4">
+            <Button onClick={handlePreviewWidget}>Preview</Button>
+            <Button onClick={handleCreateWidget}>Save</Button>
+          </div>
+        </form>
       </AugmentedPopup>
     </>
   );
