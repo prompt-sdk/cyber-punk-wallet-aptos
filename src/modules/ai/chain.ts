@@ -1,5 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
-
+import { MongoClient, ObjectId } from 'mongodb';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { DynamicTool, DynamicStructuredTool, tool } from '@langchain/core/tools';
@@ -9,38 +9,27 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const model = new ChatOpenAI({
-  model: 'gpt-4',
+  model: 'gpt-4o-mini',
   temperature: 0.1,
   apiKey: OPENAI_API_KEY
 });
 
-export async function executeTool({ sourceCode, functions }: any) {
+export async function executeTool({ sourceCode, account, moduleName, functions }: any) {
   const messages = [
     new SystemMessage(`You are a move developer. 
             When the user gives the source code and functions. Provide your response as a JSON object with the following schema: , 
-         returns [{ name:name with module name of function  , description : description with module name of function 100 words limit , params : {data types and descriptions of each params}}] `),
-    new HumanMessage(`Here is the source code : ${sourceCode} , function : ${functions}  `)
+         returns [{ name:  ${account}::${moduleName}::<function>  , description : description with module name of function 100 words limit , params : { type : data types ,description }} `),
+    new HumanMessage(
+      `Your response will not be in Markdown format, only JSON.Here is the source code : ${sourceCode} , function : ${functions}  `
+    )
   ];
   const parser = new StringOutputParser();
   const result = await model.invoke(messages);
 
   const resultParse = await parser.invoke(result);
-
   return resultParse;
 }
 export async function widgetTool({ prompt }: any) {
-  // Workflow .
-  // add tool
-  // will import tool and prompt to create demo
-  // convert to params data .
-  //
-  // save data widget load data type from tool .
-  // widget ID and code
-  // load Widget ID
-  // load data from tool
-  // Widget thì phải có ID và có chứa sẵn code bên trong . và code bên trong
-  //
-
   const SYSTEM_TEMPLATE = new SystemMessage(`Prompt Template for React Component Assistant:
 
 You are a React component generator assistant. Follow these instructions for all responses:
@@ -102,36 +91,30 @@ Example 3 – Label with View function:
 Input:
 
 
-Create an label with function.view({account: 'abc'})
+create label show balance of address 0x12314214 with data : [{"function":"0x0000000000000000000000000000000000000000000000000000000000000001::coin::balance","functionArguments":{"owner":"0x12314214"},"typeArguments":["0x1::aptos_coin::AptosCoin"],"return":['u64'] 
+
 Output:
+(props)=>{
+  const [balance, setBalance] = props.useState("");
+  const load = async () => {
+    const [balance] = await props.aptos.view({
+      payload: {
+        function: "0x1::coin::balance",
+        functionArguments: [
+          "0x3deb6f4432df882e2ffd8250cd9642e74a19a1720a541014850c9ea1d92d67c1",
+        ],
+        typeArguments: ["0x1::aptos_coin::AptosCoin"],
+      },
+    });
+    setBalance(balance);
+  };
+  props.useEffect(() => {
+    load();
+  }, []);
+  return <p>Balance of 0x3deb6f4432df882e2ffd8250cd9642e74a19a1720a541014850c9ea1d92d67c1:{props.processData(balance)}</p>;
+}
+`);
 
-
-(props) => {
-const balance =  function.view({account: 'abc'}) ;
-return (
-    <a href="?prompt=Save" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
-        Your account balance is: {balance}
-    </a>
-)
-}`);
-
-  const tools = [
-    new DynamicTool({
-      name: 'getBlanace',
-      description: 'call this to get balance of account',
-      func: async () => '[balance Your account is 5 APT'
-    })
-  ];
-
-  // làm sao lấy được params data từ câu lệnh prompt
-  // sau khi import tool
-  // prompt create label with balance of my account
-  // agent: create label
-  // tool balance of my account => function.view({params})
-  //
-  // code output like this :
-  // const balance = functions.view({account:'0x123123'});
-  //
   const parser = new StringOutputParser();
   const HUMAN_TEMPLATE = new HumanMessage(prompt);
   const messages = [SYSTEM_TEMPLATE, HUMAN_TEMPLATE];
@@ -139,47 +122,45 @@ return (
   const result = await model.invoke(messages);
 
   const resultParse = await parser.invoke(result);
-  console.log(resultParse);
   return resultParse;
 }
-export async function searchTool({ prompt }: any) {
-  const tools = [
-    new DynamicStructuredTool({
-      name: 'getBlanace',
-      description: 'get balance of account',
-      func: async account => `balance Your ${account} : 5 APT`,
-      schema: z.object({
-        account: z.string().describe('address of account')
-      })
-    }),
-    new DynamicStructuredTool({
-      name: 'getTotalVolume',
-      description: 'get total volume of account',
-      func: async account => `Your volumn ${account} : 1000 APT`,
-      schema: z.object({
-        account: z.string().describe('address of account')
-      })
-    }),
-    tool(
-      async ({ min, max, size }) => {
-        const array: number[] = [];
-        for (let i = 0; i < size; i++) {
-          array.push(Math.floor(Math.random() * (max - min + 1)) + min);
-        }
-        return [`Successfully generated array of ${size} random ints in [${min}, ${max}].`, array];
-      },
-      {
-        name: 'generateRandomInts',
-        description: 'Generate size random ints in the range [min, max].',
-        schema: z.object({
-          min: z.number(),
-          max: z.number(),
-          size: z.number()
-        }),
-        responseFormat: 'content_and_artifact'
-      }
-    )
-  ];
+export async function searchTool({ prompt, tool_ids }: any) {
+  const zodExtract = (type: any, describe: any) => {
+    if (type == 'generic') return;
+    if (type == 'u128') return z.number().describe(describe);
+    if (type == 'u64') return z.number().describe(describe);
+    if (type == 'u8') return z.number().describe(describe);
+    if (type == 'bool') return z.boolean().describe(describe);
+    if (type == 'address') return z.string().describe(describe);
+    if (type == 'vector<u8>') return z.string().describe(describe);
+    if (type == 'vector<address>') return z.array(z.string()).describe(describe);
+    if (type == 'vector<string::String>') return z.array(z.string()).describe(describe);
+    if (type == '0x1::string::String') return z.array(z.string()).describe(describe);
+
+    return z.string().describe(describe);
+  };
+  let client = new MongoClient(process.env.MONGO_DB as string);
+  let clientPromsie = await client.connect();
+  let db = clientPromsie.db('prompt');
+  let col = await db.collection('tools');
+  const itemIds = tool_ids.split(',');
+  const query = { _id: { $in: itemIds.map((id: string) => new ObjectId(id)) } };
+  let dataTools: any = await col.find(query).toArray();
+
+  const toolMap = dataTools.map((tool: any) => {
+    const ParametersSchema = Object.keys(tool.tool.params).reduce((acc: any, key: any) => {
+      acc[key] = key = zodExtract(tool.tool.params[key].type, tool.tool.params[key].description);
+      return acc;
+    }, {});
+    type ParametersData = z.infer<typeof ParametersSchema>;
+
+    return new DynamicStructuredTool({
+      name: tool._id.toString(),
+      description: tool.description,
+      func: async (ParametersData: ParametersData) => ``,
+      schema: z.object(ParametersSchema)
+    });
+  });
 
   const systemPrompt = ChatPromptTemplate.fromMessages([
     [
@@ -198,19 +179,26 @@ export async function searchTool({ prompt }: any) {
     apiKey: process.env.OPENAI_API_KEY,
     streaming: false,
     verbose: false
-  }).bindTools(tools);
-
+  }).bindTools(toolMap);
   const chain = systemPrompt.pipe(Model);
-  const res = await chain.invoke({ input: prompt });
 
-  console.log(res);
+  const res = await chain.invoke({ input: prompt });
   if (res.tool_calls && res.tool_calls.length > 0) {
-    return {
-      toolCall: {
-        name: res.tool_calls[0]!.name,
-        parameters: res.tool_calls[0]!.args
-      }
-    };
+    return (
+      ' with data : ' +
+      JSON.stringify(
+        res.tool_calls.map((tool: any) => {
+          const dataTool = dataTools.find((item: any) => item._id.toString() === tool.name);
+          const res = {
+            function: dataTool.tool.name,
+            functionArguments: tool.args,
+            typeArguments: dataTool.tool.generic_type_params,
+            return: dataTool.tool.return
+          };
+          return res;
+        })
+      )
+    );
   }
-  return { results: res.content as string };
+  return '';
 }

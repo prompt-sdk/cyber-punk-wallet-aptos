@@ -51,6 +51,8 @@ import axios from 'axios';
 
 type ChatRootProps = ComponentBaseProps;
 
+const COIN_LIST_URL = 'https://raw.githubusercontent.com/AnimeSwap/coin-list/main/aptos/mainnet.js';
+
 const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const { keylessAccount } = useKeylessAccount();
   const [selectedOption, setSelectedOption] = useState<AIChat>(AI_CHAT_LIST[0]);
@@ -66,6 +68,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [tools, setTools] = useState<any[]>([]);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
+  const [coinList, setCoinList] = useState<Array<{ symbol: string; name: string; address: string }>>([]);
 
   const { id: chatId } = useParams();
   const router = useRouter();
@@ -420,16 +423,47 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     });
   };
 
-  const onSubmit = async (data: CreateToolFromContactFormData) => {
+  const handleTokenSelection = (funcName: string, paramName: string, tokenAddress: string) => {
+    setSourceData((prevData: any) => ({
+      ...prevData,
+      [funcName]: {
+        ...prevData[funcName],
+        params: {
+          ...prevData[funcName].params,
+          [paramName]: {
+            ...prevData[funcName].params[paramName],
+            tokenAddress: tokenAddress
+          }
+        }
+      }
+    }));
+  };
+
+  const onSubmit = async () => {
     setIsOpenCreateTool(false);
     const selectedFunctions = form.getValues('functions');
 
     for (const funcName of selectedFunctions) {
       const toolData = {
         type: 'contractTool',
-        name: sourceData[funcName].name, // Unique name for each tool
-        user_id: keylessAccount?.accountAddress.toString() as string,
-        tool: sourceData[funcName]
+        name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
+        tool: {
+          name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
+          description: sourceData[funcName].description,
+          params: Object.entries(sourceData[funcName].params).reduce((acc: any, [key, value]: [string, any]) => {
+            acc[key] = {
+              type: value.type,
+              description: value.description
+            };
+            return acc;
+          }, {}),
+          generic_type_params: sourceData[funcName].generic_type_params || [],
+          return: sourceData[funcName].return || '',
+          type: sourceData[funcName].type || '',
+          functions: funcName,
+          address: form.getValues('address')
+        },
+        user_id: keylessAccount?.accountAddress.toString() as string
       };
 
       console.log('Uploading tool data:', toolData);
@@ -458,7 +492,26 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     setSelectedTools(prev => (prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]));
   };
 
-  //console.log('sourceData', sourceData);
+  const fetchCoinList = useCallback(async () => {
+    try {
+      const response = await axios.get(COIN_LIST_URL, {
+        responseType: 'text'
+      });
+      const jsData = response.data;
+      // eslint-disable-next-line no-eval
+      const coinListArray = eval(jsData);
+
+      //console.log('Parsed coin list:', coinListArray);
+      setCoinList(coinListArray);
+    } catch (error) {
+      console.error('Error fetching or parsing coin list:', error);
+      setCoinList([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCoinList();
+  }, [fetchCoinList]);
 
   return (
     <>
@@ -641,7 +694,6 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                           <div className="ml-6 mt-2">
                             {loadingFunctions[func.name] ? (
                               <div className="flex items-center gap-2">
-                                {/* <Spinner size="sm" /> */}
                                 <p>Loading source data for {func.name}...</p>
                               </div>
                             ) : sourceData[func.name] ? (
@@ -663,6 +715,22 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                                         onChange={e => handleDefaultValueChange(func.name, paramName, e.target.value)}
                                         placeholder={`Default value`}
                                       />
+                                      {func.generic_type_params && func.generic_type_params.length > 0 && (
+                                        <div className="mt-2">
+                                          <p className="mb-1 text-white">Select Token:</p>
+                                          <select
+                                            className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white"
+                                            onChange={e => handleTokenSelection(func.name, paramName, e.target.value)}
+                                          >
+                                            <option value="">Select a token</option>
+                                            {coinList.map((coin: any) => (
+                                              <option key={coin.address} value={coin.address}>
+                                                {coin.symbol}
+                                              </option>
+                                            ))}
+                                          </select>
+                                        </div>
+                                      )}
                                     </div>
                                   )
                                 )}
