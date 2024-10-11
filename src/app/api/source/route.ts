@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { HexString, Types } from 'aptos';
 import pako from 'pako';
-import { executeTool } from '../../../modules/ai/chain';
+import { executeTool } from '@/modules/ai/chain';
 
 export const maxDuration = 300;
 const transformCode = (source: string): string => {
@@ -16,7 +16,7 @@ const transformCode = (source: string): string => {
 export async function GET(req: NextRequest) {
   const account = req.nextUrl.searchParams.get('account') || '';
   const functions = req.nextUrl.searchParams.get('functions') || '';
-  const moduleReq = req.nextUrl.searchParams.get('module') || '';
+  const moduleName = req.nextUrl.searchParams.get('module') || '';
   const packageReq = req.nextUrl.searchParams.get('package') || '';
 
   const response = await fetch(
@@ -28,18 +28,16 @@ export async function GET(req: NextRequest) {
 
   for (const packageData of data.data.packages) {
     if (packageData.name == packageReq) {
-      console.log('packageData', packageData);
-      const findSource = packageData.modules.find((module: any) => module.name == moduleReq);
+      const findSource = packageData.modules.find((module: any) => module.name == moduleName);
       if (findSource) {
         bytecode = findSource;
       }
     }
   }
-  console.log(bytecode);
   const sourceCode = bytecode.source === '0x' ? undefined : transformCode(bytecode.source);
   try {
     if (sourceCode) {
-      const result = await executeTool({ sourceCode, functions });
+      const result = await executeTool({ sourceCode, account, moduleName, functions });
       return NextResponse.json(JSON.parse(result), { status: 200 });
     } else {
       return NextResponse.json({ error: 'source is not complie' }, { status: 500 });
