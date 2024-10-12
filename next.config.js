@@ -20,7 +20,9 @@ const nextConfig = async () => {
       KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
       APTOS_NETWORK: process.env.APTOS_NETWORK,
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-      NEXTAUTH_URL: process.env.NEXTAUTH_URL
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+      MONGO_DB: process.env.MONGO_DB,
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY
     },
     eslint: {
       ignoreDuringBuilds: false
