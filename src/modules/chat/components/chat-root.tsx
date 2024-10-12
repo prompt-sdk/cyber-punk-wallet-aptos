@@ -48,6 +48,9 @@ import { Textarea } from '@/components/ui/textarea';
 import MultiSelectTools from '@/components/common/multi-select';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { useSession } from 'next-auth/react';
+import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
+import { toast } from '@/hooks/use-toast';
 
 type ChatRootProps = ComponentBaseProps;
 
@@ -74,7 +77,9 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [widgetPrompt, setWidgetPrompt] = useState('');
   const [widgetCode, setWidgetCode] = useState('');
   const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
+  const [previewWidgetCode, setPreviewWidgetCode] = useState<string>('');
 
+  const { data: session } = useSession();
   const { account, connected, disconnect, wallet } = useWallet();
 
   const { id: chatId } = useParams();
@@ -88,11 +93,6 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const handleCloseSelectTool = () => {
     setIsOpenSelectTool(false);
   };
-  useEffect(() => {
-    if (!connected) {
-      router.push('/login');
-    }
-  }, [connected]);
 
   const handleSelectAi = useCallback(
     (value: string) => {
@@ -495,14 +495,15 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
 
   const fetchTools = useCallback(async () => {
     try {
-      const userId = account?.address.toString();
+      const userId = session?.user?.username || account?.address.toString();
       const response = await axios.get(`/api/tools?userId=${userId}`);
-      setTools(response.data);
-      //console.log('tools', response.data);
+      const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
+      setTools(contractTools);
+      //console.log('contractTools', contractTools);
     } catch (error) {
       console.error('Error fetching tools:', error);
     }
-  }, [account]);
+  }, [account, session]);
 
   useEffect(() => {
     fetchTools();
@@ -540,24 +541,94 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     }
   });
 
-  const handleCreateWidget = () => {
-    // Implement the logic to save the widget
-    console.log('Widget created:', {
-      name: widgetForm.getValues('name'),
-      description: widgetForm.getValues('description'),
-      tools: selectedWidgetTools,
-      prompt: widgetPrompt,
-      code: widgetCode
-    });
-    setIsOpenCreateWidget(false);
+  const onchangeWidgetPrompt = (e: any) => {
+    setWidgetPrompt(e.target.value);
   };
 
-  const handlePreviewWidget = () => {
-    // Implement the logic to preview the widget
-    console.log('Previewing widget');
+  const onchangeWidgetCode = (e: any) => {
+    setWidgetCode(e.target.value);
   };
 
-  //console.log('tools', tools);
+  const handleSaveWidget = async () => {
+    try {
+      const widgetData = {
+        type: 'widgetTool',
+        name: widgetForm.getValues('name'),
+        tool: {
+          name: widgetForm.getValues('name'),
+          description: widgetForm.getValues('description'),
+          prompt: widgetPrompt,
+          code: widgetCode,
+          tool_ids: selectedWidgetTools.join(',')
+        },
+        user_id: account?.address.toString() || session?.user?.username
+      };
+
+      const response = await axios.post('/api/tools', widgetData);
+      console.log('Widget saved successfully:', response.data);
+
+      // Clear form and related state
+      widgetForm.reset();
+      setWidgetPrompt('');
+      setWidgetCode('');
+      setSelectedWidgetTools([]);
+      setPreviewWidgetCode('');
+
+      // Close the modal
+      setIsOpenCreateWidget(false);
+
+      // Show success message
+      toast({
+        title: 'Widget created successfully!',
+        description: 'Your widget has been created and saved.'
+      });
+
+      // Refresh the tools list
+      fetchTools();
+    } catch (error) {
+      console.error('Error saving widget:', error);
+      toast({
+        title: 'Error creating widget',
+        description: 'Please try again.'
+      });
+    }
+  };
+
+  const handlePreviewWidget = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    try {
+      toast({
+        title: 'Previewing widget...',
+        description: 'Please wait while we generate the preview.'
+      });
+      const data = {
+        prompt: widgetPrompt,
+        tool_ids: selectedWidgetTools
+      };
+
+      const response = await axios.post('/api/create-widget', data, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const code = response.data.code;
+      setPreviewWidgetCode(code);
+      setWidgetCode(code);
+      toast({
+        title: 'Widget previewed successfully!',
+        description: 'Your widget has been previewed successfully.'
+      });
+      console.log('Previewing widget', response.data);
+    } catch (error) {
+      console.error('Error previewing widget:', error);
+      toast({
+        title: 'Error previewing widget',
+        description: 'Please try again.'
+      });
+    }
+  };
+
+  //console.log('tools', selectedWidgetTools);
 
   return (
     <>
@@ -866,19 +937,25 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-white">Prompt</label>
-            <Textarea value={widgetPrompt} onChange={e => setWidgetPrompt(e.target.value)} className="min-h-[100px]" />
+            <Textarea value={widgetPrompt} onChange={onchangeWidgetPrompt} className="min-h-[100px]" />
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-white">Code</label>
-            <Textarea
-              value={widgetCode}
-              onChange={e => setWidgetCode(e.target.value)}
-              className="font-mono min-h-[150px]"
-            />
+            <Textarea value={widgetCode} onChange={onchangeWidgetCode} className="font-mono min-h-[150px]" />
           </div>
+          {previewWidgetCode && (
+            <div className="mt-4">
+              <label className="mb-2 block text-sm font-medium text-white">Preview</label>
+              <ViewFrame code={previewWidgetCode} />
+            </div>
+          )}
           <div className="flex justify-end gap-4">
-            <Button onClick={handlePreviewWidget}>Preview</Button>
-            <Button onClick={handleCreateWidget}>Save</Button>
+            <Button onClick={handlePreviewWidget} type="button">
+              Preview
+            </Button>
+            <Button onClick={handleSaveWidget} type="button">
+              Save
+            </Button>
           </div>
         </form>
       </AugmentedPopup>

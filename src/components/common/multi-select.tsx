@@ -23,11 +23,16 @@ interface MultiSelectToolsProps {
 const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({ tools, selectedTools, onChangeSelectedTools }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const toggleTool = (toolName: string) => {
-    const updatedSelection = selectedTools.includes(toolName)
-      ? selectedTools.filter(name => name !== toolName)
-      : [...selectedTools, toolName];
+  const toggleTool = (toolId: string) => {
+    const updatedSelection = selectedTools.includes(toolId)
+      ? selectedTools.filter(id => id !== toolId)
+      : [...selectedTools, toolId];
     onChangeSelectedTools(updatedSelection);
+  };
+
+  const getToolNameById = (toolId: string) => {
+    const tool = tools.find(t => t._id === toolId);
+    return tool ? tool.name : '';
   };
 
   return (
@@ -38,9 +43,9 @@ const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({ tools, selectedTool
       >
         <div className="flex flex-wrap gap-1">
           {selectedTools.length > 0 ? (
-            selectedTools.map(tool => (
-              <span key={tool} className="rounded bg-gray-600 px-2 py-1 text-sm">
-                {tool}
+            selectedTools.map(toolId => (
+              <span key={toolId} className="rounded bg-gray-600 px-2 py-1 text-sm">
+                {getToolNameById(toolId)}
               </span>
             ))
           ) : (
@@ -61,11 +66,11 @@ const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({ tools, selectedTool
         <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-600 bg-gray-700 shadow-lg">
           {tools.map(tool => (
             <div
-              key={tool.name}
+              key={tool._id}
               className={`cursor-pointer p-2 hover:bg-gray-600 ${
-                selectedTools.includes(tool.name) ? 'bg-gray-600' : ''
+                selectedTools.includes(tool._id) ? 'bg-gray-600' : ''
               }`}
-              onClick={() => toggleTool(tool.name)}
+              onClick={() => toggleTool(tool._id)}
             >
               <div className="flex flex-col">
                 <span className="text-sm text-white">{tool.name}</span>

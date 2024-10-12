@@ -102,7 +102,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
           </form>
         </div>
         {/* <OAuthGoogleSignInButton /> */}
-        <button onClick={() => setOpenPopup(true)}>chat popup</button>
+        {/* <button onClick={() => setOpenPopup(true)}>chat popup</button> */}
       </div>
       <ChatPopup visible={openPopup} onClose={() => setOpenPopup(false)} />
     </div>

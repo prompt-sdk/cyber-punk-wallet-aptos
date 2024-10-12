@@ -143,8 +143,7 @@ export async function searchTool({ prompt, tool_ids }: any) {
   let clientPromsie = await client.connect();
   let db = clientPromsie.db('prompt');
   let col = await db.collection('tools');
-  const itemIds = tool_ids.split(',');
-  const query = { _id: { $in: itemIds.map((id: string) => new ObjectId(id)) } };
+  const query = { _id: { $in: tool_ids.map((id: string) => new ObjectId(id)) } };
   let dataTools: any = await col.find(query).toArray();
 
   const toolMap = dataTools.map((tool: any) => {
