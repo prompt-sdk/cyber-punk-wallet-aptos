@@ -1,6 +1,8 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import md5 from 'md5';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -25,8 +27,8 @@ import {
   useWallet
 } from '@aptos-labs/wallet-adapter-react';
 import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from 'lucide-react';
-import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { registerUser } from '@/modules/auth/constants/auth.constant';
 
 export function WalletSelector() {
   const router = useRouter();
@@ -53,13 +55,38 @@ export function WalletSelector() {
     }
   }, [account?.address, toast]);
 
-  useEffect(() => {
-    if (connected) {
-      router.push('/chat');
-    }
-  }, [connected]);
+  const { data: session, status } = useSession();
 
-  return connected ? (
+  const handleConnect = useCallback(async () => {
+    if (connected && account?.address) {
+      // Try to register the user first
+      const user = await registerUser(account.address, md5(account.address));
+      if (user) {
+        // If registration is successful, sign in
+        await signIn('credentials', { username: account.address, password: md5(account.address) });
+      } else {
+        // If registration fails (user already exists), just try to sign in
+        await signIn('credentials', { username: account.address, password: md5(account.address) });
+      }
+    }
+  }, [connected, account]);
+
+  useEffect(() => {
+    if (connected && !session) {
+      handleConnect();
+    }
+  }, [connected, session, handleConnect]);
+
+  const handleDisconnect = useCallback(async () => {
+    await disconnect();
+    await signOut();
+  }, [disconnect]);
+
+  if (status === 'loading') {
+    return <Button disabled>Loading...</Button>;
+  }
+
+  return session ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button>{account?.ansName || truncateAddress(account?.address) || 'Unknown'}</Button>
@@ -75,14 +102,14 @@ export function WalletSelector() {
             </a>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onSelect={disconnect} className="gap-2">
+        <DropdownMenuItem onSelect={handleDisconnect} className="gap-2">
           <LogOut className="h-4 w-4" /> Disconnect
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   ) : (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <Button>Connect a Wallet</Button>
       </DialogTrigger>
       <ConnectWalletDialog close={closeDialog} />
@@ -104,16 +131,18 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
     <DialogContent className="max-h-screen overflow-auto">
       <AboutAptosConnect renderEducationScreen={renderEducationScreen}>
         <DialogHeader>
-          <DialogTitle className="flex flex-col text-center leading-snug">
-            {hasAptosConnectWallets ? (
-              <>
-                <span>Log in or sign up</span>
-                <span>with Social + Aptos Connect</span>
-              </>
-            ) : (
-              'Connect Wallet'
-            )}
-          </DialogTitle>
+          <div className="flex flex-col text-center leading-snug">
+            <DialogTitle>
+              {hasAptosConnectWallets ? (
+                <>
+                  <span>Log in or sign up</span>
+                  <span>with Social + Aptos Connect</span>
+                </>
+              ) : (
+                'Connect Wallet'
+              )}
+            </DialogTitle>
+          </div>
         </DialogHeader>
 
         {hasAptosConnectWallets && (

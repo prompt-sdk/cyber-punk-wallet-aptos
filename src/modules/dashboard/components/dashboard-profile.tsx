@@ -33,7 +33,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
       headers: { accept: 'application/json' }
     };
     const respo = await axios.get(
-      `https://aptos-testnet.nodit.io/${
+      `https://aptos-mainnet.nodit.io/${
         process.env.NEXT_PUBLIC_API_KEY_NODIT
       }/v1/accounts/${account?.address.toString()}/resources`,
       options

@@ -1,6 +1,5 @@
 import { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
-import { NextIntlClientProvider } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import { locales } from '@/config';
 
@@ -13,8 +12,7 @@ import {
   WEBSITE_URL
 } from '@/common/constants/site.constant';
 import { LayoutProps } from '@/common/interfaces';
-import { GeoTargetly } from '@/modules/auth-aptos/utils/geo-targetly';
-import { WalletProvider } from '@/components/context/WalletProvider';
+import ClientProviders from './client-providers';
 
 export default async function RootLayout({ children, params: { locale } }: LayoutProps) {
   unstable_setRequestLocale(locale);
@@ -31,10 +29,9 @@ export default async function RootLayout({ children, params: { locale } }: Layou
   }
 
   return (
-    <NextIntlClientProvider timeZone="America/New_York" locale={locale} messages={messages}>
-      <WalletProvider>{children}</WalletProvider>
-      <GeoTargetly />
-    </NextIntlClientProvider>
+    <ClientProviders locale={locale} messages={messages}>
+      {children}
+    </ClientProviders>
   );
 }
 

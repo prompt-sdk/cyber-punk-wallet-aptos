@@ -23,11 +23,13 @@ import { loginFormSchema } from '../validations/login-form';
 import ChatPopup from '@/modules/chat/components/chat-popup';
 import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
 import { WalletSelector } from '@/components/context/WalletSelector';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
+  const { connected } = useWallet();
   const { showToast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -42,6 +44,12 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     watch
   } = form;
 
+  useEffect(() => {
+    if (connected) {
+      router.push('/dashboard');
+    }
+  }, [connected]);
+
   const onSubmit = (_data: LoginFormData) => {
     showToast('This is a success message!', 'success');
 
@@ -49,10 +57,6 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     // Handle form submission
   };
   const name = watch('name');
-
-  if (!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) {
-    throw new Error('Google Client ID is not set in env');
-  }
 
   return (
     <div className={classNames('flex grow items-center justify-center', className)}>
@@ -94,7 +98,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
             </div>
           </form>
         </div>
-        <OAuthGoogleSignInButton />
+        {/* <OAuthGoogleSignInButton /> */}
         <button onClick={() => setOpenPopup(true)}>chat popup</button>
       </div>
       <ChatPopup visible={openPopup} onClose={() => setOpenPopup(false)} />

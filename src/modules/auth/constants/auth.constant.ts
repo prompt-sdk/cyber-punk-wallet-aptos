@@ -1,137 +1,113 @@
-import type { NextAuthOptions, User } from 'next-auth';
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import FacebookProvider from 'next-auth/providers/facebook';
-import GoogleProvider from 'next-auth/providers/google';
+import { compare, hash } from 'bcryptjs';
+import { kv } from '@vercel/kv';
 
-import AuthApi from '@/modules/auth/api/auth.api';
-
-export enum AUTH_TYPE {
-  CREDENTIALS = 'credentials',
-  OAUTH = 'oauth'
+interface User {
+  id: string;
+  username: string;
+  password: string;
 }
 
-export enum AUTH_PROVIDER {
-  CREDENTIALS = 'credentials',
-  FACEBOOK = 'facebook',
-  GOOGLE = 'google',
-  APPLE = 'apple'
+// Add this function to generate a unique ID
+function generateUniqueId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-export enum AUTH_AUTHENTICATOR {
-  SELF_HOSTED = 'self-hosted',
-  FIREBASE = 'firebase'
+async function getUser(username: string): Promise<User | null> {
+  const user = await kv.hgetall(`user:${username}`);
+  return user as User | null;
+}
+
+export async function registerUser(username: string, password: string): Promise<User | null> {
+  try {
+    // Check if the username already exists
+    const existingUser = await kv.hgetall(`user:${username}`);
+    if (existingUser) {
+      console.log(`Username ${username} already exists`);
+      return null;
+    }
+
+    // Hash the password
+    const hashedPassword = await hash(password, 10);
+
+    // Create a new user object
+    const newUser: User = {
+      id: generateUniqueId(), // Use the new function here
+      username,
+      password: hashedPassword
+    };
+
+    // Store the new user in the KV database
+    await kv.hmset(`user:${username}`, newUser as any);
+
+    console.log(`User ${username} registered successfully`);
+    return newUser;
+  } catch (error) {
+    console.error('Error registering user:', error);
+    return null;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
-  pages: {
-    signIn: '/login',
-    error: '/login'
-  },
-  session: {
-    strategy: 'jwt',
-    maxAge: 365 * 24 * 60 * 60
-  },
   providers: [
-    GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET
-    }),
-    FacebookProvider({
-      clientId: process.env.AUTH_FACEBOOK_ID || '',
-      clientSecret: process.env.AUTH_FACEBOOK_SECRET || '',
-      idToken: true,
-      jwks_endpoint: 'https://limited.facebook.com/.well-known/oauth/openid/jwks/',
-      issuer: 'https://www.facebook.com'
-    }),
     CredentialsProvider({
-      name: 'Sign in',
+      name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        username: { label: 'Wallet Address', type: 'text' },
         password: { label: 'Password', type: 'password' }
       },
-      authorize: async function (credentials) {
-        if (!credentials?.email || !credentials.password) {
+      async authorize(credentials) {
+        if (!credentials?.username || !credentials?.password) {
+          console.log('Missing wallet address or password');
           return null;
         }
 
-        const { email, password } = credentials;
-
         try {
-          const signInRes = await AuthApi.signIn({ email, password });
-          const userData = signInRes.data.data;
+          const user = await getUser(credentials.username);
 
-          if (userData) {
-            return {
-              id: userData.user.id,
-              name: userData.user.name,
-              email: userData.user.email,
-              image: userData.user.avatar,
-              accessToken: userData.accessToken
-            } as unknown as User;
+          if (!user) {
+            console.log('User not found');
+            return null;
           }
-        } catch (error) {
-          throw new Error(new Date().getTime().toString());
-        }
 
-        return null;
+          const isPasswordValid = await compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            console.log('Invalid password');
+            return null;
+          }
+
+          console.log('Authentication successful');
+          return {
+            id: user.id,
+            username: user.username
+          };
+        } catch (error) {
+          console.error('Authentication error:', error);
+          return null;
+        }
       }
     })
   ],
+  pages: {
+    signIn: '/login'
+  },
   callbacks: {
-    signIn: async ({ user, account, profile }) => {
-      switch (account?.provider) {
-        case AUTH_PROVIDER.CREDENTIALS:
-          if (user) return true;
-          break;
-        case AUTH_PROVIDER.GOOGLE:
-          if (!account || !profile?.email_verified) return false;
-
-          const gRes = await AuthApi.googleSignIn(AUTH_AUTHENTICATOR.SELF_HOSTED, account.id_token);
-          const gUser = gRes.data.data;
-
-          if (gUser) {
-            user.id = gUser.user.id;
-            user.accessToken = gUser.accessToken;
-
-            return true;
-          }
-          break;
-        case AUTH_PROVIDER.FACEBOOK:
-          if (!account) return false;
-
-          const fRes = await AuthApi.facebookSignIn(AUTH_AUTHENTICATOR.SELF_HOSTED, account.access_token, false);
-          const fUser = fRes.data.data;
-
-          if (fUser) {
-            user.id = fUser.user.id;
-            user.accessToken = fUser.accessToken;
-
-            return true;
-          }
-          break;
-      }
-
-      return false;
-    },
-    jwt: async ({ user, token, trigger, session }) => {
+    async jwt({ token, user }: { token: any; user: any }) {
       if (user) {
-        token.preference = user.preference;
-        token.accessToken = user.accessToken;
+        token.id = user.id;
+        token.username = user.username;
       }
-
-      if (trigger === 'update' && session) {
-        token.preference = session.user.preference;
-        token.accessToken = session.accessToken;
-      }
-
       return token;
     },
-    session: async ({ session, token }) => {
-      session.user.id = token.sub;
-      session.user.preference = token.preference;
-      session.accessToken = token.accessToken;
-
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.username = token.username as string;
+      }
       return session;
     }
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET
 };

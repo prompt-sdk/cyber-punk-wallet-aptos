@@ -10,7 +10,7 @@ const authMiddleware = withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => token != null
+      authorized: ({ token }) => !!token
     },
     pages: {
       signIn: '/login'

@@ -1,6 +1,6 @@
 'use client';
 
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
 

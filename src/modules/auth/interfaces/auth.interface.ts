@@ -4,10 +4,8 @@ import { SignInOptions } from 'next-auth/react';
 export type AuthEntity = {
   user: {
     id: string;
-    name: string;
-    fullName: string;
-    email: string;
-    avatar: string;
+    username: string;
+    password: string;
   };
   accessToken: string;
 };
