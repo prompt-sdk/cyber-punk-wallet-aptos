@@ -1,6 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare, hash } from 'bcryptjs';
 import { kv } from '@vercel/kv';
 
 interface User {
@@ -28,14 +27,14 @@ export async function registerUser(username: string, password: string): Promise<
       return null;
     }
 
-    // Hash the password
-    const hashedPassword = await hash(password, 10);
+    // Encode the password using btoa
+    const encodedPassword = btoa(password);
 
     // Create a new user object
     const newUser: User = {
-      id: generateUniqueId(), // Use the new function here
+      id: generateUniqueId(),
       username,
-      password: hashedPassword
+      password: encodedPassword
     };
 
     // Store the new user in the KV database
@@ -71,7 +70,9 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const isPasswordValid = await compare(credentials.password, user.password);
+          // Decode the stored password and compare
+          const decodedPassword = atob(user.password);
+          const isPasswordValid = credentials.password === decodedPassword;
 
           if (!isPasswordValid) {
             console.log('Invalid password');

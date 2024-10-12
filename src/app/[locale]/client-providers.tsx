@@ -4,7 +4,6 @@ import { SessionProvider } from 'next-auth/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { WalletProvider } from '@/components/context/WalletProvider';
 import { GeoTargetly } from '@/modules/auth-aptos/utils/geo-targetly';
-
 interface ClientProvidersProps {
   children: React.ReactNode;
   locale: string;

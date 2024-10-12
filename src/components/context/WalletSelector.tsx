@@ -60,13 +60,18 @@ export function WalletSelector() {
   const handleConnect = useCallback(async () => {
     if (connected && account?.address) {
       // Try to register the user first
-      const user = await registerUser(account.address, md5(account.address));
+      toast({
+        title: 'Connecting wallet...',
+        description: 'Please wait while we connect your wallet.'
+      });
+      const user = await registerUser(account.address, account.address);
+
       if (user) {
         // If registration is successful, sign in
-        await signIn('credentials', { username: account.address, password: md5(account.address) });
+        await signIn('credentials', { username: account.address, password: account.address });
       } else {
         // If registration fails (user already exists), just try to sign in
-        await signIn('credentials', { username: account.address, password: md5(account.address) });
+        await signIn('credentials', { username: account.address, password: account.address });
       }
     }
   }, [connected, account]);
@@ -109,7 +114,7 @@ export function WalletSelector() {
     </DropdownMenu>
   ) : (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button>Connect a Wallet</Button>
       </DialogTrigger>
       <ConnectWalletDialog close={closeDialog} />

@@ -13,11 +13,10 @@ import { LoginFormData } from '../interfaces/login.interface';
 
 import AugementedButton from '@/modules/augmented/components/chat-area';
 import FormNameField from '@/modules/form/components/form-name-field';
-import { useToast } from '@/modules/toast/context/toast.context';
-
 import ModalLoginFrame from '@/assets/svgs/modal-login-frame.svg';
 import TransparentBtnFrame from '@/assets/svgs/transparent-btn-frame.svg';
 import WhiteBtnFrame from '@/assets/svgs/white-btn-frame.svg';
+import { useToast } from '@/hooks/use-toast';
 
 import { loginFormSchema } from '../validations/login-form';
 import ChatPopup from '@/modules/chat/components/chat-popup';
@@ -30,7 +29,7 @@ type LoginRootProps = ComponentBaseProps;
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
   const { connected } = useWallet();
-  const { showToast } = useToast();
+  const { toast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
   const form = useForm<LoginFormData>({
@@ -51,7 +50,11 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   }, [connected]);
 
   const onSubmit = (_data: LoginFormData) => {
-    showToast('This is a success message!', 'success');
+    toast({
+      title: 'This is a success message!',
+      description: 'This is a success message!',
+      variant: 'default'
+    });
 
     // console.log(data);
     // Handle form submission
@@ -81,7 +84,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
               <FormNameField label="Name" name="name" form={form} error={errors.name} isValid={isValid} value={name} />
             </div>
 
-            <div className="flex flex-col gap-3 sm:gap-5">
+            <div className="flex w-full flex-col gap-3 sm:gap-5">
               <button type="submit">
                 <Image src={WhiteBtnFrame.src} alt="create" width={WhiteBtnFrame.width} height={WhiteBtnFrame.height} />
               </button>
