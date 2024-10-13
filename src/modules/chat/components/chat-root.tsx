@@ -79,7 +79,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
   const [previewWidgetCode, setPreviewWidgetCode] = useState<string>('');
 
-  const { data: session } = useSession();
+  const { data: session }: any = useSession();
   const { account, connected, disconnect, wallet } = useWallet();
 
   const { id: chatId } = useParams();
@@ -738,7 +738,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                       'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
                       'flex cursor-pointer flex-col gap-2'
                     )}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   >
                     <p className="text=[#6B7280]">{'Select widget'}</p>
                     <p className="text-[#9CA3AF]">{'For APT'}</p>

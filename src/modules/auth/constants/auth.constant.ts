@@ -1,6 +1,7 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import Credentials from 'next-auth/providers/credentials';
 import { kv } from '@vercel/kv';
+import { z } from 'zod';
+import { authConfig } from './auth.config';
 
 interface User {
   id: string;
@@ -48,22 +49,20 @@ export async function registerUser(username: string, password: string): Promise<
   }
 }
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
+  ...authConfig,
   providers: [
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        username: { label: 'Wallet Address', type: 'text' },
-        password: { label: 'Password', type: 'password' }
-      },
+    Credentials({
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) {
-          console.log('Missing wallet address or password');
-          return null;
-        }
-
-        try {
-          const user = await getUser(credentials.username);
+        const parsedCredentials = z
+          .object({
+            username: z.string().min(6),
+            password: z.string().min(6)
+          })
+          .safeParse(credentials);
+        if (parsedCredentials.success) {
+          const { username, password } = parsedCredentials.data;
+          const user = await getUser(username);
 
           if (!user) {
             console.log('User not found');
@@ -72,7 +71,7 @@ export const authOptions: NextAuthOptions = {
 
           // Decode the stored password and compare
           const decodedPassword = atob(user.password);
-          const isPasswordValid = credentials.password === decodedPassword;
+          const isPasswordValid = password === decodedPassword;
 
           if (!isPasswordValid) {
             console.log('Invalid password');
@@ -83,32 +82,10 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user.id,
             username: user.username
-          };
-        } catch (error) {
-          console.error('Authentication error:', error);
-          return null;
+          } as any;
         }
+        return null;
       }
     })
-  ],
-  pages: {
-    signIn: '/login'
-  },
-  callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
-      if (user) {
-        token.id = user.id;
-        token.username = user.username;
-      }
-      return token;
-    },
-    async session({ session, token }: { session: any; token: any }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.username = token.username as string;
-      }
-      return session;
-    }
-  },
-  secret: process.env.NEXTAUTH_SECRET
+  ]
 };

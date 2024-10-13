@@ -1,31 +1,32 @@
-import type { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from 'next-auth/middleware';
+import type { NextRequest as typeNextRequest, NextResponse as typeNextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
+import { authOptions } from '@/modules/auth/constants/auth.constant';
 import createIntlMiddleware from 'next-intl/middleware';
 import { defaultLocale, localeDetection, localePrefix, locales, pathnames, publicPages } from './config';
+import { WEBSITE_URL } from '@/common/constants/site.constant';
 
 const intlMiddleware = createIntlMiddleware({ locales, pathnames, defaultLocale, localePrefix, localeDetection });
-const authMiddleware = withAuth(
-  function onSuccess(req) {
-    return intlMiddleware(req);
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token
-    },
-    pages: {
-      signIn: '/login'
-    }
-  }
-);
+const auth = NextAuth(authOptions).auth;
 
-export default async function middleware(req: NextRequest) {
+const authMiddleware = auth((req: any) => {
+  if (req.auth) return intlMiddleware(req);
+  const reqUrl = new URL(req.url);
+  if (!req.auth && reqUrl?.pathname !== '/') {
+    return NextResponse.redirect(
+      new URL(`${WEBSITE_URL}/signin?callbackUrl=${encodeURIComponent(reqUrl?.pathname)}`, req.url)
+    );
+  }
+});
+
+export default async function middleware(req: typeNextRequest) {
   const publicPathnameRegex = RegExp(
     `^(/(${locales.join('|')}))?(${publicPages.flatMap(p => (p === '/' ? ['', '/'] : p)).join('|')})/?$`,
     'i'
   );
   const isPublicPage = publicPathnameRegex.test(req.nextUrl.pathname);
 
-  let response: NextResponse;
+  let response: typeNextResponse;
 
   if (isPublicPage) {
     response = intlMiddleware(req);

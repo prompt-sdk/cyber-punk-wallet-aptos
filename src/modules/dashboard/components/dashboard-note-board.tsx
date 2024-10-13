@@ -13,7 +13,7 @@ import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 const DashboardNotesBoard: React.FC = () => {
   const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
   const [widgetTools, setWidgetTools] = useState<any>([]);
-  const { data: session } = useSession();
+  const { data: session }: any = useSession();
 
   const fetchWidgetTools = useCallback(async () => {
     try {

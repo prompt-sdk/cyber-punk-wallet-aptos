@@ -5,7 +5,12 @@ import { immer } from 'zustand/middleware/immer';
 
 import { SignInDto } from '../interfaces/auth.interface';
 
-import { AUTH_PROVIDER } from '../constants/auth.constant';
+export enum AUTH_PROVIDER {
+  CREDENTIALS = 'credentials',
+  FACEBOOK = 'facebook',
+  GOOGLE = 'google',
+  APPLE = 'apple'
+}
 
 type State = {
   isAuthenticated: boolean;

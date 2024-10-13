@@ -49,7 +49,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const [receive, setReceive] = useState<string | null>(null);
   const [isOpenReceive, setIsOpenReceive] = useState<boolean>(false);
   const [pending, setPending] = useState<boolean>(false);
-  const { data: session } = useSession();
+  const { data: session }: any = useSession();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const address = searchParams.get('address');
@@ -72,8 +72,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
       headers: { accept: 'application/json' }
     };
     const respo = await axios.get(
-      `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${
-        session?.user?.username || account?.address.toString()
+      `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${session?.user?.username || account?.address.toString()
       }/resources`,
       options
     );

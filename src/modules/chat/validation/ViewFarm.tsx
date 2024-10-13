@@ -23,7 +23,7 @@ export const ViewFrame = ({ code }: { code: string }) => {
     if (Array.isArray(data)) {
       return data.map(item => <p>{item}</p>);
     } else {
-      const getLastChildValue = (obj: any) => {
+      const getLastChildValue = (obj: any): any => {
         const keys = Object.keys(obj);
         const lastKey = keys[keys.length - 1];
         const value = obj[lastKey];

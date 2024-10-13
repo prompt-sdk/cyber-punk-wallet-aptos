@@ -2,7 +2,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import md5 from 'md5';
 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
