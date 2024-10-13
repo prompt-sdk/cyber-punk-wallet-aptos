@@ -8,9 +8,7 @@ import Body from '@/components/common/layout/body';
 import Head from '@/components/common/layout/head';
 import Html from '@/components/common/layout/html';
 import Root from '@/components/common/layout/root';
-
-import { ToastProvider } from '@/modules/toast/context/toast.context';
-
+import { Toaster } from '@/components/ui/toaster';
 const fontNunito = Nunito({
   subsets: ['vietnamese'],
   variable: '--font-nunito',
@@ -32,11 +30,10 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
       <Body className={classNames(fontNunito.variable, fontOrbitron.variable, fontOrbitron.className)}>
         <Root>
           <MainHeader />
-          <ToastProvider>
-            <div className="flex w-full grow flex-col overflow-hidden">{children}</div>
-          </ToastProvider>
+          <div className="flex w-full grow flex-col overflow-hidden">{children}</div>
           <MainFooter />
         </Root>
+        <Toaster />
       </Body>
     </Html>
   );

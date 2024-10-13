@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ComponentBaseProps } from '@/common/interfaces';
 
 import DashboardWidgetToolToggleButton from './dashboard-widget-tool-toggle-button';
+import Link from 'next/link';
 
 type DashboardWidgetToolsProps = ComponentBaseProps;
 
@@ -34,9 +35,9 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
           <button>
             <i className="ico-file-text-edit text-xl" />
           </button>
-          <button>
+          <Link href="/chat">
             <i className="ico-ai text-xl" />
-          </button>
+          </Link>
         </motion.div>
       </div>
       <DashboardWidgetToolToggleButton className="shrink-0" onToggle={handleToggle} />

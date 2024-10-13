@@ -26,6 +26,7 @@ const ChatPromptList: FC<ChatPromptListProps> = ({
   onSave,
   onShare
 }) => {
+  if (!items || items.length === 0) return null;
   const truncateTitle = (title: string): string => {
     return title.length > 20 ? `${title.slice(0, 20)}...` : title;
   };

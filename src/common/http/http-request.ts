@@ -1,4 +1,5 @@
 import { Session } from 'next-auth';
+// @ts-ignore
 import { getCsrfToken, getSession, signOut } from 'next-auth/react';
 import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
