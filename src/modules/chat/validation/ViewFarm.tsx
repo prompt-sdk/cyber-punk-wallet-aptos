@@ -8,6 +8,17 @@ export const ViewFrame = ({ code }: { code: string }) => {
   const config = new AptosConfig({ network: Network.MAINNET });
   const aptos = new Aptos(config);
 
+  const truncateAddress = (address: string, startLength: number = 6, endLength: number = 4) => {
+    if (address.length <= startLength + endLength) return address;
+    return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
+  };
+
+  const truncateAddressesInCode = (code: string) => {
+    // Regular expression to match Aptos-style addresses (0x followed by 64 hexadecimal characters)
+    const addressRegex = /0x[a-fA-F0-9]{64}/g;
+    return code.replace(addressRegex, match => truncateAddress(match));
+  };
+
   const processData = (data: any) => {
     if (Array.isArray(data)) {
       return data.map(item => <p>{item}</p>);
@@ -27,10 +38,14 @@ export const ViewFrame = ({ code }: { code: string }) => {
     }
   };
 
+  const truncatedCode = truncateAddressesInCode(code);
+
   return (
     <>
       <ErrorBoundary fallback={<div>Something went wrong</div>}>
-        <StringToReactComponent data={{ useEffect, useState, aptos, processData }}>{`${code}`}</StringToReactComponent>
+        <StringToReactComponent data={{ useEffect, useState, aptos, processData }}>
+          {truncatedCode}
+        </StringToReactComponent>
       </ErrorBoundary>
     </>
   );
