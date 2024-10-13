@@ -23,12 +23,14 @@ import ChatPopup from '@/modules/chat/components/chat-popup';
 import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
 import { WalletSelector } from '@/components/context/WalletSelector';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { useSession } from 'next-auth/react';
 
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
   const { connected } = useWallet();
+  const { data: session } = useSession();
   const { toast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -44,10 +46,10 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   } = form;
 
   useEffect(() => {
-    if (connected) {
+    if (session) {
       router.push('/dashboard');
     }
-  }, [connected]);
+  }, [session]);
 
   const onSubmit = (_data: LoginFormData) => {
     toast({
