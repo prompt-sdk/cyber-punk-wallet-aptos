@@ -126,7 +126,7 @@ export function ChatPanel({
 
             ) : null}
 
-            <div className="mx-auto  p-10">
+            <div className="mx-auto p-10">
                 <PromptForm input={input} setInput={setInput} />
             </div>
         </div>
