@@ -31,9 +31,8 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
       <Head />
       <Body className={classNames(fontNunito.variable, fontOrbitron.variable, fontOrbitron.className)}>
         <Root>
-          <MainHeader title="Agent Wallet" />
           <div className="flex w-full grow flex-col overflow-hidden">{children}</div>
-          <MainFooter />
+
         </Root>
         <Toaster />
       </Body>

@@ -6,6 +6,8 @@ import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import FormTextField from '@/modules/form/components/form-text-field';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 type Agent = {
   id: string;
@@ -27,11 +29,35 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const agentForm = useForm({
     defaultValues: {
       name: '',
-      description: ''
+      description: '',
+      introMessage: '',
+      tools: [],
+      widget: '',
+      prompt: ''
     }
   });
 
-  const handleCreateAgent = (data: { name: string; description: string }) => {
+  // Mock data for tools and widgets (replace with actual data)
+  const toolOptions = [
+    { value: 'tool1', label: 'Tool 1' },
+    { value: 'tool2', label: 'Tool 2' },
+    { value: 'tool3', label: 'Tool 3' }
+  ];
+
+  const widgetOptions = [
+    { value: 'widget1', label: 'Widget 1' },
+    { value: 'widget2', label: 'Widget 2' },
+    { value: 'widget3', label: 'Widget 3' }
+  ];
+
+  const handleCreateAgent = (data: {
+    name: string;
+    description: string;
+    introMessage: string;
+    tools: string[];
+    widget: string;
+    prompt: string;
+  }) => {
     const newAgent: Agent = {
       id: (agents.length + 1).toString(),
       name: data.name,
@@ -71,10 +97,51 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
         >
           <form
             onSubmit={agentForm.handleSubmit(handleCreateAgent)}
-            className="flex max-h-[80vh] flex-col gap-4 overflow-y-auto p-8"
+            className="flex max-h-[80vh] flex-col gap-2 overflow-y-auto p-8"
           >
             <FormTextField form={agentForm} name="name" label="Name" />
             <FormTextField form={agentForm} name="description" label="Description" />
+            <FormTextField form={agentForm} name="introMessage" label="Intro Message" />
+            <div className="mb-4 flex flex-col gap-3">
+              <label htmlFor="tools" className="text-xs text-white lg:text-[18px]">
+                Select tools
+              </label>
+              <Select onValueChange={value => agentForm.setValue('tools', value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select tools" />
+                </SelectTrigger>
+                <SelectContent>
+                  {toolOptions.map(tool => (
+                    <SelectItem key={tool.value} value={tool.value}>
+                      {tool.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mb-4 flex flex-col gap-3">
+              <label htmlFor="widget" className="text-xs text-white lg:text-[18px]">
+                Select widget
+              </label>
+              <Select onValueChange={value => agentForm.setValue('widget', value)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select widget" />
+                </SelectTrigger>
+                <SelectContent>
+                  {widgetOptions.map(widget => (
+                    <SelectItem key={widget.value} value={widget.value}>
+                      {widget.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">
+                Prompt
+              </label>
+              <Textarea {...agentForm.register('prompt')} placeholder="Enter prompt" className="mt-1" />
+            </div>
             <Button type="submit">Create Agent</Button>
           </form>
         </AugmentedPopup>

@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+import NextAuth from 'next-auth';
 
 export const authConfig = {
   pages: {
@@ -23,3 +24,5 @@ export const authConfig = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: []
 } satisfies NextAuthConfig;
+
+export const { auth, signIn, signOut, handlers } = NextAuth(authConfig);
