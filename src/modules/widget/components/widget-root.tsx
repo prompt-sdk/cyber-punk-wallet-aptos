@@ -108,7 +108,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
       setWidgetCode('');
       setSelectedWidgetTools([]);
       setPreviewWidgetCode('');
-
+      fetchWidgetTools();
       // Close the modal
       setIsOpenCreateWidget(false);
 
