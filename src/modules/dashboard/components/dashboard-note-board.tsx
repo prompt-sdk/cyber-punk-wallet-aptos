@@ -9,11 +9,17 @@ import { DASH_BOARD_NOTE_LIST } from '../constants/dashboard-data.constant';
 import Note from './dashboard-note';
 import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
+import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
+import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
+import { Button } from '@/components/ui/button';
 
 const DashboardNotesBoard: React.FC = () => {
   const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
   const [widgetTools, setWidgetTools] = useState<any>([]);
   const { data: session }: any = useSession();
+  const { widgets, removeWidget } = useWidgetModal();
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
 
   const fetchWidgetTools = useCallback(async () => {
     try {
@@ -42,20 +48,43 @@ const DashboardNotesBoard: React.FC = () => {
     setNotes(updatedNotes);
   };
 
+  const handleWidgetClick = (widgetId: string) => {
+    setSelectedWidgetId(widgetId);
+    setShowPopup(true);
+  };
+
+  const handleConfirmRemove = () => {
+    if (selectedWidgetId) {
+      removeWidget(selectedWidgetId);
+    }
+    setShowPopup(false);
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-wrap px-6">
-        {/* {notes.map((note, index) => (
-          <Note key={note.id} id={note.id} index={index} moveNote={moveNote} size={note.size}>
-            {note.content}
-          </Note>
-        ))} */}
-        {widgetTools.map((tool: any, index: number) => (
-          <Note key={tool._id} id={tool._id} index={index + widgetTools.length} moveNote={moveNote} size={tool.size}>
-            <ViewFrame code={tool.tool.code} />
+      <div className="flex min-h-[200px] flex-wrap px-6">
+        {widgets.map((widget: any, index: number) => (
+          <Note
+            key={widget._id}
+            id={widget._id}
+            index={index}
+            moveNote={moveNote}
+            size={widget.size || 'medium'}
+            onClick={() => handleWidgetClick(widget._id)}
+          >
+            <ViewFrame code={widget.tool?.code} />
           </Note>
         ))}
       </div>
+      <AugmentedPopup visible={showPopup} onClose={() => setShowPopup(false)} textHeading="Remove Widget">
+        <div className="flex flex-col gap-5 p-8">
+          <p>{`Are you sure you want to remove this widget?`}</p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button onClick={() => setShowPopup(false)}>{`Cancel`}</Button>
+            <Button onClick={handleConfirmRemove}>{`Remove`}</Button>
+          </div>
+        </div>
+      </AugmentedPopup>
     </DndProvider>
   );
 };

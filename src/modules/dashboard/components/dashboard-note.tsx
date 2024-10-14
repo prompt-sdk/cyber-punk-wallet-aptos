@@ -18,9 +18,10 @@ interface INoteProps {
   moveNote: (dragIndex: number, hoverIndex: number) => void;
   children: React.ReactNode;
   size: 'small' | 'medium' | 'large';
+  onClick: () => void;
 }
 
-const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size }) => {
+const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size, onClick }) => {
   const [, drag] = useDrag({
     type: ItemTypes.NOTE,
     item: { id, index }
@@ -46,6 +47,7 @@ const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size }) => 
     <div
       ref={node => drag(drop(node))}
       className={`shrink-0 cursor-move transition-all duration-300 ${sizeClasses[size]} p-2`}
+      onClick={onClick}
     >
       <BoderImage
         imageBoder={size === 'small' ? WidgetFrame.src : WidgetFrame2.src}

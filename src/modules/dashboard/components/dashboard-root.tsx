@@ -7,6 +7,7 @@ import { ComponentBaseProps } from '@/common/interfaces';
 import DashboardProfile from './dashboard-profile';
 import DashboardWidget from './dashboard-widget';
 import { useSession } from 'next-auth/react';
+import { WidgetSelectionModal } from './widget-selection-modal';
 
 type DashboardRootProps = ComponentBaseProps;
 
@@ -14,7 +15,7 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
   const { data: session } = useSession();
 
   if (!session) {
-    return null;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -22,6 +23,7 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
       <div className="container flex flex-col items-center justify-center gap-6">
         <DashboardProfile />
         <DashboardWidget />
+        <WidgetSelectionModal />
       </div>
     </div>
   );

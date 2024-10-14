@@ -4,6 +4,7 @@ import { FC, useState } from 'react';
 import classNames from 'classnames';
 import { motion } from 'framer-motion';
 import { ComponentBaseProps } from '@/common/interfaces';
+import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 
 import DashboardWidgetToolToggleButton from './dashboard-widget-tool-toggle-button';
 import Link from 'next/link';
@@ -12,9 +13,15 @@ type DashboardWidgetToolsProps = ComponentBaseProps;
 
 const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const { openWidgetModal } = useWidgetModal();
 
   const handleToggle = (isActive: boolean) => {
     setIsVisible(isActive);
+  };
+
+  const handleOpenWidgetModal = () => {
+    console.log('Attempting to open widget modal');
+    openWidgetModal();
   };
 
   return (
@@ -29,7 +36,7 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
           <button>
             <i className="ico-image text-xl" />
           </button>
-          <button>
+          <button onClick={handleOpenWidgetModal}>
             <i className="ico-layout-web-12 text-xl" />
           </button>
           <button>
