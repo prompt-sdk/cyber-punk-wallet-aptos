@@ -67,28 +67,33 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   }, []);
 
   const loadBalance = useCallback(async () => {
-    const options = {
-      method: 'GET',
-      headers: { accept: 'application/json' }
-    };
-    const respo = await axios.get(
-      `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${session?.user?.username || account?.address.toString()
-      }/resources`,
-      options
-    );
-    //console.log(respo);
-    const datas = respo?.data[1];
-    const resBalance = datas?.data?.coin.value;
-    const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
+    try {
+      const options = {
+        method: 'GET',
+        headers: { accept: 'application/json' }
+      };
+      const respo = await axios.get(
+        `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${
+          session?.user?.username || account?.address.toString()
+        }/resources`,
+        options
+      );
+      //console.log(respo);
+      const datas = respo?.data[1];
+      const resBalance = datas?.data?.coin.value;
+      const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
 
-    setBalance(formatBalance.toFixed(2));
-  }, [account?.address]);
+      setBalance(formatBalance.toFixed(2));
+    } catch (error) {
+      console.error('Error loading balance:', error);
+    }
+  }, [account?.address, session?.user?.username]);
 
   useEffect(() => {
-    if (account?.address) {
+    if (account?.address || session?.user?.username) {
       loadBalance();
     }
-  }, [account?.address]);
+  }, [loadBalance, account?.address, session?.user?.username]);
 
   if (!session) {
     return null;

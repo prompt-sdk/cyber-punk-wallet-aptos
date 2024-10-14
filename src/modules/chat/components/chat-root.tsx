@@ -65,15 +65,12 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
-  const [isLoadingSourceData, setIsLoadingSourceData] = useState(false);
   const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
   const [coinList, setCoinList] = useState<Array<{ symbol: string; name: string; address: string }>>([]);
   const [isOpenCreateWidget, setIsOpenCreateWidget] = useState(false);
-  const [widgetName, setWidgetName] = useState('');
-  const [widgetDescription, setWidgetDescription] = useState('');
   const [widgetPrompt, setWidgetPrompt] = useState('');
   const [widgetCode, setWidgetCode] = useState('');
   const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
