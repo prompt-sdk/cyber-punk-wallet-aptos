@@ -13,18 +13,17 @@ export const getToolIdByAgent = async (agentId: string) => {
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
     let col = await db.collection('agent');
-
-    const data = await col.find({ _id: new ObjectId(agentId) }).toArray();
+    const data = await col.findOne({ _id: new ObjectId(agentId) });
     return data;
 };
 
-export const getToolIdByWidget = async (Widget: string) => {
+export const getToolIdByWidget = async (WidgetId: string) => {
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
     let col = await db.collection('agent');
 
-    const data = await col.find({ _id: new ObjectId(Widget) }).toArray();
+    const data = await col.find({ "_id": new ObjectId(WidgetId) }).toArray();
     return data;
 };
 
@@ -39,3 +38,11 @@ export const creatAgentWithTool = async (data: any) => {
     return updata.insertedId;
 };
 
+export const getAgentById = async (agentId: any) => {
+    let client = new MongoClient(process.env.MONGO_DB as string);
+    let clientPromsie = await client.connect();
+    let db = clientPromsie.db('prompt');
+    let col = await db.collection('agent');
+    const data = await col.findOne({ _id: new ObjectId(agentId) });
+    return data;
+};

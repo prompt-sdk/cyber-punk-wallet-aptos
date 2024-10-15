@@ -7,7 +7,6 @@ import { ComponentBaseProps } from '@/common/interfaces';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import BoderImage from '@/components/common/border-image';
-
 import line from '@/assets/svgs/line.svg';
 import ProfileBottomFrameBorder from '@/assets/svgs/profile-bottom-frame-border.png';
 
@@ -66,35 +65,36 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   };
 
   const startChat = async (agentId: string) => {
-    try {
-      const response = await fetch('/api/newChat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ agentId })
-      });
+    router.push(`/chat?agentId=${agentId}`);
+    // try {
+    //   const response = await fetch('/api/newChat', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({ agentId })
+    //   });
 
-      if (!response.ok) {
-        throw new Error('Failed to start new chat');
-      }
+    //   if (!response.ok) {
+    //     throw new Error('Failed to start new chat');
+    //   }
 
-      const data = await response.json();
-      console.log('New chat started:', data);
+    //   const data = await response.json();
+    //   console.log('New chat started:', data);
 
-      if (data && data.chat_id) {
-        router.push(`/chat/${data.chat_id}`);
-      } else {
-        console.error('No chat_id received from the server');
-      }
-    } catch (error) {
-      console.error('Error starting new chat:', error);
-      toast({
-        title: 'Error',
-        description: 'An error occurred while starting the chat.',
-        variant: 'destructive'
-      });
-    }
+    //   if (data && data.chat_id) {
+    //     router.push(`/chat/${data.chat_id}`);
+    //   } else {
+    //     console.error('No chat_id received from the server');
+    //   }
+    // } catch (error) {
+    //   console.error('Error starting new chat:', error);
+    //   toast({
+    //     title: 'Error',
+    //     description: 'An error occurred while starting the chat.',
+    //     variant: 'destructive'
+    //   });
+    // }
   };
   // console.log(agents);
 

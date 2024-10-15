@@ -9,7 +9,7 @@ import {
 
 } from 'ai/rsc'
 import { openai } from '@ai-sdk/openai'
-import { getTools, getToolIdByAgent } from '../db/store-mongodb';
+import { getTools, getToolIdByAgent, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
 
 import { generateText } from 'ai';
@@ -47,9 +47,9 @@ async function submitUserMessage(content: string) {
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
 
-  const gettools: any = await getToolIdByAgent(aiState.get().agentId)
-  const dataTools = await getTools(gettools);
 
+  const gettools: any = await getToolIdByAgent(aiState.get().agentId)
+  const dataTools = await getTools(gettools.tools);
   const zodExtract = (type: any, describe: any) => {
     if (type == 'u128') return z.number().describe(describe)
     if (type == 'u64') return z.number().describe(describe)
@@ -75,7 +75,7 @@ async function submitUserMessage(content: string) {
         description: item.tool.description,
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
-          if (item.tool.type == 'entry') {
+          if (item.tool.type == '') {
             yield (
               <BotCard>
                 <SmartActionSkeleton />
@@ -95,7 +95,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-call',
-                      toolName: item.type + item.tool.type,
+                      toolName: item.type,
                       toolCallId,
                       args: ParametersData
                     }
@@ -107,7 +107,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-result',
-                      toolName: item.type + item.tool.type,
+                      toolName: item.type,
                       toolCallId,
                       result: ParametersData
                     }
@@ -123,79 +123,17 @@ async function submitUserMessage(content: string) {
                 </BotCard>
               </BotCard>
             )
-
-          }
-          if (item.tool.type == 'view') {
-            yield (
-              <BotCard>
-                <SmartActionSkeleton />
-              </BotCard>
-            )
-
-            await sleep(1000)
-
-            const toolCallId = nanoid()
-            const { text } = await generateText({
-              model: openai('gpt-4o'),
-              system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
-              prompt: '0.4'
-            });
-
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'assistant',
-                  content: [
-                    {
-                      type: 'tool-call',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      args: ParametersData
-                    }
-                  ]
-                },
-                {
-                  id: nanoid(),
-                  role: 'tool',
-                  content: [
-                    {
-                      type: 'tool-result',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      result: text
-                    }
-                  ]
-                }
-              ]
-            })
-
-            return <BotCard>
-              <BotCard>
-                <SmartAction props={text} />
-              </BotCard>
-            </BotCard>
           }
         }
       };
     }
-    if (item.type == 'widgetTool') {
-
-    }
-
     return tool;
   }, {});
-
-  //get agentId a iState.get().agentId
+  const system_messenge = await getAgentById(aiState.get().agentId)
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <SpinnerMessage />,
-    system: ` You are a Helpful developer.\n 
-            Analyze each query to determine if it requires plain text information or an action via a tool. Do not ever send tool call arguments with your chat. You must specifically call the tool with the information\n
-            For informational queries like "create label show balance of 0x123123123", respond with text, then balance of account you answered with using the 'getBlanace'. Always say something before or after tool usage.\n
-            Provide a response clearly and concisely. Always be polite, informative, and efficient.`,
+    system: system_messenge?.prompt || 'You are assitant helpful',
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
@@ -306,12 +244,12 @@ export const getUIStateFromAIState = (aiState: Chat) => {
       display:
         message.role === 'tool' ? (
           message.content.map(tool => {
-            return tool.toolName === 'contractToolentry' ? (
+            return tool.toolName === 'contractTool' ? (
               <BotCard>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartAction props={tool.result} />
               </BotCard>
-            ) : tool.toolName === 'contractToolview' ? (
+            ) : tool.toolName === 'contractTool' ? (
               <BotCard>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartAction props={tool.result} />
