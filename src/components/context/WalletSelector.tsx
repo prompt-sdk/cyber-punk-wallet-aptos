@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
-import { authenticate, signup, getUser, logout } from '@/modules/auth/constants/auth.actions';
+import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
@@ -89,7 +89,7 @@ export function WalletSelector() {
     if (account) {
       await disconnect();
     }
-    await logout();
+    await signOut();
   }, [disconnect]);
 
   if (status === 'loading') {
