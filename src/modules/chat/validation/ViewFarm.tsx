@@ -89,7 +89,7 @@ export const ViewFrameDashboard = ({ code, id }: { code: string, id: string }) =
   return (
     <>
       <ErrorBoundary fallback={<div>Something went wrong</div>}>
-        <StringToReactComponent data={{ useEffect, useState, aptos, processData, id }}>
+        <StringToReactComponent data={{ useEffect, useState, aptos, processData, widgetId: id }}>
           {truncatedCode}
         </StringToReactComponent>
       </ErrorBoundary>

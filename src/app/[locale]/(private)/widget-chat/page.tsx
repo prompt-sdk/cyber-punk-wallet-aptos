@@ -15,21 +15,27 @@ export const metadata = {
 
 export interface ChatPageProps {
   params: {
+
+  }
+  searchParams: {
     agentId: string
     prompt: string
     widgetId: string
   }
 }
 
-export default async function WidgetChatPage({ params }: ChatPageProps) {
+export default async function WidgetChatPage({ params, searchParams }: ChatPageProps) {
   const id = nanoid()
   const session: any = (await auth()) as Session
   const missingKeys = await getMissingKeys()
   // if have widget ID 
   let agentId = null;
-  if (params.widgetId) {
+  console.log("params.widgetId", searchParams.widgetId)
+  if (searchParams.widgetId) {
     // get Tools fromt widget
-    const tool_ids = await getToolIdByWidget(params.widgetId);
+
+    const tool_ids = await getToolIdByWidget(searchParams.widgetId);
+    console.log(tool_ids);
     // create agent with tool
     const data: any = {
       "name": "Smart Action",
@@ -44,11 +50,11 @@ export default async function WidgetChatPage({ params }: ChatPageProps) {
       "description": "This bot will excute transaction"
     };
     agentId = await creatAgentWithTool(data);
+    console.log("agentId", agentId)
   }
 
-  console.log("agentId", agentId, params.agentId)
   return (
-    <AI initialAIState={{ chatId: id, messages: [], agentId: agentId?.toString() || params.agentId }}>
+    <AI initialAIState={{ chatId: id, messages: [], agentId: agentId?.toString() || searchParams.agentId }}>
       <Chat id={id} session={session} missingKeys={missingKeys} />
     </AI>
   )
