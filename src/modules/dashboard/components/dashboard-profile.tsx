@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
 import classNames from 'classnames';
-import { Copy, LogOut, SettingsIcon, User } from 'lucide-react';
+import { Copy, LogOut, SettingsIcon, User, Share2 } from 'lucide-react';
 import { ComponentBaseProps } from '@/common/interfaces';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
 
@@ -67,28 +67,33 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   }, []);
 
   const loadBalance = useCallback(async () => {
-    const options = {
-      method: 'GET',
-      headers: { accept: 'application/json' }
-    };
-    const respo = await axios.get(
-      `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${session?.user?.username || account?.address.toString()
-      }/resources`,
-      options
-    );
-    //console.log(respo);
-    const datas = respo?.data[1];
-    const resBalance = datas?.data?.coin.value;
-    const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
+    try {
+      const options = {
+        method: 'GET',
+        headers: { accept: 'application/json' }
+      };
+      const respo = await axios.get(
+        `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${
+          session?.user?.username || account?.address.toString()
+        }/resources`,
+        options
+      );
+      //console.log(respo);
+      const datas = respo?.data[1];
+      const resBalance = datas?.data?.coin.value;
+      const formatBalance = Number(resBalance ? resBalance : 0) * Math.pow(10, -8);
 
-    setBalance(formatBalance.toFixed(2));
-  }, [account?.address]);
+      setBalance(formatBalance.toFixed(2));
+    } catch (error) {
+      console.error('Error loading balance:', error);
+    }
+  }, [account?.address, session?.user?.username]);
 
   useEffect(() => {
-    if (account?.address) {
+    if (account?.address || session?.user?.username) {
       loadBalance();
     }
-  }, [account?.address]);
+  }, [loadBalance, account?.address, session?.user?.username]);
 
   if (!session) {
     return null;
@@ -184,8 +189,27 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
     }
   }, [account?.address, toast]);
 
+  const copyProfileLink = useCallback(async () => {
+    const profileUrl = `${window.location.origin}/profile/${session?.user?.username || account?.address.toString()}`;
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      toast({
+        title: 'Success',
+        description: 'Copied profile link to clipboard.'
+      });
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to copy profile link.'
+      });
+    }
+  }, [account?.address, session?.user?.username, toast]);
+
   const handleDisconnect = useCallback(async () => {
-    await disconnect();
+    if (account) {
+      await disconnect();
+    }
     await signOut();
   }, [disconnect]);
 
@@ -195,7 +219,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
       <div className="relative flex flex-col gap-6 px-4 py-6">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="flex grow flex-wrap items-center gap-2 md:flex-nowrap">
-            <DashboardAvatar className="shrink-0" imageUrl={AvatarImage.src} altText="Avatar" />
+            <DashboardAvatar className="shrink-0" imageUrl={'/avatar1.png'} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
               <p className="text-wrap break-words text-xl font-bold">
                 {collapseAddress(session?.user?.username || (account?.address.toString() as string))}
@@ -210,6 +234,19 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={copyAddress} className="gap-2">
                 <Copy className="h-4 w-4" /> Copy address
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a
+                  href={`${window.location.origin}/profile/${session?.user?.username || account?.address.toString()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-2"
+                >
+                  <User className="h-4 w-4" /> Profile
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={copyProfileLink} className="gap-2">
+                <Share2 className="h-4 w-4" /> Share Profile
               </DropdownMenuItem>
               {wallet && isAptosConnectWallet(wallet) && (
                 <DropdownMenuItem asChild>

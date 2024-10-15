@@ -23,7 +23,6 @@ export default function AptosReceiveModal({ isOpen, onClose, address }: AptosRec
     navigator.clipboard.writeText(address);
     setCopySuccess(true);
   };
-
   return (
     <AugmentedPopup visible={isOpen} onClose={onClose} textHeading="Receive APT">
       <div className="flex max-h-[80vh] flex-col items-center gap-4 overflow-y-auto p-8">
@@ -33,6 +32,7 @@ export default function AptosReceiveModal({ isOpen, onClose, address }: AptosRec
         </div>
         <div className="flex w-full items-center justify-between rounded-md bg-gray-800 p-3">
           <span className="mr-2 truncate text-sm">{address}</span>
+
           <Button onClick={copyToClipboard} variant="outline" className="text-white hover:text-black">
             {copySuccess ? 'Copied!' : 'Copy'}
           </Button>

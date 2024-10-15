@@ -1,8 +1,9 @@
 'use client';
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
+import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import {
@@ -28,13 +29,14 @@ import {
 import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/modules/auth/constants/auth.constant';
+// @ts-expect-error
+import { useFormState, useFormStatus } from 'react-dom';
 
 export function WalletSelector() {
   const router = useRouter();
   const { account, connected, disconnect, wallet } = useWallet();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   const closeDialog = useCallback(() => setIsDialogOpen(false), []);
 
   const copyAddress = useCallback(async () => {
@@ -63,14 +65,15 @@ export function WalletSelector() {
         title: 'Connecting wallet...',
         description: 'Please wait while we connect your wallet.'
       });
-      const user = await registerUser(account.address, account.address);
+
+      const user = await getUser(account.address);
 
       if (user) {
         // If registration is successful, sign in
-        await signIn('credentials', { username: account.address, password: account.address });
+        await authenticate({ username: account.address, password: account.address });
       } else {
         // If registration fails (user already exists), just try to sign in
-        await signIn('credentials', { username: account.address, password: account.address });
+        await signup({ username: account.address, password: account.address });
       }
     }
   }, [connected, account]);
@@ -82,7 +85,9 @@ export function WalletSelector() {
   }, [connected, session, handleConnect]);
 
   const handleDisconnect = useCallback(async () => {
-    await disconnect();
+    if (account) {
+      await disconnect();
+    }
     await signOut();
   }, [disconnect]);
 
@@ -151,7 +156,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
 
         {hasAptosConnectWallets && (
           <div className="flex flex-col gap-2 pt-3">
-            {aptosConnectWallets.map(wallet => (
+            {aptosConnectWallets.map((wallet: any) => (
               <AptosConnectWalletRow key={wallet.name} wallet={wallet} onConnect={close} />
             ))}
             <p className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
@@ -177,7 +182,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
         )}
 
         <div className="flex flex-col gap-3 pt-3">
-          {availableWallets.map(wallet => (
+          {availableWallets.map((wallet: any) => (
             <WalletRow key={wallet.name} wallet={wallet} onConnect={close} />
           ))}
           {!!installableWallets.length && (
@@ -188,7 +193,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="flex flex-col gap-3">
-                {installableWallets.map(wallet => (
+                {installableWallets.map((wallet: any) => (
                   <WalletRow key={wallet.name} wallet={wallet} onConnect={close} />
                 ))}
               </CollapsibleContent>
@@ -265,7 +270,7 @@ function renderEducationScreen(screen: AboutAptosConnectEducationScreen) {
           Back
         </Button>
         <div className="flex items-center gap-2 place-self-center">
-          {screen.screenIndicators.map((ScreenIndicator, i) => (
+          {screen.screenIndicators.map((ScreenIndicator: any, i: number) => (
             <ScreenIndicator key={i} className="py-4">
               <div className="h-0.5 w-6 bg-muted transition-colors [[data-active]>&]:bg-foreground" />
             </ScreenIndicator>

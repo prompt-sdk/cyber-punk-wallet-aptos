@@ -65,19 +65,18 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
-  const [isLoadingSourceData, setIsLoadingSourceData] = useState(false);
   const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
   const [coinList, setCoinList] = useState<Array<{ symbol: string; name: string; address: string }>>([]);
   const [isOpenCreateWidget, setIsOpenCreateWidget] = useState(false);
-  const [widgetName, setWidgetName] = useState('');
-  const [widgetDescription, setWidgetDescription] = useState('');
   const [widgetPrompt, setWidgetPrompt] = useState('');
   const [widgetCode, setWidgetCode] = useState('');
   const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
   const [previewWidgetCode, setPreviewWidgetCode] = useState<string>('');
+  const [isLoadingModules, setIsLoadingModules] = useState(false);
+  const [isLoadingPackages, setIsLoadingPackages] = useState(false);
 
   const { data: session }: any = useSession();
   const { account, connected, disconnect, wallet } = useWallet();
@@ -319,22 +318,30 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
   //console.log('sourceData', sourceData);
 
   const fetchModuleData = async (account: string) => {
+    setIsLoadingPackages(true);
     try {
       const response = await axios.get(`/api/modules?account=${account}`);
+      setModuleData(response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching module data:', error);
       return null;
+    } finally {
+      setIsLoadingPackages(false);
     }
   };
 
   const fetchFunctions = async (account: string) => {
+    setIsLoadingModules(true);
     try {
       const response = await axios.get(`/api/abis?account=${account}`);
+      setFunctions(response.data);
       return response.data;
     } catch (error) {
       console.error('Error fetching functions:', error);
       return null;
+    } finally {
+      setIsLoadingModules(false);
     }
   };
 
@@ -628,6 +635,11 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
     }
   };
 
+  const isFormValid = useCallback(() => {
+    const { address, packages, modules, functions } = form.getValues();
+    return isValid && address && packages.length > 0 && modules.length > 0 && functions.length > 0;
+  }, [form, isValid]);
+
   //console.log('tools', selectedWidgetTools);
 
   return (
@@ -757,51 +769,71 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         <form className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
           <FormTextField error={errors.address} form={form} label="Contract address" name="address" isValid={isValid} />
 
-          {moduleData && (
-            <div className="mb-4">
-              <p className="mb-2 text-xl text-white">Packages</p>
-              <select
-                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={form.getValues('packages')}
-                onChange={e => {
-                  const selectedOption = e.target.value;
-                  setValue('packages', [selectedOption], { shouldValidate: true });
-                }}
-              >
+          <div className="mb-4">
+            <p className="mb-2 text-xl text-white">Packages</p>
+            <select
+              className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
+              value={form.getValues('packages')}
+              onChange={e => {
+                const selectedOption = e.target.value;
+                setValue('packages', [selectedOption], { shouldValidate: true });
+              }}
+            >
+              {isLoadingPackages ? (
                 <option value="" disabled className="text-[#6B7280]">
-                  Choose package
+                  Loading packages...
                 </option>
-                {moduleData.map((item: any, idx: number) => (
-                  <option key={idx} value={item.name} className="text-[#6B7280]">
-                    {item.name}
+              ) : moduleData && moduleData.length > 0 ? (
+                <>
+                  <option value="" disabled className="text-[#6B7280]">
+                    Choose package
                   </option>
-                ))}
-              </select>
-            </div>
-          )}
+                  {moduleData.map((item: any, idx: number) => (
+                    <option key={idx} value={item.name} className="text-[#6B7280]">
+                      {item.name}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option value="" disabled className="text-[#6B7280]">
+                  No packages available
+                </option>
+              )}
+            </select>
+          </div>
 
-          {functions && (
-            <div className="mb-4">
-              <p className="mb-2 text-xl text-white">Modules</p>
-              <select
-                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={form.getValues('modules')}
-                onChange={e => {
-                  const selectedOption = e.target.value;
-                  setValue('modules', [selectedOption], { shouldValidate: true });
-                }}
-              >
+          <div className="mb-4">
+            <p className="mb-2 text-xl text-white">Modules</p>
+            <select
+              className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
+              value={form.getValues('modules')}
+              onChange={e => {
+                const selectedOption = e.target.value;
+                setValue('modules', [selectedOption], { shouldValidate: true });
+              }}
+            >
+              {isLoadingModules ? (
                 <option value="" disabled className="text-[#6B7280]">
-                  Choose module
+                  Loading modules...
                 </option>
-                {functions.map((item: any, idx: number) => (
-                  <option key={idx} value={item.name} className="text-[#6B7280]">
-                    {item.name}
+              ) : functions && functions.length > 0 ? (
+                <>
+                  <option value="" disabled className="text-[#6B7280]">
+                    Choose module
                   </option>
-                ))}
-              </select>
-            </div>
-          )}
+                  {functions.map((item: any, idx: number) => (
+                    <option key={idx} value={item.name} className="text-[#6B7280]">
+                      {item.name}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option value="" disabled className="text-[#6B7280]">
+                  No modules available
+                </option>
+              )}
+            </select>
+          </div>
 
           {functions && selectedModules && selectedModules?.length > 0 && (
             <div className="mb-4">
@@ -877,7 +909,12 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
               </div>
             </div>
           )}
-          <Button onClick={handleSubmit(onSubmit)} type="submit">
+          <Button
+            onClick={handleSubmit(onSubmit)}
+            type="submit"
+            disabled={!isFormValid()}
+            className={`${!isFormValid() ? 'cursor-not-allowed opacity-50' : ''}`}
+          >
             Create
           </Button>
         </form>

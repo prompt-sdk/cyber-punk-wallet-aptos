@@ -1,10 +1,33 @@
-'use client';
-
 import { PageBaseProps } from '@/common/interfaces';
+import { type Metadata } from 'next'
+import { notFound, redirect } from 'next/navigation'
+import { auth } from '@/modules/auth/constants/auth.config';
+import { getChat, getMissingKeys } from '@/libs/chat/chat.actions'
+import { Chat } from '@/modules/chat/components/chat-ui'
+import { AI } from '@/libs/chat/ai.actions'
+import { Session } from 'types/chat'
+import { nanoid } from '@/modules/chat/utils/utils';
+import { getToolIdByWidget } from '@/libs/db/store-mongodb';
 
-import ChatRoot from '@/modules/chat/components/chat-root';
+export const metadata = {
+  title: 'Prompt Wallet'
+}
 
-type PageProps = PageBaseProps;
-export default function ChatPage(_pageProps: PageProps) {
-  return <ChatRoot />;
+export interface ChatPageProps {
+  params: {
+    agentId: string
+    prompt: string
+    widgetId: string
+  }
+}
+
+export default async function ChatPage({ params }: ChatPageProps) {
+  const id = nanoid()
+  const session = (await auth()) as Session
+  const missingKeys = await getMissingKeys()
+  return (
+    <AI initialAIState={{ chatId: id, messages: [], agentId: params.agentId }}>
+      <Chat id={id} session={session} missingKeys={missingKeys} />
+    </AI>
+  )
 }
