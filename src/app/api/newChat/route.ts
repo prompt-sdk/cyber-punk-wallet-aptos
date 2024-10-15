@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       const session = (await auth()) as Session;
 
       const createdAt = new Date();
-      const userId = session.user.id as string;
+      const userId = session.user.username as string;
       const path = `/chat/${chatId}`;
       const title = agentId;
       const messages: any[] = [];
