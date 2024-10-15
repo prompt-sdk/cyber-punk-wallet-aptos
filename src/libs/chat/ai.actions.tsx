@@ -9,7 +9,7 @@ import {
 
 } from 'ai/rsc'
 import { openai } from '@ai-sdk/openai'
-
+import { getTools } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
 
 import { generateText } from 'ai';
@@ -46,9 +46,9 @@ async function submitUserMessage(content: string) {
   })
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
-
-  const res = await fetch('https://prompt-agent-smartcontract-tool.vercel.app/api/tools?user_id=testAptos&type=contractTool');
-  const dataTools = await res.json()
+  const session: any = await auth();
+  session.user.username
+  const dataTools = await getTools(session.user.username);
   const zodExtract = (type: any, describe: any) => {
     if (type == 'u128') return z.number().describe(describe)
     if (type == 'u64') return z.number().describe(describe)
