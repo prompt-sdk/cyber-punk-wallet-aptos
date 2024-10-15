@@ -15,9 +15,10 @@ import Image from 'next/image';
 import BotIcon from '@/assets/svgs/bot-icon.svg';
 import UserIcon from '@/assets/svgs/user-icon.svg'
 // Different types of message bubbles.
+import { useSession } from 'next-auth/react';
 
 export function UserMessage({ children }: { children: React.ReactNode }) {
-
+    const { data: session }: any = useSession();
 
     return (
         <div
@@ -31,7 +32,7 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
                 className="h-10 w-10 shrink-0"
             />
             <div className="grow">
-                <ChatMessageItem creator={'0xx'} isUser={true} >
+                <ChatMessageItem creator={session?.user.username} isUser={true} >
                     {children}
                 </ChatMessageItem>
 
