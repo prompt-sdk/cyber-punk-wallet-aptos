@@ -73,8 +73,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
         headers: { accept: 'application/json' }
       };
       const respo = await axios.get(
-        `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${
-          session?.user?.username || account?.address.toString()
+        `https://aptos-${process.env.APTOS_NETWORK}.nodit.io/${process.env.NEXT_PUBLIC_API_KEY_NODIT}/v1/accounts/${session?.user?.username || account?.address.toString()
         }/resources`,
         options
       );
@@ -190,7 +189,9 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   }, [account?.address, toast]);
 
   const handleDisconnect = useCallback(async () => {
-    await disconnect();
+    if (account) {
+      await disconnect();
+    }
     await signOut();
   }, [disconnect]);
 
