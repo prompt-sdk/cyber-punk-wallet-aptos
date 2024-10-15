@@ -46,7 +46,7 @@ const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size, onCli
   return (
     <div
       ref={node => drag(drop(node))}
-      className={`shrink-0 cursor-move transition-all duration-300 ${sizeClasses[size]} p-2`}
+      className={`flex w-full shrink-0 cursor-move items-center justify-center transition-all duration-300 ${sizeClasses[size]} p-2`}
       onClick={onClick}
     >
       <BoderImage

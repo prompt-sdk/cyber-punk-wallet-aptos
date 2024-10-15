@@ -45,6 +45,11 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     fetchWidgetTools();
   }, [fetchWidgetTools]);
 
+  const checkIfWidgetHasButton = useCallback((code: string) => {
+    //console.log('code', code);
+    return code.toLowerCase().includes('<a') || code.toLowerCase().includes('a>');
+  }, []);
+
   const moveNote = (fromIndex: number, toIndex: number) => {
     const updatedNotes = [...notes];
     const [movedNote] = updatedNotes.splice(fromIndex, 1);
@@ -53,8 +58,8 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     setNotes(updatedNotes);
   };
 
-  const handleWidgetClick = (widgetId: string) => {
-    if (!address) {
+  const handleWidgetClick = (widgetId: string, code: string) => {
+    if (!address && !checkIfWidgetHasButton(code)) {
       setSelectedWidgetId(widgetId);
       setShowPopup(true);
     }
@@ -69,7 +74,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex min-h-[200px] flex-wrap px-6">
+      <div className="flex min-h-[200px] w-full flex-wrap px-6">
         {widgets.map((widget: any, index: number) => (
           <Note
             key={widget._id}
@@ -77,7 +82,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             index={index}
             moveNote={moveNote}
             size={widget.size || 'medium'}
-            onClick={() => handleWidgetClick(widget._id)}
+            onClick={() => handleWidgetClick(widget._id, widget.tool?.code)}
           >
             <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
           </Note>
