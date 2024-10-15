@@ -11,6 +11,8 @@ import { useAIState, useActions, useUIState } from 'ai/rsc';
 import type { AI } from '@/libs/chat/ai.actions';
 import { nanoid } from 'nanoid';
 import { UserMessage } from '@/modules/chat/components/chat-card';
+import { useSearchParams } from 'next/navigation'
+
 
 export interface ChatPanelProps {
   id?: string;
@@ -26,7 +28,9 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
   const [messages, setMessages] = useUIState<typeof AI>();
   const { submitUserMessage } = useActions();
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false);
+  const searchParams = useSearchParams()
 
+  const prompt = searchParams.get('prompt')
   const exampleMessages: any[] = [
     // {
     //   heading: 'What are the',
@@ -49,7 +53,25 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
     //   message: `What are some recent events about $DOGE?`
     // }
   ];
+  React.useEffect(() => {
+    const sendChat = async () => {
+      setMessages(currentMessages => [
+        ...currentMessages,
+        {
+          id: nanoid(),
+          display: <UserMessage>{prompt}</UserMessage>
+        }
+      ]);
 
+      const responseMessage = await submitUserMessage(prompt);
+
+      setMessages(currentMessages => [...currentMessages, responseMessage]);
+    }
+
+    if (prompt) {
+      sendChat()
+    }
+  }, [prompt])
   return (
     <div className="absolute inset-x-0 bottom-0 w-full  from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
       <ButtonScrollToBottom isAtBottom={isAtBottom} scrollToBottom={scrollToBottom} />
@@ -59,9 +81,8 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
           exampleMessages.map((example, index) => (
             <div
               key={example.heading}
-              className={`cursor-pointer rounded-lg border bg-white p-4 hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900 ${
-                index > 1 && 'hidden md:block'
-              }`}
+              className={`cursor-pointer rounded-lg border bg-white p-4 hover:bg-zinc-50 dark:bg-zinc-950 dark:hover:bg-zinc-900 ${index > 1 && 'hidden md:block'
+                }`}
               onClick={async () => {
                 setMessages(currentMessages => [
                   ...currentMessages,
