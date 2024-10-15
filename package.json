@@ -39,7 +39,7 @@
     "@ai-sdk/openai": "^0.0.66",
     "@aptos-labs/ts-sdk": "^1.28.0",
     "@aptos-labs/wallet-adapter-core": "^4.17.0",
-    "@aptos-labs/wallet-adapter-react": "^3.6.2",
+    "@aptos-labs/wallet-adapter-react": "^3.7.1",
     "@artsy/fresnel": "^7.1.4",
     "@babel/standalone": "^7.25.8",
     "@ckeditor/ckeditor5-core": "^41.3.1",

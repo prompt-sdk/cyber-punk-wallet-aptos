@@ -15,10 +15,14 @@ import Image from 'next/image';
 import BotIcon from '@/assets/svgs/bot-icon.svg';
 import UserIcon from '@/assets/svgs/user-icon.svg'
 // Different types of message bubbles.
+import { useSession } from 'next-auth/react';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+
 
 export function UserMessage({ children }: { children: React.ReactNode }) {
-
-
+    const { data: session }: any = useSession();
+    const { account } = useWallet();
+    console.log("address", session)
     return (
         <div
             className={'flex gap-4 flex-row-reverse'}
@@ -31,7 +35,7 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
                 className="h-10 w-10 shrink-0"
             />
             <div className="grow">
-                <ChatMessageItem creator={'0xx'} isUser={true} >
+                <ChatMessageItem creator={session?.user.username || account?.address.toString()} isUser={true} >
                     {children}
                 </ChatMessageItem>
 
@@ -61,6 +65,7 @@ export function BotMessage({
                 className="h-10 w-10 shrink-0"
             />
             <div className="grow">
+                {/* get chat id */}
                 <ChatMessageItem creator={'Smart Action'} isUser={false} >
                     <MemoizedReactMarkdown
                         className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"

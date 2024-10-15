@@ -6,6 +6,7 @@ export type Message = CoreMessage & {
 
 export interface Chat extends Record<string, any> {
   id: string;
+  agentId: string;
   title: string;
   createdAt: Date;
   userId: string;
@@ -35,7 +36,7 @@ export interface AuthResult {
 
 export interface User extends Record<string, any> {
   id: string;
-  email: string;
+  username: string;
   password: string;
   salt: string;
 }

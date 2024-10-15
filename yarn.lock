@@ -169,7 +169,7 @@
     eventemitter3 "^4.0.7"
     tweetnacl "^1.0.3"
 
-"@aptos-labs/wallet-adapter-react@^3.6.2":
+"@aptos-labs/wallet-adapter-react@^3.7.1":
   version "3.7.1"
   resolved "https://registry.yarnpkg.com/@aptos-labs/wallet-adapter-react/-/wallet-adapter-react-3.7.1.tgz#59ca49e7cdd9c73815e2c785ad50be785691cd13"
   integrity sha512-mrC6xpHssVbX/dTO2M6zKOviT7wDvk+FkBL5AscuONd8FX1na0K5sA8fXqFyDdsbIW3ljOakxb6H/VPwOGfRhg==

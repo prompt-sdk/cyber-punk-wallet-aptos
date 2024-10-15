@@ -32,6 +32,7 @@ async function submitUserMessage(content: string) {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()
+
   aiState.update({
     ...aiState.get(),
     messages: [
@@ -43,7 +44,6 @@ async function submitUserMessage(content: string) {
       }
     ]
   })
-
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
 
@@ -139,6 +139,7 @@ async function submitUserMessage(content: string) {
               system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
               prompt: '0.4'
             });
+
             aiState.done({
               ...aiState.get(),
               messages: [
@@ -186,6 +187,7 @@ async function submitUserMessage(content: string) {
     return tool;
   }, {});
 
+  //get agentId a iState.get().agentId
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <SpinnerMessage />,
@@ -235,6 +237,7 @@ async function submitUserMessage(content: string) {
 export type AIState = {
   chatId: string
   messages: Message[]
+  agentId: string
 }
 
 export type UIState = {
@@ -247,7 +250,7 @@ export const AI = createAI<AIState, UIState>({
     submitUserMessage
   },
   initialUIState: [],
-  initialAIState: { chatId: nanoid(), messages: [] },
+  initialAIState: { chatId: nanoid(), messages: [], agentId: '' },
   onGetUIState: async () => {
     'use server'
 
@@ -268,10 +271,8 @@ export const AI = createAI<AIState, UIState>({
     'use server'
 
     const session = await auth()
-
     if (session && session.user) {
-      const { chatId, messages } = state
-
+      const { chatId, messages, agentId } = state
       const createdAt = new Date()
       const userId = session.user.id as string
       const path = `/chat/${chatId}`
@@ -281,6 +282,7 @@ export const AI = createAI<AIState, UIState>({
 
       const chat: Chat = {
         id: chatId,
+        agentId,
         title,
         userId,
         createdAt,

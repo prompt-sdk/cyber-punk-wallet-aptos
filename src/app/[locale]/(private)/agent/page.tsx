@@ -1,4 +1,3 @@
-'use client';
 
 import { PageBaseProps } from '@/common/interfaces';
 
