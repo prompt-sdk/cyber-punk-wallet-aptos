@@ -8,7 +8,7 @@ import { DASH_BOARD_NOTE_LIST } from '../constants/dashboard-data.constant';
 
 import Note from './dashboard-note';
 import { useSession } from 'next-auth/react';
-import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
+import { ViewFrame, ViewFrameDashboard } from '@/modules/chat/validation/ViewFarm';
 import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
@@ -79,7 +79,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             size={widget.size || 'medium'}
             onClick={() => handleWidgetClick(widget._id)}
           >
-            <ViewFrame code={widget.tool?.code} />
+            <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
           </Note>
         ))}
       </div>
