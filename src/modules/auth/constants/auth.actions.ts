@@ -71,7 +71,7 @@ export async function authenticate({ username, password }: any): Promise<Result 
     }
   }
 }
-export async function createUser(username: string, hashedPassword: string, salt: string) {
+export async function createUser(username: string, password: string) {
   const existingUser = await getUser(username);
 
   if (existingUser) {
@@ -83,8 +83,7 @@ export async function createUser(username: string, hashedPassword: string, salt:
     const user = {
       id: crypto.randomUUID(),
       username,
-      password: hashedPassword,
-      salt
+      password: password
     };
 
     await kv.hmset(`user:${username}`, user);
@@ -121,7 +120,7 @@ export async function signup({ username, password }: any): Promise<Result | unde
     const hashedPassword = getStringFromBuffer(hashedPasswordBuffer);
 
     try {
-      const result = await createUser(username, hashedPassword, salt);
+      const result = await createUser(username, password);
 
       if (result.resultCode === ResultCode.UserCreated) {
         await signIn('credentials', {
