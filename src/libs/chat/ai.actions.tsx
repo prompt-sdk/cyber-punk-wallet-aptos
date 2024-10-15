@@ -32,7 +32,7 @@ async function submitUserMessage(content: string) {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()
-  console.log(aiState.get())
+
   aiState.update({
     ...aiState.get(),
     messages: [
@@ -187,6 +187,7 @@ async function submitUserMessage(content: string) {
     return tool;
   }, {});
 
+  //get agentId a iState.get().agentId
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <SpinnerMessage />,
@@ -270,7 +271,6 @@ export const AI = createAI<AIState, UIState>({
     'use server'
 
     const session = await auth()
-
     if (session && session.user) {
       const { chatId, messages, agentId } = state
       const createdAt = new Date()

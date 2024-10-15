@@ -36,7 +36,7 @@ export interface AuthResult {
 
 export interface User extends Record<string, any> {
   id: string;
-  email: string;
+  username: string;
   password: string;
   salt: string;
 }
