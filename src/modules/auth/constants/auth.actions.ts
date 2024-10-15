@@ -112,13 +112,6 @@ export async function signup({ username, password }: any): Promise<Result | unde
     });
 
   if (parsedCredentials.success) {
-    const salt = crypto.randomUUID();
-
-    const encoder = new TextEncoder();
-    const saltedPassword = encoder.encode(password + salt);
-    const hashedPasswordBuffer = await crypto.subtle.digest('SHA-256', saltedPassword);
-    const hashedPassword = getStringFromBuffer(hashedPasswordBuffer);
-
     try {
       const result = await createUser(username, password);
 
