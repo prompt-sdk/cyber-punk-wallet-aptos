@@ -70,8 +70,8 @@ export const authOptions = {
           }
 
           // Decode the stored password and compare
-          const decodedPassword = atob(user.password);
-          const isPasswordValid = password === decodedPassword;
+          //const decodedPassword = atob(user.password);
+          const isPasswordValid = password === user.password;
 
           if (!isPasswordValid) {
             console.log('Invalid password');

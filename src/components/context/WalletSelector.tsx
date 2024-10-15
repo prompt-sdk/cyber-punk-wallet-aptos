@@ -30,7 +30,7 @@ import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from 'lucide-r
 import { useRouter } from 'next/navigation';
 import { registerUser } from '@/modules/auth/constants/auth.constant';
 // @ts-expect-error
-import { useFormState, useFormStatus } from 'react-dom'
+import { useFormState, useFormStatus } from 'react-dom';
 
 export function WalletSelector() {
   const router = useRouter();
@@ -70,8 +70,7 @@ export function WalletSelector() {
 
       if (user) {
         // If registration is successful, sign in
-        await authenticate({ username: account.address, password: account.address })
-
+        await authenticate({ username: account.address, password: account.address });
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
