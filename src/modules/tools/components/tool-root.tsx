@@ -107,6 +107,15 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
     setIsLoadingModules(true);
     try {
       const response = await axios.get(`/api/abis?account=${account}`);
+      console.log('API Response:', response.data);
+
+      // Check if is_entry is present in the response
+      const hasIsEntry = response.data.some((module: any) =>
+        module.exposed_functions.some((func: any) => 'is_entry' in func)
+      );
+
+      console.log('Has is_entry property:', hasIsEntry);
+
       setFunctions(response.data);
       return response.data;
     } catch (error) {
@@ -235,6 +244,11 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
     const selectedFunctions = form.getValues('functions');
 
     for (const funcName of selectedFunctions) {
+      const selectedModule = functions.find((module: any) =>
+        module.exposed_functions.some((func: any) => func.name === funcName)
+      );
+      const selectedFunction = selectedModule?.exposed_functions.find((func: any) => func.name === funcName);
+
       const toolData = {
         type: 'contractTool',
         name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
@@ -250,13 +264,13 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
           }, {}),
           generic_type_params: sourceData[funcName].generic_type_params || [],
           return: sourceData[funcName].return || [],
-          type: sourceData[funcName].type || '',
+          type: selectedFunction?.is_entry ? 'entry' : sourceData[funcName].type || '',
           functions: funcName,
           address: form.getValues('address')
         },
         user_id: session.user.username
       };
-      console.log('toolData', toolData);
+      console.log('Tool data:', toolData);
       await uploadDataToApi(toolData);
     }
     toast({
@@ -344,6 +358,8 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
     const { address, packages, modules, functions } = form.getValues();
     return isValid && address && packages.length > 0 && modules.length > 0 && functions.length > 0;
   }, [form, isValid]);
+
+  console.log('sourceData', sourceData);
 
   return (
     <div className={classNames('flex w-full grow py-4', className)}>
