@@ -12,8 +12,13 @@ import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
+import { ComponentBaseProps } from '@/common/interfaces';
 
-const DashboardNotesBoard: React.FC = () => {
+type DashboardNotesBoardProps = ComponentBaseProps & {
+  address?: string;
+};
+
+const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) => {
   const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
   const [widgetTools, setWidgetTools] = useState<any>([]);
   const { data: session }: any = useSession();
@@ -23,7 +28,7 @@ const DashboardNotesBoard: React.FC = () => {
 
   const fetchWidgetTools = useCallback(async () => {
     try {
-      const response = await fetch(`/api/tools?userId=${session?.user?.username}`);
+      const response = await fetch(`/api/tools?userId=${session?.user?.username || address}`);
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
       }
@@ -34,7 +39,7 @@ const DashboardNotesBoard: React.FC = () => {
     } catch (error) {
       console.error('Error fetching widget tools:', error);
     }
-  }, [session?.user?.username]);
+  }, [session?.user?.username, address]);
 
   useEffect(() => {
     fetchWidgetTools();
@@ -49,8 +54,10 @@ const DashboardNotesBoard: React.FC = () => {
   };
 
   const handleWidgetClick = (widgetId: string) => {
-    setSelectedWidgetId(widgetId);
-    setShowPopup(true);
+    if (!address) {
+      setSelectedWidgetId(widgetId);
+      setShowPopup(true);
+    }
   };
 
   const handleConfirmRemove = () => {

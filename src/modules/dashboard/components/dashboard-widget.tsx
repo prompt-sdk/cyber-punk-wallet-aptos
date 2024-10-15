@@ -5,9 +5,7 @@ import Image from 'next/image';
 import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { useRouter } from 'next/navigation';
-
-import { DASH_BOARD_AGENT_LIST } from '../constants/dashboard-data.constant';
-
+import { useToast } from '@/hooks/use-toast';
 import BoderImage from '@/components/common/border-image';
 
 import line from '@/assets/svgs/line.svg';
@@ -20,6 +18,7 @@ import DashboardWidgetTools from './dashboard-widget-tools';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import DashboardAvatar from './dashboard-avatar';
+
 type DashboardWidgetProps = ComponentBaseProps;
 
 const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
@@ -29,6 +28,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const { account } = useWallet();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const router = useRouter();
+  const { toast } = useToast();
 
   const fetchAgentByUsername = useCallback(async () => {
     setIsLoading(true);
@@ -45,7 +45,9 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
         avatar: `/avatar1.png`
       }));
 
-      setAgents(updatedAgents);
+      if (agents.length > 0) {
+        setAgents(updatedAgents);
+      }
     } catch (error) {
       console.error('Error fetching agent:', error);
     } finally {
@@ -87,7 +89,11 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       }
     } catch (error) {
       console.error('Error starting new chat:', error);
-      // Handle the error, e.g., show an error message to the user
+      toast({
+        title: 'Error',
+        description: 'An error occurred while starting the chat.',
+        variant: 'destructive'
+      });
     }
   };
   // console.log(agents);
