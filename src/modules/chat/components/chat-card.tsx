@@ -22,7 +22,6 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 export function UserMessage({ children }: { children: React.ReactNode }) {
     const { data: session }: any = useSession();
     const { account } = useWallet();
-    console.log("address", session)
     return (
         <div
             className={'flex gap-4 flex-row-reverse'}
@@ -35,7 +34,7 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
                 className="h-10 w-10 shrink-0"
             />
             <div className="grow">
-                <ChatMessageItem creator={session?.user.username || account?.address.toString()} isUser={true} >
+                <ChatMessageItem creator={account?.address.toString() || ""} isUser={true} >
                     {children}
                 </ChatMessageItem>
 
