@@ -18,7 +18,7 @@ export default async function ChatPage(_pageProps: PageProps) {
   const missingKeys = await getMissingKeys()
 
   return (
-    <AI initialAIState={{ chatId: id, messages: [] }}>
+    <AI initialAIState={{ chatId: id, messages: [], agentId: 'testAgentId123' }}>
       <Chat id={id} session={session} missingKeys={missingKeys} />
     </AI>
   )
