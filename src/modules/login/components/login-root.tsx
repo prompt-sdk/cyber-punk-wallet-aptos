@@ -46,10 +46,10 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   } = form;
 
   useEffect(() => {
-    if (session) {
+    if (session && connected) {
       router.push('/dashboard');
     }
-  }, [session]);
+  }, [session, connected]);
 
   const onSubmit = (_data: LoginFormData) => {
     toast({
