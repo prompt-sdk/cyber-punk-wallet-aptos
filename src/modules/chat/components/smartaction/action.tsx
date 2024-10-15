@@ -44,3 +44,15 @@ export const SmartAction = ({ props: params }: { props: any }) => {
 
   )
 }
+export const SmartView = ({ props: text }: { props: any }) => {
+
+  return (
+
+    <>
+      <div className="flex flex-col gap-3 px-4 py-3">
+        {text}
+      </div>
+    </>
+
+  )
+}

@@ -24,7 +24,7 @@ import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
 import { Chat, Message } from 'types/chat'
 import { auth } from '@/modules/auth/constants/auth.config';
-import { SmartAction } from '@/modules/chat/components/smartaction/action'
+import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
 
 
 
@@ -75,7 +75,7 @@ async function submitUserMessage(content: string) {
         description: item.tool.description,
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
-          if (item.tool.type == '') {
+          if (item.tool.type == 'entry') {
             yield (
               <BotCard>
                 <SmartActionSkeleton />
@@ -123,6 +123,59 @@ async function submitUserMessage(content: string) {
                 </BotCard>
               </BotCard>
             )
+          }
+          if (item.tool.type == 'view') {
+            yield (
+              <BotCard>
+                <SmartActionSkeleton />
+              </BotCard>
+            )
+
+            await sleep(1000)
+
+            const toolCallId = nanoid()
+            const { text } = await generateText({
+              model: openai('gpt-4o'),
+              system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
+              prompt: '0.4'
+            });
+
+            aiState.done({
+              ...aiState.get(),
+              messages: [
+                ...aiState.get().messages,
+                {
+                  id: nanoid(),
+                  role: 'assistant',
+                  content: [
+                    {
+                      type: 'tool-call',
+                      toolName: item.type + item.tool.type,
+                      toolCallId,
+                      args: ParametersData
+                    }
+                  ]
+                },
+                {
+                  id: nanoid(),
+                  role: 'tool',
+                  content: [
+                    {
+                      type: 'tool-result',
+                      toolName: item.type + item.tool.type,
+                      toolCallId,
+                      result: text
+                    }
+                  ]
+                }
+              ]
+            })
+
+            return <BotCard>
+              <BotCard>
+                <SmartView props={text} />
+              </BotCard>
+            </BotCard>
           }
         }
       };
@@ -244,15 +297,15 @@ export const getUIStateFromAIState = (aiState: Chat) => {
       display:
         message.role === 'tool' ? (
           message.content.map(tool => {
-            return tool.toolName === 'contractTool' ? (
+            return tool.toolName === 'contractToolentry' ? (
               <BotCard>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartAction props={tool.result} />
               </BotCard>
-            ) : tool.toolName === 'contractTool' ? (
+            ) : tool.toolName === 'contractToolview' ? (
               <BotCard>
                 {/* TODO: Infer types based on the tool result*/}
-                <SmartAction props={tool.result} />
+                <SmartView props={tool.result} />
               </BotCard>
             ) : null
           })
