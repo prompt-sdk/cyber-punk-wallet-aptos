@@ -84,6 +84,15 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
     setWidgetCode(e.target.value);
   };
 
+  // Add this new function to reset the form and related state
+  const resetForm = useCallback(() => {
+    widgetForm.reset();
+    setWidgetPrompt('');
+    setWidgetCode('');
+    setSelectedWidgetTools([]);
+    setPreviewWidgetCode('');
+  }, [widgetForm]);
+
   const handleSaveWidget = async () => {
     try {
       const widgetData = {
@@ -94,7 +103,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
           description: widgetForm.getValues('description'),
           prompt: widgetPrompt,
           code: widgetCode,
-          tool_ids: selectedWidgetTools.join(',')
+          tool_ids: selectedWidgetTools
         },
         user_id: account?.address.toString() || session?.user?.username
       };
@@ -102,14 +111,9 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
       const response = await axios.post('/api/tools', widgetData);
       console.log('Widget saved successfully:', response.data);
 
-      // Clear form and related state
-      widgetForm.reset();
-      setWidgetPrompt('');
-      setWidgetCode('');
-      setSelectedWidgetTools([]);
-      setPreviewWidgetCode('');
+      // Use the new resetForm function
+      resetForm();
       fetchWidgetTools();
-      // Close the modal
       setIsOpenCreateWidget(false);
 
       // Show success message
@@ -168,10 +172,8 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
           <Button onClick={() => setIsOpenCreateWidget(true)}>Create widget</Button>
         </div>
         {isLoading ? (
-          <div className="flex h-32 w-full items-center justify-center">
-            <p className="text-lg font-medium text-gray-500">Loading widgets...</p>
-          </div>
-        ) : (
+          <div className="text-center">Loading widgets...</div>
+        ) : widgets.length > 0 ? (
           <div className="grid w-full grid-cols-3 gap-4">
             {widgets.map((widget: any) => (
               <div
@@ -184,10 +186,15 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
               </div>
             ))}
           </div>
+        ) : (
+          <div className="text-center">No widgets found. Create your first widget!</div>
         )}
         <AugmentedPopup
           visible={isOpenCreateWidget}
-          onClose={() => setIsOpenCreateWidget(false)}
+          onClose={() => {
+            setIsOpenCreateWidget(false);
+            resetForm(); // Add this line to reset the form when closing the modal
+          }}
           textHeading={'Create Widget'}
         >
           <form className="flex max-h-[80vh] flex-col gap-4 overflow-y-auto p-8">

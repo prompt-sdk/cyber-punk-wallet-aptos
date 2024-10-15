@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { SidebarDesktop } from '@/modules/chat/components/sidebar-desktop';
 
 type ToolRootProps = ComponentBaseProps;
 
@@ -132,10 +133,9 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
 
   useEffect(() => {
     if (account) {
-      setAccountAddress(account?.address.toString())
+      setAccountAddress(account?.address.toString());
     }
-
-  }, [account])
+  }, [account]);
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -224,7 +224,8 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
             ...prevData[funcName].params[paramName],
             tokenAddress: tokenAddress
           }
-        }
+        },
+        generic_type_params: [tokenAddress]
       }
     }));
   };
@@ -248,15 +249,14 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
             return acc;
           }, {}),
           generic_type_params: sourceData[funcName].generic_type_params || [],
-          return: sourceData[funcName].return || '',
+          return: sourceData[funcName].return || [],
           type: sourceData[funcName].type || '',
           functions: funcName,
           address: form.getValues('address')
         },
-
         user_id: session.user.username
       };
-      console.log("toolData", toolData);
+      console.log('toolData', toolData);
       await uploadDataToApi(toolData);
     }
     toast({
@@ -292,7 +292,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [account, session]);
+  }, [account]);
 
   useEffect(() => {
     fetchTools();
@@ -325,6 +325,19 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
 
   const handleClose = () => {
     setIsOpenCreateTool(false);
+    // Reset form data
+    form.reset({
+      address: '',
+      packages: [],
+      modules: [],
+      functions: []
+    });
+
+    // Reset other state
+    setModuleData(null);
+    setFunctions(null);
+    setSourceData({});
+    setLoadingFunctions({});
   };
 
   const isFormValid = useCallback(() => {
@@ -340,9 +353,9 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
           <Button onClick={() => setIsOpenCreateTool(true)}>Create tool</Button>
         </div>
         {isLoading ? (
-          <div className="flex h-32 w-full items-center justify-center">
-            <p className="text-lg font-medium text-gray-500">Loading tools...</p>
-          </div>
+          <div className="text-center">Loading tools...</div>
+        ) : tools.length === 0 ? (
+          <div className="text-center">No tools found. Create your first tool!</div>
         ) : (
           <div className="grid w-full grid-cols-3 gap-4">
             {tools.map((tool: any) => (

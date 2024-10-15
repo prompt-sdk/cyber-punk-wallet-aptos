@@ -44,6 +44,12 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
     fetchWidgetTools();
   }, [fetchWidgetTools]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedWidget(null);
+    }
+  }, [isOpen]);
+
   const handleSelectWidget = (id: string) => {
     setSelectedWidget(id);
   };

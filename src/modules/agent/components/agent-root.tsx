@@ -11,7 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { useSession } from 'next-auth/react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import MultiSelectWidgets from '@/components/common/multi-select-widget';
 import axios from 'axios';
+import MultiSelectTools from '@/components/common/multi-select';
 
 const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const [agents, setAgents] = useState<any[]>([]);
@@ -32,7 +34,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
       description: '',
       introMessage: '',
       tools: [],
-      widget: '',
+      widget: [],
       prompt: ''
     }
   });
@@ -80,7 +82,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     description: string;
     introMessage: string;
     tools: string[];
-    widget: string;
+    widget: string[];
     prompt: string;
   }) => {
     try {
@@ -97,7 +99,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     description: string;
     introMessage: string;
     tools: string[];
-    widget: string;
+    widget: string[];
     prompt: string;
   }) => {
     try {
@@ -110,6 +112,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
       setAgents([...agents, createdAgent]);
       setIsOpenCreateAgent(false);
       agentForm.reset();
+      fetchAgents();
       toast({
         title: 'Agent created successfully!',
         description: 'Your agent has been created and saved.'
@@ -131,14 +134,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
 
   const isValid = useCallback(() => {
     const { name, description, introMessage, tools, widget, prompt } = agentForm.getValues();
-    return (
-      name.trim() !== '' &&
-      description.trim() !== '' &&
-      introMessage.trim() !== '' &&
-      tools.length > 0 &&
-      widget !== '' &&
-      prompt.trim() !== ''
-    );
+    return name.trim() !== '' && description.trim() !== '' && introMessage.trim() !== '';
   }, [agentForm]);
 
   const [isLoadingAgents, setIsLoadingAgents] = useState(false);
@@ -173,7 +169,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
           <div className="grid w-full grid-cols-3 gap-4">
             {agents.map((agent: any) => (
               <div
-                key={agent.id}
+                key={agent._id}
                 className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
               >
                 <h2 className="text-lg font-semibold">{agent.name}</h2>
@@ -193,58 +189,27 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
               <label htmlFor="tools" className="text-xs text-white lg:text-[18px]">
                 Select tools
               </label>
-              <select
-                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={agentForm.watch('tools')}
-                onChange={e => {
-                  const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
-                  agentForm.setValue('tools', selectedOptions);
+              <MultiSelectTools
+                tools={tools || []}
+                selectedTools={agentForm.watch('tools') || []}
+                onChangeSelectedTools={(selectedTools: string[]) => {
+                  agentForm.setValue('tools', selectedTools);
                 }}
-              >
-                {isLoading ? (
-                  <option value="" disabled className="text-[#6B7280]">
-                    Loading tools...
-                  </option>
-                ) : tools.length > 0 ? (
-                  <>
-                    <option value="" disabled className="text-[#6B7280]">
-                      Choose tools
-                    </option>
-                    {tools.map((tool, idx) => (
-                      <option key={idx} value={tool._id} className="text-[#6B7280]">
-                        {tool.name}
-                      </option>
-                    ))}
-                  </>
-                ) : (
-                  <option value="" disabled className="text-[#6B7280]">
-                    No tools available
-                  </option>
-                )}
-              </select>
+                isLoading={isLoading}
+              />
             </div>
             <div className="mb-4 flex flex-col gap-3">
               <label htmlFor="widget" className="text-xs text-white lg:text-[18px]">
                 Select widget
               </label>
-              <select
-                className="w-full rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={agentForm.watch('widget')}
-                onChange={e => {
-                  const widgetId = e.target.value;
-                  agentForm.setValue('widget', widgetId);
+              <MultiSelectWidgets
+                widgets={widgets || []}
+                selectedWidgets={agentForm.watch('widget') || []}
+                onChangeSelectedWidgets={(selectedWidgets: string[]) => {
+                  agentForm.setValue('widget', selectedWidgets);
                 }}
-                disabled={isLoadingWidget}
-              >
-                <option value="" disabled className="text-[#6B7280]">
-                  {isLoadingWidget ? 'Loading widget...' : 'Choose a widget'}
-                </option>
-                {widgets.map((widget, idx) => (
-                  <option key={idx} value={widget._id} className="text-[#6B7280]">
-                    {widget.name}
-                  </option>
-                ))}
-              </select>
+                isLoading={isLoadingWidget}
+              />
             </div>
             <div className="mb-4 flex flex-col gap-3">
               <label htmlFor="prompt" className="text-xs text-white lg:text-[18px]">
