@@ -26,8 +26,9 @@ import { Chat, Message } from 'types/chat'
 import { auth } from '@/modules/auth/constants/auth.config';
 import { SmartAction } from '@/modules/chat/components/smartaction/action'
 import { getAptosBalance } from '@/libs/aptos/aptos-utils'
-import { SendAptButton } from '@/modules/chat/components/send-apt-button'; // You'll need to create this component
+import dynamic from 'next/dynamic';
 
+const SendAptButton = dynamic(() => import('@/modules/chat/components/send-apt-button').then(mod => mod.SendAptButton), { ssr: false });
 
 async function submitUserMessage(content: string) {
   'use server'
