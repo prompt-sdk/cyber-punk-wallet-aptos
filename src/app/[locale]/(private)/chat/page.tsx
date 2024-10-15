@@ -9,16 +9,26 @@ import { Session } from 'types/chat'
 import { nanoid } from '@/modules/chat/utils/utils';
 
 export const metadata = {
-  title: 'AI-PGF Chatbot'
+  title: 'Prompt Wallet'
 }
-type PageProps = PageBaseProps;
-export default async function ChatPage(_pageProps: PageProps) {
+
+export interface ChatPageProps {
+  params: {
+    agentId: string
+    prompt: string
+  }
+}
+
+export default async function ChatPage({ params }: ChatPageProps) {
   const id = nanoid()
   const session = (await auth()) as Session
   const missingKeys = await getMissingKeys()
-
+  // if have widget ID 
+  // get Tools fromt widget
+  // create agent with tool
+  //  
   return (
-    <AI initialAIState={{ chatId: id, messages: [], agentId: 'testAgentId123' }}>
+    <AI initialAIState={{ chatId: id, messages: [], agentId: params.agentId }}>
       <Chat id={id} session={session} missingKeys={missingKeys} />
     </AI>
   )

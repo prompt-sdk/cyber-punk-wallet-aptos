@@ -7,8 +7,9 @@ import { Session } from 'types/chat';
 import { Chat, Message } from 'types/chat';
 
 export const maxDuration = 300;
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
+    const { agentId } = await request.json();
     const session = await auth();
     if (session && session.user) {
       const chatId = nanoid();
@@ -17,7 +18,6 @@ export async function POST(req: NextRequest) {
       const createdAt = new Date();
       const userId = session.user.id as string;
       const path = `/chat/${chatId}`;
-      const agentId = '123123';
       const title = agentId;
       const messages: any[] = [];
       const chat: Chat = {
