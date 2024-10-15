@@ -25,6 +25,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
   const { toast } = useToast();
   const [isOpenCreateTool, setIsOpenCreateTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
+  const [accountAddress, setAccountAddress] = useState<string>('');
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
@@ -130,6 +131,13 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
   };
 
   useEffect(() => {
+    if (account) {
+      setAccountAddress(account?.address.toString())
+    }
+
+  }, [account])
+
+  useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === 'address' && value.address) {
         handleFetchModuleData();
@@ -231,7 +239,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
         name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
         tool: {
           name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
-          description: sourceData[funcName].description,
+          description: sourceData[funcName].description || '',
           params: Object.entries(sourceData[funcName].params).reduce((acc: any, [key, value]: [string, any]) => {
             acc[key] = {
               type: value.type,
@@ -245,10 +253,10 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
           functions: funcName,
           address: form.getValues('address')
         },
-        user_id: account?.address.toString()
-      };
 
-      console.log('Uploading tool data:', toolData);
+        user_id: session.user.username
+      };
+      console.log("toolData", toolData);
       await uploadDataToApi(toolData);
     }
     toast({
