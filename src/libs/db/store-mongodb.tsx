@@ -9,6 +9,7 @@ export const getTools = async (tool_ids: any[]) => {
     return data;
 };
 export const getToolIdByAgent = async (agentId: string) => {
+    // call agent then get tool
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
@@ -22,15 +23,12 @@ export const getWidgetByID = async (WidgetId: string) => {
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
     let col = await db.collection('tools');
-
     const data = await col.findOne({ "_id": new ObjectId(WidgetId) });
     return data;
 };
 
 
 export const creatAgentWithTool = async (data: any) => {
-
-    console.log('data', data);
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');

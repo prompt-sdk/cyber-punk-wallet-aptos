@@ -7,7 +7,6 @@ import { Chat } from '@/modules/chat/components/chat-ui'
 import { AI } from '@/libs/chat/ai.actions'
 import { Session } from 'types/chat'
 import { nanoid } from '@/modules/chat/utils/utils';
-import { getToolIdByWidget } from '@/libs/db/store-mongodb';
 
 export const metadata = {
   title: 'Prompt Wallet'
@@ -15,9 +14,6 @@ export const metadata = {
 
 export interface ChatPageProps {
   params: {
-    agentId: string
-    prompt: string
-    widgetId: string
   },
   searchParams: {
     agentId: string
@@ -26,10 +22,9 @@ export interface ChatPageProps {
   }
 }
 
-export default async function ChatPage({ params, searchParams }: ChatPageProps) {
+export default async function ChatPage({ searchParams }: ChatPageProps) {
   const id = nanoid()
   const session: any = (await auth()) as Session
-  console.log(searchParams.agentId);
   const missingKeys = await getMissingKeys()
   return (
     <AI initialAIState={{ chatId: id, messages: [], agentId: searchParams.agentId }}>
