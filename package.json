@@ -1,11 +1,11 @@
 {
-  "name": "nextjs-template",
+  "name": "prompt-wallet",
   "version": "1.0.0",
-  "description": "NextJs - Template",
+  "description": "Prompt Wallet",
   "author": {
-    "name": "Tho Bui",
-    "email": "nyansilence@gmail.com",
-    "url": "https://github.com/nyansilence"
+    "name": "Kuro",
+    "email": "kurodenjiro1@gmail.com",
+    "url": "https://github.com/kurodenjiro"
   },
   "private": true,
   "scripts": {
@@ -29,7 +29,7 @@
     "genfont": "rimraf src/libs/svg-icons/dist",
     "commit": "better-commits",
     "postinstall": "patch-package",
-    "prepare": "husky install && yarn genfont",
+    "prepare": "husky install ",
     "clean": "rimraf .next",
     "app:down": "docker-compose stop app",
     "app:log": "docker-compose logs -f app",
