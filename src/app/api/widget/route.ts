@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     let col = await db.collection('widget');
 
     const data = await col.find({ user_id: user_id }).toArray();
+    console.log(data);
 
     return NextResponse.json(data);
   } catch (e: any) {

@@ -17,15 +17,16 @@ export const getToolIdByAgent = async (agentId: string) => {
     return data;
 };
 
-export const getToolIdByWidget = async (WidgetId: string) => {
+export const getWidgetByID = async (WidgetId: string) => {
     let client = new MongoClient(process.env.MONGO_DB as string);
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
-    let col = await db.collection('agent');
+    let col = await db.collection('tools');
 
-    const data = await col.find({ "_id": new ObjectId(WidgetId) }).toArray();
+    const data = await col.findOne({ "_id": new ObjectId(WidgetId) });
     return data;
 };
+
 
 export const creatAgentWithTool = async (data: any) => {
 
