@@ -46,6 +46,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
           avatar: `/avatar1.png`
         }));
 
+
         if (agents.length > 0) {
           setAgents(updatedAgents);
         }
