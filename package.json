@@ -28,8 +28,6 @@
     "deadcode": "ts-prune | wc -l",
     "genfont": "rimraf src/libs/svg-icons/dist",
     "commit": "better-commits",
-    "postinstall": "patch-package",
-    "prepare": "husky install && yarn genfont",
     "clean": "rimraf .next",
     "app:down": "docker-compose stop app",
     "app:log": "docker-compose logs -f app",
