@@ -246,7 +246,7 @@ export const AI = createAI<AIState, UIState>({
   onGetUIState: async () => {
     'use server'
 
-    const session = await auth()
+    const session: any = await auth()
 
     if (session && session.user) {
       const aiState = getAIState() as Chat
@@ -262,7 +262,7 @@ export const AI = createAI<AIState, UIState>({
   onSetAIState: async ({ state }) => {
     'use server'
 
-    const session = await auth()
+    const session: any = await auth()
     if (session && session.user) {
       const { chatId, messages, agentId } = state
       const createdAt = new Date()

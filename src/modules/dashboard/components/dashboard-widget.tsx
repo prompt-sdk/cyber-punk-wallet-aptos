@@ -25,7 +25,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { account } = useWallet();
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
   const { toast } = useToast();
 
@@ -66,35 +66,6 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
 
   const startChat = async (agentId: string) => {
     router.push(`/chat?agentId=${agentId}`);
-    // try {
-    //   const response = await fetch('/api/newChat', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify({ agentId })
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error('Failed to start new chat');
-    //   }
-
-    //   const data = await response.json();
-    //   console.log('New chat started:', data);
-
-    //   if (data && data.chat_id) {
-    //     router.push(`/chat/${data.chat_id}`);
-    //   } else {
-    //     console.error('No chat_id received from the server');
-    //   }
-    // } catch (error) {
-    //   console.error('Error starting new chat:', error);
-    //   toast({
-    //     title: 'Error',
-    //     description: 'An error occurred while starting the chat.',
-    //     variant: 'destructive'
-    //   });
-    // }
   };
   // console.log(agents);
 

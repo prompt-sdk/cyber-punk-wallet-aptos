@@ -10,10 +10,10 @@ export const maxDuration = 300;
 export async function POST(request: NextRequest) {
   try {
     const { agentId } = await request.json();
-    const session = await auth();
+    const session: any = await auth();
     if (session && session.user) {
       const chatId = nanoid();
-      const session = (await auth()) as Session;
+      const session: any = (await auth()) as Session;
 
       const createdAt = new Date();
       const userId = session.user.username as string;

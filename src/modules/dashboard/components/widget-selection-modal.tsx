@@ -17,7 +17,7 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
   const { isOpen, closeWidgetModal, addWidget } = useWidgetModal();
   const [widgetOptions, setWidgetOptions] = useState<WidgetOption[]>([]);
   const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
-  const { data: session } = useSession();
+  const { data: session } = useSession() as any;
   const { account } = useWallet();
   const userId = account?.address?.toString() || session?.user?.username;
   const [isLoading, setIsLoading] = useState(false);

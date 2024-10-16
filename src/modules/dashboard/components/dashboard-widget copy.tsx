@@ -29,6 +29,8 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       <div className="w-full">
         <p className="px-8 py-4">Agent Creator (9)</p>
         <div className="flex flex-col gap-6 px-8 py-6">
+
+          {/* @ts-ignore */}
           <DashboardAgentList items={DASH_BOARD_AGENT_LIST} />
         </div>
         <Image src={line.src} alt="line" className="w-full" width={line.width} height={line.height} />
