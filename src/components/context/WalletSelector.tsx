@@ -2,7 +2,7 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSession, signOut } from 'next-auth/react';
-
+import { redirect } from 'next/navigation'
 import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -28,9 +28,6 @@ import {
 } from '@aptos-labs/wallet-adapter-react';
 import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { registerUser } from '@/modules/auth/constants/auth.constant';
-// @ts-expect-error
-import { useFormState, useFormStatus } from 'react-dom';
 
 export function WalletSelector() {
   const router = useRouter();
@@ -71,9 +68,12 @@ export function WalletSelector() {
       if (user) {
         // If registration is successful, sign in
         await authenticate({ username: account.address, password: account.address });
+        await window.location.replace(`/dashboard`)
+
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
+        await window.location.replace(`/dashboard`)
       }
     }
   }, [connected, account]);
@@ -92,7 +92,11 @@ export function WalletSelector() {
   }, [disconnect]);
 
   if (status === 'loading') {
-    return <Button disabled>Loading...</Button>;
+    return <div className="flex w-full grow items-center justify-center py-4">
+      <div className="container flex flex-col items-center justify-center gap-6">
+        loading
+      </div>
+    </div>
   }
 
   return session ? (

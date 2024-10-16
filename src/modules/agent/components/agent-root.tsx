@@ -143,8 +143,11 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     setIsLoadingAgents(true);
     try {
       const userId = session?.user?.username || account?.address.toString();
-      const response = await axios.get(`/api/agent?userId=${userId}`);
-      setAgents(response.data);
+      if (userId) {
+        const response = await axios.get(`/api/agent?userId=${userId}`);
+        setAgents(response.data);
+      }
+
     } catch (error) {
       console.error('Error fetching agents:', error);
     } finally {
