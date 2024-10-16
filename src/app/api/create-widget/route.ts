@@ -10,11 +10,9 @@ export async function POST(request: Request) {
       tool_ids: tool_ids
     };
 
-    //console.log('Data', data);
-
     const tools = await searchTool(data);
     const prompts = widgetPrompt + tools;
-    const code = await widgetTool({ prompt: prompts });
+    const code = await widgetTool({ prompt: prompts, tool_ids });
 
     console.log('Created widget', code);
 

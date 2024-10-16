@@ -30,14 +30,12 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
   const missingKeys = await getMissingKeys()
   // if have widget ID 
   let agentId = null;
-  console.log("params.widgetId", searchParams.widgetId)
   if (searchParams.widgetId) {
     // get Tools fromt widget
 
     const widget: any = await getWidgetByID(searchParams.widgetId);
 
     const tools: any = await getTools(widget.tool.tool_ids)
-    console.log(widget)
     // create agent with tool
     const data: any = {
       "name": "Smart Action",

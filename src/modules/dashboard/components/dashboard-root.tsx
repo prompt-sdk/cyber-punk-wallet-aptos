@@ -22,11 +22,12 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
         <DashboardWidget />
         <WidgetSelectionModal />
       </div>
-    </div> : <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
-      <div className="container flex flex-col items-center justify-center gap-6">
-        loading
+    </div> :
+      <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
+        <div className="container flex flex-col items-center justify-center gap-6">
+          loading
+        </div>
       </div>
-    </div>
   );
 };
 

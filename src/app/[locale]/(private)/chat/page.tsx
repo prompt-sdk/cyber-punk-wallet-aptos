@@ -29,6 +29,7 @@ export interface ChatPageProps {
 export default async function ChatPage({ params, searchParams }: ChatPageProps) {
   const id = nanoid()
   const session: any = (await auth()) as Session
+  console.log(searchParams.agentId);
   const missingKeys = await getMissingKeys()
   return (
     <AI initialAIState={{ chatId: id, messages: [], agentId: searchParams.agentId }}>
