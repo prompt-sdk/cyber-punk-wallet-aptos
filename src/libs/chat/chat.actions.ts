@@ -40,7 +40,7 @@ export async function getChats(userId?: string | null) {
 
 export async function getChat(id: string, userId: string) {
   const session : any= await auth()
-
+  
   if (userId !== session?.user?.username) {
     return {
       error: 'Unauthorized'
@@ -48,7 +48,8 @@ export async function getChat(id: string, userId: string) {
   }
 
   const chat = await kv.hgetall<Chat>(`chat:${id}`)
-
+  console.log("chat",userId,session?.user?.username)
+  console.log("chat",chat)
   if (!chat || (userId && chat.userId !== userId)) {
     return null
   }

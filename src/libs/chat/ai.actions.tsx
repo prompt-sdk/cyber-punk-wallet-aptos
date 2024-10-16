@@ -50,7 +50,6 @@ async function submitUserMessage(content: string) {
 
   const gettools: any = await getToolIdByAgent(aiState.get().agentId)
   const dataTools = await getTools(gettools.tools);
-  console.log(dataTools);
   const zodExtract = (type: any, describe: any) => {
     if (type == 'u128') return z.number().describe(describe)
     if (type == 'u64') return z.number().describe(describe)
