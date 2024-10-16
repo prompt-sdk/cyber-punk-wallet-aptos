@@ -50,7 +50,6 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
       "description": "This bot will excute transaction"
     };
     agentId = await creatAgentWithTool(data);
-    console.log("agentId", agentId)
   }
 
   return (

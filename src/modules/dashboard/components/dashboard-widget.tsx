@@ -32,21 +32,25 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const fetchAgentByUsername = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/agent?userId=${account?.address.toString()}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch agent');
-      }
-      const agents = await response.json();
+      const userId = account?.address.toString();
+      if (userId) {
+        const response = await fetch(`/api/agent?userId=${userId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch agent');
+        }
+        const agents = await response.json();
 
-      // Add random avatar to each agent
-      const updatedAgents = agents.map((agent: any) => ({
-        ...agent,
-        avatar: `/avatar1.png`
-      }));
+        // Add random avatar to each agent
+        const updatedAgents = agents.map((agent: any) => ({
+          ...agent,
+          avatar: `/avatar1.png`
+        }));
 
-      if (agents.length > 0) {
-        setAgents(updatedAgents);
+        if (agents.length > 0) {
+          setAgents(updatedAgents);
+        }
       }
+
     } catch (error) {
       console.error('Error fetching agent:', error);
     } finally {

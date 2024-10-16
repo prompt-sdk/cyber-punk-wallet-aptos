@@ -14,16 +14,17 @@ type DashboardRootProps = ComponentBaseProps;
 const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
   const { data: session } = useSession();
 
-  if (!session) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
+    session ? <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
       <div className="container flex flex-col items-center justify-center gap-6">
         <DashboardProfile />
         <DashboardWidget />
         <WidgetSelectionModal />
+      </div>
+    </div> : <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
+      <div className="container flex flex-col items-center justify-center gap-6">
+        loading
       </div>
     </div>
   );
