@@ -7,7 +7,7 @@ import { Chat } from '@/modules/chat/components/chat-ui'
 import { AI } from '@/libs/chat/ai.actions'
 import { Session } from 'types/chat'
 import { nanoid } from '@/modules/chat/utils/utils';
-import { getToolIdByWidget, creatAgentWithTool } from '@/libs/db/store-mongodb';
+import { getWidgetByID, getTools, creatAgentWithTool } from '@/libs/db/store-mongodb';
 
 export const metadata = {
   title: 'Prompt Wallet'
@@ -34,8 +34,10 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
   if (searchParams.widgetId) {
     // get Tools fromt widget
 
-    const tool_ids = await getToolIdByWidget(searchParams.widgetId);
-    console.log(tool_ids);
+    const widget: any = await getWidgetByID(searchParams.widgetId);
+
+    const tools: any = await getTools(widget.tool.tool_ids)
+    console.log(widget)
     // create agent with tool
     const data: any = {
       "name": "Smart Action",
@@ -46,7 +48,7 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
       "introMessage": "Im Aptos Bot",
       "widget": [],
       "user_id": session.user.username,
-      "tools": tool_ids,
+      "tools": tools,
       "description": "This bot will excute transaction"
     };
     agentId = await creatAgentWithTool(data);
