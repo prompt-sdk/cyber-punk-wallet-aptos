@@ -29,7 +29,7 @@
     "genfont": "rimraf src/libs/svg-icons/dist",
     "commit": "better-commits",
     "postinstall": "patch-package",
-    "prepare": "husky install && yarn genfont",
+    "prepare": "husky install ",
     "clean": "rimraf .next",
     "app:down": "docker-compose stop app",
     "app:log": "docker-compose logs -f app",

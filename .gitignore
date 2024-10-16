@@ -19,7 +19,7 @@
 # production
 /build
 /public/fonts
-
+src/libs/svg-icons/dist
 
 # misc
 .DS_Store
