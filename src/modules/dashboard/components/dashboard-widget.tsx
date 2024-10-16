@@ -17,7 +17,8 @@ import DashboardWidgetTools from './dashboard-widget-tools';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import DashboardAvatar from './dashboard-avatar';
-
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
 type DashboardWidgetProps = ComponentBaseProps;
 
 const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
@@ -28,6 +29,25 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
   const { toast } = useToast();
+  const { data: session } = useSession();
+
+  const createAgentAPI = async (agentData: {
+    name: string;
+    description: string;
+    introMessage: string;
+    tools: string[];
+    widget: string[];
+    prompt: string;
+    user_id: string;
+  }) => {
+    try {
+      const response = await axios.post('/api/agent', agentData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating agent:', error);
+      throw error;
+    }
+  };
 
   const fetchAgentByUsername = useCallback(async () => {
     setIsLoading(true);
@@ -38,26 +58,42 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
         if (!response.ok) {
           throw new Error('Failed to fetch agent');
         }
-        const agents = await response.json();
+        let agents = await response.json();
+        console.log(agents);
 
-        // Add random avatar to each agent
+        if (agents.length === 0) {
+          // Create a new agent if no agents are found
+          const newAgent = await createAgentAPI({
+            name: 'Default Agent',
+            description: 'This is your default agent.',
+            introMessage: "Hello! I'm your default agent ready to assist you.",
+            tools: [],
+            widget: [],
+            prompt: '',
+            user_id: userId
+          });
+          agents = [newAgent];
+        }
+
+        // Add avatar to each agent
         const updatedAgents = agents.map((agent: any) => ({
           ...agent,
           avatar: `/avatar1.png`
         }));
 
-
-        if (agents.length > 0) {
-          setAgents(updatedAgents);
-        }
+        setAgents(updatedAgents);
       }
-
     } catch (error) {
-      console.error('Error fetching agent:', error);
+      console.error('Error fetching or creating agent:', error);
+      toast({
+        title: 'Error',
+        description: 'There was a problem fetching or creating the agent. Please try again.',
+        variant: 'destructive'
+      });
     } finally {
       setIsLoading(false);
     }
-  }, [account]);
+  }, [account, toast]);
 
   useEffect(() => {
     fetchAgentByUsername();
