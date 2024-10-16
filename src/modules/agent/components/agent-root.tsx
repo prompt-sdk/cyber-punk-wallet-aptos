@@ -26,7 +26,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const [widgets, setWidgets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: session } = useSession();
+  const { data: session }: any = useSession();
   const { account } = useWallet();
   const agentForm = useForm({
     defaultValues: {
@@ -41,7 +41,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
 
   const fetchTools = useCallback(async () => {
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId: any = session?.user?.username || account?.address.toString();
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
@@ -192,7 +192,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
               <MultiSelectTools
                 tools={tools || []}
                 selectedTools={agentForm.watch('tools') || []}
-                onChangeSelectedTools={(selectedTools: string[]) => {
+                onChangeSelectedTools={(selectedTools: any) => {
                   agentForm.setValue('tools', selectedTools);
                 }}
                 isLoading={isLoading}
@@ -205,7 +205,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
               <MultiSelectWidgets
                 widgets={widgets || []}
                 selectedWidgets={agentForm.watch('widget') || []}
-                onChangeSelectedWidgets={(selectedWidgets: string[]) => {
+                onChangeSelectedWidgets={(selectedWidgets: any) => {
                   agentForm.setValue('widget', selectedWidgets);
                 }}
                 isLoading={isLoadingWidget}

@@ -25,7 +25,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const { account } = useWallet();
-  const [selectedAgent, setSelectedAgent] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
   const { toast } = useToast();
 

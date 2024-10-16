@@ -12,7 +12,7 @@ export const SmartAction = ({ props: params }: { props: any }) => {
     try {
 
       const txn = await aptosClient.transaction.build.simple({
-        sender: account?.address.toString(),
+        sender: account?.address.toString() as any,
         data: params
       });
       console.log('\n=== Transfer transaction ===\n');
