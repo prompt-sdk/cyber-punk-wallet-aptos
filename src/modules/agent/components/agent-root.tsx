@@ -168,13 +168,15 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
         ) : agents.length > 0 ? (
           <div className="grid w-full grid-cols-3 gap-4">
             {agents.map((agent: any) => (
-              <div
-                key={agent._id}
-                className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <h2 className="text-lg font-semibold">{agent.name}</h2>
-                <p className="text-sm text-white">{agent.description}</p>
-              </div>
+              <a href={`/chat?agentId=${agent._id.toString()}`}>
+                <div
+                  key={agent._id}
+                  className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <h2 className="text-lg font-semibold">{agent.name}</h2>
+                  <p className="text-sm text-white">{agent.description}</p>
+                </div>
+              </a>
             ))}
           </div>
         ) : (
