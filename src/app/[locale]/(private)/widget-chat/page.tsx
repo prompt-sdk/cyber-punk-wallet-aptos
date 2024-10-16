@@ -34,6 +34,7 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
     // get Tools fromt widget
 
     const widget: any = await getWidgetByID(searchParams.widgetId);
+    //object ID
 
     const tools: any = await getTools(widget.tool.tool_ids)
     // create agent with tool
