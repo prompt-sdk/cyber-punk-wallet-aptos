@@ -39,7 +39,6 @@ export default async function ChatPage({ params }: ChatPageProps) {
   }
 
   const userId = session.user.id as string;
-  console.log(params.id, userId)
   const chat = await getChat(params.id, userId);
 
   if (!chat || 'error' in chat) {

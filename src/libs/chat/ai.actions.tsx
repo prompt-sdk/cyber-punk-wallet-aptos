@@ -247,7 +247,7 @@ export const AI = createAI<AIState, UIState>({
     'use server'
 
     const session: any = await auth()
-
+    console.log('hello')
     if (session && session.user) {
       const aiState = getAIState() as Chat
 
@@ -281,7 +281,7 @@ export const AI = createAI<AIState, UIState>({
         messages,
         path
       }
-
+      console.log('saveChat', chat)
       await saveChat(chat)
     } else {
       return
