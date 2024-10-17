@@ -33,7 +33,7 @@ export const SmartAction = ({ props: { params, funcName } }: { props: any }) => 
     <>
       <div className="flex flex-col gap-3 px-4 py-3">
         <span>
-          Function :
+          Function : {funcName}
         </span>
         <p>
           {JSON.stringify(params)}
