@@ -14,12 +14,7 @@ export const SmartAction = ({ props: data }: { props: any }) => {
 
       const txn = await aptosClient.transaction.build.simple({
         sender: account?.address.toString() as any,
-        data: {
-
-          function: data.funcName,
-          typeArguments: data.typeArguments,
-          functionArguments: Object.values(data.params),
-        }
+        data: data
       });
       console.log(txn);
       console.log('\n=== Transfer transaction ===\n');

@@ -118,7 +118,7 @@ async function submitUserMessage(content: string) {
                 }
               ]
             })
-            const data = { params: ParametersData, funcName: item.name, typeArguments: item.tool.generic_type_params }
+            const data = { params: Object.values(ParametersData), funcName: item.name, typeArguments: item.tool.generic_type_params }
             return (
               <BotCard>
                 <BotCard>

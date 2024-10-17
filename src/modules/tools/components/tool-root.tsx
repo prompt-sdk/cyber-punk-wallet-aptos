@@ -251,7 +251,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
 
       const toolData = {
         type: 'contractTool',
-        name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
+        name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
         tool: {
           name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
           description: sourceData[funcName].description || '',
