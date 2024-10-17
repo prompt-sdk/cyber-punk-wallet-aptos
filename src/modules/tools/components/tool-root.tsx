@@ -253,7 +253,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
         type: 'contractTool',
         name: `${form.getValues('packages')[0]}::${form.getValues('modules')[0]}::${funcName}`,
         tool: {
-          name: `${form.getValues('address')[0]}::${form.getValues('modules')[0]}::${funcName}`,
+          name: `${form.getValues('address')}::${form.getValues('modules')[0]}::${funcName}`,
           description: sourceData[funcName].description || '',
           params: Object.entries(sourceData[funcName].params).reduce((acc: any, [key, value]: [string, any]) => {
             acc[key] = {
