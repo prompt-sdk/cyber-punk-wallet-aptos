@@ -11,6 +11,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Image from 'next/image';
 import BackIcon from '@/assets/svgs/back-icon.svg';
 import EditIcon from '@/assets/svgs/edit-icon.svg';
+import Link from 'next/link';
 
 const fontNunito = Nunito({
   subsets: ['vietnamese'],
@@ -36,15 +37,48 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
           <div className='container flex grow flex-col items-center justify-center gap-6 overflow-hidden'>
             <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
               <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-                <button className="h-10 w-10" >
+                <Link href="/dashboard" >
+                  <button className="h-10 w-10">
+                    <Image
+                      src={BackIcon.src}
+                      alt="Back Icon"
+                      className="h-full w-full translate-y-1 object-contain"
+                      width={BackIcon.width}
+                      height={BackIcon.height}
+                    />
+                  </button>
+                </Link>
+                <Link href="/widget" className="flex h-8 items-center justify-center gap-2">
                   <Image
-                    src={BackIcon.src}
+                    src={EditIcon.src}
                     alt="Back Icon"
-                    className="h-full w-full translate-y-1 object-contain"
-                    width={BackIcon.width}
-                    height={BackIcon.height}
+                    className="h-full w-full object-contain"
+                    width={EditIcon.width}
+                    height={EditIcon.height}
                   />
-                </button>
+                  <span className="text-nowrap">Widget</span>
+                </Link>
+                <Link href="/tools" className="flex h-8 items-center justify-center gap-2">
+                  <Image
+                    src={EditIcon.src}
+                    alt="Back Icon"
+                    className="h-full w-full object-contain"
+                    width={EditIcon.width}
+                    height={EditIcon.height}
+                  />
+                  <span className="text-nowrap">Tools</span>
+                </Link>
+                <Link href="/agent" className="flex h-8 items-center justify-center gap-2">
+                  <Image
+                    src={EditIcon.src}
+                    alt="Back Icon"
+                    className="h-full w-full object-contain"
+                    width={EditIcon.width}
+                    height={EditIcon.height}
+                  />
+                  <span className="text-nowrap">Agent</span>
+                </Link>
+
                 <button className="flex h-8 items-center justify-center gap-2" >
                   <Image
                     src={EditIcon.src}
