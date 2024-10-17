@@ -86,7 +86,7 @@ async function submitUserMessage(content: string) {
             )
 
             await sleep(1000)
-            const data = { functionArguments: Object.values(ParametersData), funcName: item.name, typeArguments: item.tool.generic_type_params }
+            const data = { functionArguments: Object.values(ParametersData), function: item.name, typeArguments: item.tool.generic_type_params }
             const toolCallId = nanoid()
             aiState.done({
               ...aiState.get(),
