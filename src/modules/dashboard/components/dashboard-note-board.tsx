@@ -13,6 +13,7 @@ import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
 import { ComponentBaseProps } from '@/common/interfaces';
+import InputWidget from './input-widget';
 
 type DashboardNotesBoardProps = ComponentBaseProps & {
   address?: string;
@@ -22,7 +23,8 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
   const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
   const [widgetTools, setWidgetTools] = useState<any>([]);
   const { data: session }: any = useSession();
-  const { widgets, removeWidget } = useWidgetModal();
+  const { widgets, moveWidget, removeWidget } = useWidgetModal();
+  const [widgetsList, setWidgetsList] = useState<any>(widgets);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
 
@@ -51,11 +53,12 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
   }, []);
 
   const moveNote = (fromIndex: number, toIndex: number) => {
-    const updatedNotes = [...notes];
-    const [movedNote] = updatedNotes.splice(fromIndex, 1);
+    //moveWidget(fromIndex, toIndex);
+    const updatedWidgets = [...widgetsList];
+    const [movedWidget] = updatedWidgets.splice(fromIndex, 1);
 
-    updatedNotes.splice(toIndex, 0, movedNote);
-    setNotes(updatedNotes);
+    updatedWidgets.splice(toIndex, 0, movedWidget);
+    setWidgetsList(updatedWidgets);
   };
 
   const handleWidgetClick = (widgetId: string, code: string) => {
@@ -72,21 +75,47 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     setShowPopup(false);
   };
 
+  useEffect(() => {
+    setWidgetsList(widgets);
+  }, [widgets]);
+
+  console.log('widgetsList', widgets);
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex min-h-[200px] w-full flex-wrap px-6">
-        {widgets.map((widget: any, index: number) => (
+      <div className="flex min-h-[200px] flex-wrap px-6">
+        {widgetsList.map((widget: any, index: number) => (
           <Note
-            key={widget._id}
-            id={widget._id}
+            key={widget.index}
+            id={widget.index}
             index={index}
             moveNote={moveNote}
             size={widget.size || 'medium'}
             onClick={() => handleWidgetClick(widget._id, widget.tool?.code)}
           >
-            <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
+            {widget.type === 'image' ? (
+              <img src={widget.tool?.code} alt={widget.tool?.description || 'Widget Image'} />
+            ) : widget.type === 'input' ? (
+              <span>{widget.tool?.code}</span>
+            ) : (
+              <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
+            )}
           </Note>
         ))}
+        {/* {notes.map((note, index) => (
+          <Note
+            onClick={() => {
+              console.log('note', note);
+            }}
+            key={note.id}
+            id={note.id}
+            index={index}
+            moveNote={moveNote}
+            size={note.size}
+          >
+            {note.content}
+          </Note>
+        ))} */}
       </div>
       <AugmentedPopup visible={showPopup} onClose={() => setShowPopup(false)} textHeading="Remove Widget">
         <div className="flex flex-col gap-5 p-8">

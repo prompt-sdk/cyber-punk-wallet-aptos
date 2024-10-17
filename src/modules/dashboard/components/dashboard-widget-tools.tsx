@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { FC, useState, useRef } from 'react';
 import classNames from 'classnames';
 import { motion } from 'framer-motion';
 import { ComponentBaseProps } from '@/common/interfaces';
@@ -13,7 +13,8 @@ type DashboardWidgetToolsProps = ComponentBaseProps;
 
 const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const { openWidgetModal } = useWidgetModal();
+  const { openWidgetModal, addImageWidget, addWidget } = useWidgetModal();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleToggle = (isActive: boolean) => {
     setIsVisible(isActive);
@@ -22,6 +23,48 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const handleOpenWidgetModal = () => {
     console.log('Attempting to open widget modal');
     openWidgetModal();
+  };
+
+  const handleUploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('File input triggered');
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const base64Image = await convertToBase64(file);
+        console.log('Image converted to base64');
+        addImageWidget(base64Image);
+      } catch (error) {
+        console.error('Error converting image:', error);
+        // Handle error (e.g., show an error message to the user)
+      }
+    }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  const handleImageButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAddInputWidget = () => {
+    const newWidget = {
+      _id: Date.now().toString(),
+      type: 'input',
+      name: 'Input Widget',
+      icon: 'ico-file-text-edit',
+      tool: {
+        code: 'default'
+      },
+      size: 'xs-small'
+    };
+    addWidget(newWidget);
   };
 
   return (
@@ -33,13 +76,20 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
           animate={{ opacity: isVisible ? 1 : 0, x: isVisible ? 0 : 40 }}
           transition={{ duration: 0.3 }}
         >
-          <button>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleUploadImage}
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+          />
+          <button type="button" onClick={handleImageButtonClick}>
             <i className="ico-image text-xl" />
           </button>
           <button onClick={handleOpenWidgetModal}>
             <i className="ico-layout-web-12 text-xl" />
           </button>
-          <button>
+          <button onClick={handleAddInputWidget}>
             <i className="ico-file-text-edit text-xl" />
           </button>
           <Link href="/chat">
