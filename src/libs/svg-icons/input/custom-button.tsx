@@ -27,7 +27,7 @@ const CustomButton: FC<CustomButtonProps> = ({ className, ...rest }) => {
       )}
       {...rest}
     >
-     {rest.children}
+      {rest.children}
     </BoderImage>
   );
 };

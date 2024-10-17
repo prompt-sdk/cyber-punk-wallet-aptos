@@ -3,18 +3,20 @@
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { Account } from '@aptos-labs/ts-sdk';
-import CustomButton from '@/libs/svg-icons/input/custom-button';
-
-export const SmartAction = ({ props: params }: { props: any }) => {
+import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
+export const SmartAction = ({ props: { params, funcName } }: { props: any }) => {
   const { account } = useWallet();
+  console.log(funcName);
   const onTransfer = async () => {
     const aptosClient = getAptosClient();
+
     try {
 
       const txn = await aptosClient.transaction.build.simple({
         sender: account?.address.toString() as any,
-        data: params
+        data: { ...params, function: funcName }
       });
+      console.log(txn);
       console.log('\n=== Transfer transaction ===\n');
       const committedTxn = await aptosClient.signAndSubmitTransaction({
         signer: account as unknown as Account,
@@ -31,14 +33,18 @@ export const SmartAction = ({ props: params }: { props: any }) => {
     <>
       <div className="flex flex-col gap-3 px-4 py-3">
         <span>
-          Function
+          Function :
         </span>
         <p>
           {JSON.stringify(params)}
         </p>
-        <CustomButton className="w-full md:w-auto" onClick={onTransfer}>
-          <i className="ico-send-right-icon" /> Excute Transaction
-        </CustomButton>
+
+        <div
+          onClick={onTransfer}
+          style={{ borderImageSource: `url("${ProfileBtnFrame.src}")` }}
+          className='px-11 py-1 w-full md:w-auto uppercase [border-image-slice:13_fill] [border-image-width:15px] flex items-center gap-1 justify-center cursor-pointer '>
+          <i className="ico-send-right-icon" /> Excute
+        </div>
       </div>
     </>
 

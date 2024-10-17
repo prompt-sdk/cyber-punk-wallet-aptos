@@ -98,7 +98,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-call',
-                      toolName: item.type,
+                      toolName: item.type + '_' + item.tool.type,
                       toolCallId,
                       args: ParametersData
                     }
@@ -110,7 +110,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-result',
-                      toolName: item.type,
+                      toolName: item.type + '_' + item.tool.type,
                       toolCallId,
                       result: ParametersData
                     }
@@ -122,7 +122,7 @@ async function submitUserMessage(content: string) {
             return (
               <BotCard>
                 <BotCard>
-                  <SmartAction props={ParametersData} />
+                  <SmartAction props={{ params: ParametersData, funcName: item.name }} />
                 </BotCard>
               </BotCard>
             )
