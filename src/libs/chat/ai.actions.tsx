@@ -98,7 +98,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-call',
-                      toolName: item.type + '_' + item.tool.type,
+                      toolName: item.type + item.tool.type,
                       toolCallId,
                       args: ParametersData
                     }
@@ -110,7 +110,7 @@ async function submitUserMessage(content: string) {
                   content: [
                     {
                       type: 'tool-result',
-                      toolName: item.type + '_' + item.tool.type,
+                      toolName: item.type + item.tool.type,
                       toolCallId,
                       result: ParametersData
                     }
