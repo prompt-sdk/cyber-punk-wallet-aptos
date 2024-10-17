@@ -6,7 +6,7 @@ import { Account } from '@aptos-labs/ts-sdk';
 import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
 export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
-  console.log(data.funcName);
+  console.log(data);
   const onTransfer = async () => {
     const aptosClient = getAptosClient();
 
