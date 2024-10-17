@@ -31,6 +31,25 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const { toast } = useToast();
   const { data: session } = useSession();
 
+  const fetchAgents = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const userId = session?.user?.username || account?.address.toString();
+      if (userId) {
+        const response = await axios.get(`/api/agent?userId=${userId}`);
+        setAgents(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session?.user?.username, account?.address, toast]);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
+
   const createAgentAPI = async (agentData: {
     name: string;
     description: string;
@@ -49,55 +68,24 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     }
   };
 
-  const fetchAgentByUsername = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const userId = account?.address.toString();
-      if (userId) {
-        const response = await fetch(`/api/agent?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch agent');
-        }
-        let agents = await response.json();
-        console.log(agents);
+  // const fetchAgents = useCallback(async () => {
+  //   setIsLoading(true);
+  //   try {
+  //     const userId = session?.user?.username || account?.address.toString();
+  //     if (userId) {
+  //       const response = await axios.get(`/api/agent?userId=${userId}`);
+  //       setAgents(response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching agents:', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [session?.user?.username, account?.address, toast]);
 
-        if (agents.length === 0) {
-          // Create a new agent if no agents are found
-          const newAgent = await createAgentAPI({
-            name: 'Default Agent',
-            description: 'This is your default agent.',
-            introMessage: "Hello! I'm your default agent ready to assist you.",
-            tools: [],
-            widget: [],
-            prompt: '',
-            user_id: userId
-          });
-          agents = [newAgent];
-        }
-
-        // Add avatar to each agent
-        const updatedAgents = agents.map((agent: any) => ({
-          ...agent,
-          avatar: `/avatar1.png`
-        }));
-
-        setAgents(updatedAgents);
-      }
-    } catch (error) {
-      console.error('Error fetching or creating agent:', error);
-      toast({
-        title: 'Error',
-        description: 'There was a problem fetching or creating the agent. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [account, toast]);
-
-  useEffect(() => {
-    fetchAgentByUsername();
-  }, [fetchAgentByUsername]);
+  // useEffect(() => {
+  //   fetchAgents();
+  // }, [fetchAgents]);
 
   const handleAgentClick = (agent: any) => {
     console.log(agent);
@@ -108,7 +96,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const startChat = async (agentId: string) => {
     router.push(`/chat?agentId=${agentId}`);
   };
-  // console.log(agents);
+  //console.log(agents);
 
   return (
     <BoderImage

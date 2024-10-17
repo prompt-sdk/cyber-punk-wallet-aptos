@@ -31,7 +31,7 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
-      //console.log('filteredTools', filteredTools);
+      console.log('filteredTools', filteredTools);
       setWidgetOptions(filteredTools);
     } catch (error) {
       console.error('Error fetching widget tools:', error);
@@ -58,7 +58,10 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
     if (selectedWidget) {
       const widgetToAdd = widgetOptions.find(widget => widget._id === selectedWidget);
       if (widgetToAdd) {
-        addWidget(widgetToAdd);
+        const sizes = ['small', 'medium', 'large'];
+        const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+        const widgetWithSize = { ...widgetToAdd, size: randomSize, index: widgetOptions?.length };
+        addWidget(widgetWithSize);
         closeWidgetModal();
       }
     }
