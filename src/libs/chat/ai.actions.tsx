@@ -127,59 +127,59 @@ async function submitUserMessage(content: string) {
               </BotCard>
             )
           }
-          if (item.tool.type == 'view') {
-            yield (
-              <BotCard>
-                <SmartActionSkeleton />
-              </BotCard>
-            )
+          // if (item.tool.type == 'view') {
+          //   yield (
+          //     <BotCard>
+          //       <SmartActionSkeleton />
+          //     </BotCard>
+          //   )
 
-            await sleep(1000)
+          //   await sleep(1000)
 
-            const toolCallId = nanoid()
-            const { text } = await generateText({
-              model: openai('gpt-4o'),
-              system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
-              prompt: '0.4'
-            });
+          //   const toolCallId = nanoid()
+          //   const { text } = await generateText({
+          //     model: openai('gpt-4o'),
+          //     system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
+          //     prompt: '0.4'
+          //   });
 
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'assistant',
-                  content: [
-                    {
-                      type: 'tool-call',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      args: ParametersData
-                    }
-                  ]
-                },
-                {
-                  id: nanoid(),
-                  role: 'tool',
-                  content: [
-                    {
-                      type: 'tool-result',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      result: text
-                    }
-                  ]
-                }
-              ]
-            })
+          //   aiState.done({
+          //     ...aiState.get(),
+          //     messages: [
+          //       ...aiState.get().messages,
+          //       {
+          //         id: nanoid(),
+          //         role: 'assistant',
+          //         content: [
+          //           {
+          //             type: 'tool-call',
+          //             toolName: item.type + item.tool.type,
+          //             toolCallId,
+          //             args: ParametersData
+          //           }
+          //         ]
+          //       },
+          //       {
+          //         id: nanoid(),
+          //         role: 'tool',
+          //         content: [
+          //           {
+          //             type: 'tool-result',
+          //             toolName: item.type + item.tool.type,
+          //             toolCallId,
+          //             result: text
+          //           }
+          //         ]
+          //       }
+          //     ]
+          //   })
 
-            return <BotCard>
-              <BotCard>
-                <SmartView props={text} />
-              </BotCard>
-            </BotCard>
-          }
+          //   return <BotCard>
+          //     <BotCard>
+          //       <SmartView props={text} />
+          //     </BotCard>
+          //   </BotCard>
+          // }
         }
       };
     }
