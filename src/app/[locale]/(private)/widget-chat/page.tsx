@@ -8,6 +8,7 @@ import { AI } from '@/libs/chat/ai.actions'
 import { Session } from 'types/chat'
 import { nanoid } from '@/modules/chat/utils/utils';
 import { getWidgetByID, getTools, creatAgentWithTool } from '@/libs/db/store-mongodb';
+import { tool } from '@langchain/core/tools';
 
 export const metadata = {
   title: 'Prompt Wallet'
@@ -37,6 +38,7 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
     //object ID
 
     const tools: any = await getTools(widget.tool.tool_ids)
+
     // create agent with tool
     const data: any = {
       "name": "Smart Action",

@@ -18,7 +18,7 @@ export async function executeTool({ sourceCode, account, moduleName, functions }
   const messages = [
     new SystemMessage(`You are a move developer. 
             When the user gives the source code and functions. Provide your response as a JSON object with the following schema: , 
-         returns [{ name:  ${account}::${moduleName}::<function>  , description : description with module name of function 100 words limit , params : { type : data types ,description }} `),
+         returns [{ name:  ${account}::${moduleName}::<function>  , description : description with module name of function 100 words limit , params : { params of function }} `),
     new HumanMessage(
       `Your response will not be in Markdown format, only JSON.Here is the source code : ${sourceCode} , function : ${functions}  `
     )
