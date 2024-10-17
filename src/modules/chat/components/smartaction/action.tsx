@@ -4,9 +4,9 @@ import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { Account } from '@aptos-labs/ts-sdk';
 import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
-export const SmartAction = ({ props: { params, funcName } }: { props: any }) => {
+export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
-  console.log(funcName);
+  console.log(data.funcName);
   const onTransfer = async () => {
     const aptosClient = getAptosClient();
 
@@ -14,7 +14,12 @@ export const SmartAction = ({ props: { params, funcName } }: { props: any }) => 
 
       const txn = await aptosClient.transaction.build.simple({
         sender: account?.address.toString() as any,
-        data: { ...params, function: funcName }
+        data: {
+
+          function: data.funcName,
+          typeArguments: data.typeArguments,
+          functionArguments: Object.values(data.params),
+        }
       });
       console.log(txn);
       console.log('\n=== Transfer transaction ===\n');
@@ -33,10 +38,10 @@ export const SmartAction = ({ props: { params, funcName } }: { props: any }) => 
     <>
       <div className="flex flex-col gap-3 px-4 py-3">
         <span>
-          Function : {funcName}
+          Function :
         </span>
         <p>
-          {JSON.stringify(params)}
+          {JSON.stringify(data)}
         </p>
 
         <div

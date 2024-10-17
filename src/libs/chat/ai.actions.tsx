@@ -118,11 +118,11 @@ async function submitUserMessage(content: string) {
                 }
               ]
             })
-
+            const data = { params: ParametersData, funcName: item.name, typeArguments: item.tool.generic_type_params }
             return (
               <BotCard>
                 <BotCard>
-                  <SmartAction props={{ params: ParametersData, funcName: item.name }} />
+                  <SmartAction props={data} />
                 </BotCard>
               </BotCard>
             )
