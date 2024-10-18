@@ -46,9 +46,8 @@ async function submitUserMessage(content: string) {
   let textNode: undefined | React.ReactNode
 
 
-  const gettools: any = await getToolIdByAgent(aiState.get().agentId)
-  console.log(gettools);
-  const tool_ids = gettools.tools.map((tool: any) => tool._id.toString())
+  const agent: any = await getToolIdByAgent(aiState.get().agentId)
+  const tool_ids = agent.tool_ids
   console.log(tool_ids);
   //new objectID
   const dataTools = await getTools(tool_ids);
