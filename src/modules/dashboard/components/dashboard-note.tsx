@@ -38,7 +38,8 @@ const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size, onCli
   });
 
   const sizeClasses = {
-    'xs-small': 'w-1/2 h-8', // 1x2 aspect ratio
+    fit: 'w-full h-full',
+    'xs-small': 'w-1/2 h-20', // 1x2 aspect ratio
     small: 'w-1/2 h-32', // 1x1 aspect ratio
     medium: 'w-1/2 h-64', // 1x2 aspect ratio
     large: 'w-full h-64' // 4x2 aspect ratio
@@ -48,7 +49,7 @@ const Note: React.FC<INoteProps> = ({ id, index, moveNote, children, size, onCli
     <div
       ref={node => drag(drop(node))}
       className={`flex shrink-0 cursor-move items-center justify-center transition-all duration-300 ${sizeClasses[size]} p-2`}
-      onClick={onClick}
+      onDoubleClick={onClick}
     >
       <BoderImage
         imageBoder={size === 'small' ? WidgetFrame.src : WidgetFrame2.src}

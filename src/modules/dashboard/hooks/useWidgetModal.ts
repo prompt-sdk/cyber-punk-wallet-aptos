@@ -32,8 +32,8 @@ export const useWidgetModal = create(
       openWidgetModal: () => set({ isOpen: true }),
       closeWidgetModal: () => set({ isOpen: false }),
       addWidget: (widget: Widget) =>
-        set(state => {
-          if (!state.widgets.some(w => w._id === widget._id)) {
+        set((state: any) => {
+          if (!state.widgets.some((w: any) => w._id === widget._id)) {
             return { widgets: [...state.widgets, widget] };
           }
           return state;
