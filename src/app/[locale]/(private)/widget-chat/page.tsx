@@ -7,7 +7,7 @@ import { Chat } from '@/modules/chat/components/chat-ui'
 import { AI } from '@/libs/chat/ai.actions'
 import { Session } from 'types/chat'
 import { nanoid } from '@/modules/chat/utils/utils';
-import { getWidgetByID, getTools, creatAgentWithTool } from '@/libs/db/store-mongodb';
+import { getWidgetByID, creatAgentWithTool } from '@/libs/db/store-mongodb';
 import { tool } from '@langchain/core/tools';
 
 export const metadata = {
@@ -35,8 +35,6 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
     // get Tools fromt widget
 
     const widget: any = await getWidgetByID(searchParams.widgetId);
-    //object ID
-
 
     // create agent with tool
     const data: any = {

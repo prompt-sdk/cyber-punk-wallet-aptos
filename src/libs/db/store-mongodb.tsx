@@ -4,17 +4,7 @@ export const getTools = async (tool_ids: any[]) => {
     let clientPromsie = await client.connect();
     let db = clientPromsie.db('prompt');
     let col = await db.collection('tools');
-    let oids: any[] = [];
     const data = await col.find({ _id: { "$in": tool_ids.map((id: string) => new ObjectId(id)) } }).toArray();
-    return data;
-};
-export const getToolIdByAgent = async (agentId: string) => {
-    // call agent then get tool
-    let client = new MongoClient(process.env.MONGO_DB as string);
-    let clientPromsie = await client.connect();
-    let db = clientPromsie.db('prompt');
-    let col = await db.collection('agent');
-    const data = await col.findOne({ _id: new ObjectId(agentId) });
     return data;
 };
 

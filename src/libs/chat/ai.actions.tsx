@@ -9,7 +9,7 @@ import {
 
 } from 'ai/rsc'
 import { openai } from '@ai-sdk/openai'
-import { getTools, getToolIdByAgent, getAgentById } from '../db/store-mongodb';
+import { getTools, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
 import { z } from 'zod'
 import { SmartActionSkeleton } from '@/modules/chat/components/smartaction/action-skeleton'
@@ -46,7 +46,7 @@ async function submitUserMessage(content: string) {
   let textNode: undefined | React.ReactNode
 
 
-  const agent: any = await getToolIdByAgent(aiState.get().agentId)
+  const agent: any = await getAgentById(aiState.get().agentId)
   const tool_ids = agent.tool_ids
   console.log(tool_ids);
   //new objectID
