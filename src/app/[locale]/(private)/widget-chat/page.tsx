@@ -37,7 +37,6 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
     const widget: any = await getWidgetByID(searchParams.widgetId);
     //object ID
 
-    const tools: any = await getTools(widget.tool.tool_ids)
 
     // create agent with tool
     const data: any = {
@@ -49,7 +48,7 @@ export default async function WidgetChatPage({ params, searchParams }: ChatPageP
       "introMessage": "Im Aptos Bot",
       "widget": [],
       "user_id": session.user.username,
-      "tools": tools,
+      "tool_ids": widget.tool.tool_ids,
       "description": "This bot will excute transaction"
     };
     agentId = await creatAgentWithTool(data);

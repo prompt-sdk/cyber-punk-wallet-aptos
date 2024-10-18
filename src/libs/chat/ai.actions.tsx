@@ -11,8 +11,6 @@ import {
 import { openai } from '@ai-sdk/openai'
 import { getTools, getToolIdByAgent, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
-
-import { generateText } from 'ai';
 import { z } from 'zod'
 import { SmartActionSkeleton } from '@/modules/chat/components/smartaction/action-skeleton'
 import {
@@ -49,6 +47,7 @@ async function submitUserMessage(content: string) {
 
 
   const gettools: any = await getToolIdByAgent(aiState.get().agentId)
+  console.log(gettools);
   const tool_ids = gettools.tools.map((tool: any) => tool._id.toString())
   console.log(tool_ids);
   //new objectID
@@ -137,11 +136,8 @@ async function submitUserMessage(content: string) {
             await sleep(1000)
 
             const toolCallId = nanoid()
-            const { text } = await generateText({
-              model: openai('gpt-4o'),
-              system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
-              prompt: '0.4'
-            });
+            const data = { functionArguments: Object.values(ParametersData), function: item.name, typeArguments: item.tool.generic_type_params }
+
 
             aiState.done({
               ...aiState.get(),
@@ -167,7 +163,7 @@ async function submitUserMessage(content: string) {
                       type: 'tool-result',
                       toolName: item.type + item.tool.type,
                       toolCallId,
-                      result: text
+                      result: data
                     }
                   ]
                 }
@@ -176,7 +172,7 @@ async function submitUserMessage(content: string) {
 
             return <BotCard>
               <BotCard>
-                <SmartView props={text} />
+                <SmartView props={data} />
               </BotCard>
             </BotCard>
           }
