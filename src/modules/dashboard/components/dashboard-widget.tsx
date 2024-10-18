@@ -47,7 +47,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       widget_ids: [widgetIds],
       prompt: `create button action stake 0.1 aptos to ${account?.address.toString()}`,
       user_id: userId,
-      avatar: randomAvatar // Assign a random avatar
+      avatar: '/logo_aptos.png' // Assign a random avatar
     };
     //@ts-ignore
     await createAgentAPI(defaultAgent);
