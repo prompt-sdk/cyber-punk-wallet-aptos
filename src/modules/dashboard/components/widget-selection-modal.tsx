@@ -60,7 +60,7 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
       if (widgetToAdd) {
         const sizes = ['small', 'medium', 'large'];
         const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
-        const widgetWithSize = { ...widgetToAdd, size: randomSize, index: widgetOptions?.length };
+        const widgetWithSize = { ...widgetToAdd, size: 'fit', index: widgetOptions?.length };
         addWidget(widgetWithSize);
         closeWidgetModal();
       }

@@ -39,7 +39,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { loadBalance } from '../hooks/utils';
+import { getAptosBalance } from '../hooks/utils';
 
 type DashboardProfileProps = ComponentBaseProps;
 
@@ -67,9 +67,9 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
     }
   }, []);
 
-  const load = useCallback(async () => {
+  const getBalance = useCallback(async () => {
     try {
-      const balance = await loadBalance(account?.address.toString() as string);
+      const balance = await getAptosBalance(account?.address.toString() as string);
       setBalance(balance);
     } catch (error) {
       console.error('Error loading balance:', error);
@@ -78,9 +78,9 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
 
   useEffect(() => {
     if (account?.address.toString()) {
-      load();
+      getBalance();
     }
-  }, [load, account?.address.toString()]);
+  }, [getBalance, account?.address.toString()]);
 
   if (!session) {
     return null;
@@ -147,7 +147,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
       });
       setPending(false);
       handleCloseSend();
-      load();
+      getBalance();
     } catch (err) {
       console.error('Error', err);
       toast({

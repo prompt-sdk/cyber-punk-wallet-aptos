@@ -41,7 +41,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
   };
 
   const handleWidgetClick = (widgetId: string, code: string) => {
-    if (!address && !checkIfWidgetHasButton(code)) {
+    if (!address) {
       setSelectedWidgetId(widgetId);
       setShowPopup(true);
     }
