@@ -107,7 +107,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
         },
         user_id: account?.address.toString() || session?.user?.username
       };
-
+      console.log('widgetData', widgetData);
       const response = await axios.post('/api/tools', widgetData);
       console.log('Widget saved successfully:', response.data);
 
