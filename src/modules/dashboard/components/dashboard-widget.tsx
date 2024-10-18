@@ -27,7 +27,8 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const { account } = useWallet();
   const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
-  const [contractId, setContractId] = useState('');
+  const [toolIds, setToolIds] = useState('');
+  const [widgetIds, setWidgetIds] = useState('');
   const [tools, setTools] = useState([]);
   const [isLoadingTools, setIsLoadingTools] = useState(true);
   const [isLoadingWidget, setIsLoadingWidget] = useState(true);
@@ -39,18 +40,19 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
 
     const defaultAgent = {
-      name: 'Default Agent',
-      description: 'This is a default agent.',
-      introMessage: 'Hello! I am your default agent.',
-      tools: [],
-      widget: [],
-      prompt: '',
+      name: 'Staking Agent',
+      description: 'This is a staking agent.',
+      introMessage: 'Hello! I am your staking agent.',
+      tool_ids: [toolIds],
+      widget_ids: [widgetIds],
+      prompt: `create button action stake 0.1 aptos to ${account?.address.toString()}`,
       user_id: userId,
       avatar: randomAvatar // Assign a random avatar
     };
+    //@ts-ignore
     await createAgentAPI(defaultAgent);
     fetchAgents();
-  }, [account?.address.toString()]);
+  }, [account?.address.toString(), toolIds, widgetIds]);
 
   const fetchTools = useCallback(async () => {
     setIsLoadingTools(true);
@@ -59,7 +61,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
-      console.log('contractTools', contractTools);
+      //console.log('contractTools', contractTools);
     } catch (error) {
       console.error('Error fetching tools:', error);
     } finally {
@@ -70,30 +72,6 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   useEffect(() => {
     fetchTools();
   }, [fetchTools]);
-
-  const fetchAgents = useCallback(async () => {
-    setIsLoading(true);
-    //@ts-ignore
-    const userId = account?.address.toString();
-    try {
-      if (userId) {
-        const response = await axios.get(`/api/agent?userId=${userId}`);
-        const fetchedAgents = response.data;
-        setAgents(fetchedAgents);
-        if (fetchedAgents.length === 0) {
-          await createDefaultAgent();
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching agents:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [account?.address.toString(), createDefaultAgent]);
-
-  useEffect(() => {
-    fetchAgents();
-  }, [fetchAgents]);
 
   const createAgentAPI = async (agentData: {
     name: string;
@@ -113,21 +91,32 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     }
   };
 
-  useEffect(() => {
-    if (!isLoadingTools && tools.length === 0) {
-      const createAndSaveWidget = async () => {
-        await createToolAPI();
-        await saveWidget();
-      };
-      createAndSaveWidget();
+  const fetchAgents = useCallback(async () => {
+    setIsLoading(true);
+    //@ts-ignore
+    const userId = account?.address.toString();
+    try {
+      if (userId) {
+        const response = await axios.get(`/api/agent?userId=${userId}`);
+        const fetchedAgents = response.data;
+        setAgents(fetchedAgents);
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isLoadingTools, tools]);
+  }, [account?.address.toString(), createDefaultAgent]);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
 
   const uploadDataToApi = async (data: any) => {
     try {
       const response = await axios.post('/api/tools', data);
-      setContractId(response.data.upsertedId);
-      console.log('Data uploaded successfully:', response.data);
+      //console.log('Data uploaded successfully:', response.data);
+      return response.data.upsertedId;
     } catch (error) {
       console.error('Error uploading data:', error);
     }
@@ -160,12 +149,28 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
         },
         user_id: account.address.toString()
       };
-      console.log('Tool data:', toolData);
-      await uploadDataToApi(toolData);
+      //console.log('Tool data:', toolData);
+      try {
+        const toolId = await uploadDataToApi(toolData);
+        if (toolId) {
+          setToolIds(toolId); // Ensure toolIds is set only if toolId is valid
+        } else {
+          console.error('Failed to create tool, toolId is null');
+        }
+      } catch (error) {
+        console.error('Error creating tool:', error);
+      }
     }
   }, [account?.address.toString()]);
 
+  useEffect(() => {
+    if (!isLoadingTools && tools.length === 0) {
+      createToolAPI();
+    }
+  }, [isLoadingTools, tools, createToolAPI]);
+
   const saveWidget = useCallback(async () => {
+    setIsLoadingWidget(true);
     if (account?.address.toString()) {
       try {
         const widgetData = {
@@ -174,20 +179,37 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
             name: 'Widget Stake',
             description: `create button action stake 0.1 aptos to ${account.address.toString()}`,
             prompt: 'create button action stake 0.1 aptos to 0x123123',
-            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${account.address.toString()} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to 0x123123\n        </a>\n    )\n}`,
-            tool_ids: [contractId]
+            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${account.address.toString()} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to ${account.address.toString()}\n        </a>\n    )\n}`,
+            tool_ids: [toolIds]
           },
           user_id: account.address.toString(),
           name: 'Widget Stake'
         };
-
+        //console.log('Widget data:', widgetData);
         const response = await axios.post('/api/tools', widgetData);
-        console.log('Widget saved successfully:', response.data);
+        //console.log('Widget saved successfully:', response.data);
+        setWidgetIds(response.data.upsertedId);
       } catch (error) {
         console.error('Error saving widget:', error);
+      } finally {
+        setIsLoadingWidget(false);
       }
     }
-  }, [account?.address.toString(), contractId]);
+  }, [account?.address.toString(), toolIds]);
+
+  useEffect(() => {
+    if (toolIds?.length > 0) {
+      saveWidget();
+    }
+  }, [saveWidget, toolIds]);
+
+  useEffect(() => {
+    //console.log('Checking to create default agent:', { toolIds, widgetIds, agents });
+    // Check if both toolIds and widgetIds are set and agents are empty
+    if (toolIds?.length > 0 && widgetIds?.length > 0 && agents.length === 0) {
+      createDefaultAgent();
+    }
+  }, [createDefaultAgent, widgetIds, agents.length, toolIds]);
 
   const handleAgentClick = (agent: any) => {
     console.log(agent);
