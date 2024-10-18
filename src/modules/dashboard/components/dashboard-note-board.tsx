@@ -20,32 +20,10 @@ type DashboardNotesBoardProps = ComponentBaseProps & {
 };
 
 const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) => {
-  const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
-  const [widgetTools, setWidgetTools] = useState<any>([]);
-  const { data: session }: any = useSession();
-  const { widgets, moveWidget, removeWidget } = useWidgetModal();
+  const { widgets, addWidget, removeWidget } = useWidgetModal();
   const [widgetsList, setWidgetsList] = useState<any>(widgets);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
-
-  const fetchWidgetTools = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/tools?userId=${session?.user?.username || address}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch tools');
-      }
-      const data = await response.json();
-      const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
-      console.log('filteredTools', filteredTools);
-      setWidgetTools(filteredTools);
-    } catch (error) {
-      console.error('Error fetching widget tools:', error);
-    }
-  }, [session?.user?.username, address]);
-
-  useEffect(() => {
-    fetchWidgetTools();
-  }, [fetchWidgetTools]);
 
   const checkIfWidgetHasButton = useCallback((code: string) => {
     //console.log('code', code);
@@ -58,6 +36,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     const [movedWidget] = updatedWidgets.splice(fromIndex, 1);
 
     updatedWidgets.splice(toIndex, 0, movedWidget);
+    console.log('updatedWidgets', updatedWidgets);
     setWidgetsList(updatedWidgets);
   };
 
@@ -76,10 +55,41 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
   };
 
   useEffect(() => {
-    setWidgetsList(widgets);
-  }, [widgets]);
+    if (widgets.length === 0) {
+      const welcomeWidget = {
+        _id: '1',
+        index: 0,
+        type: 'text',
+        tool: { code: 'Welcome' },
+        size: 'small'
+      };
 
-  console.log('widgetsList', widgets);
+      const toWidget = {
+        _id: '2',
+        index: 1,
+        type: 'text',
+        tool: { code: 'To' },
+        size: 'small'
+      };
+
+      const promptWalletWidget = {
+        _id: '3',
+        index: 2,
+        type: 'image',
+        tool: { code: 'background.jpg', description: 'Prompt Wallet' },
+        size: 'large'
+      };
+      // @ts-ignore
+      addWidget(welcomeWidget);
+      // @ts-ignore
+      addWidget(toWidget);
+      // @ts-ignore
+      addWidget(promptWalletWidget);
+      setWidgetsList([welcomeWidget, toWidget, promptWalletWidget]);
+    } else {
+      setWidgetsList(widgets);
+    }
+  }, [widgets]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -95,27 +105,13 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
           >
             {widget.type === 'image' ? (
               <img src={widget.tool?.code} alt={widget.tool?.description || 'Widget Image'} />
-            ) : widget.type === 'input' ? (
+            ) : widget.type === 'text' ? (
               <span>{widget.tool?.code}</span>
             ) : (
               <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
             )}
           </Note>
         ))}
-        {/* {notes.map((note, index) => (
-          <Note
-            onClick={() => {
-              console.log('note', note);
-            }}
-            key={note.id}
-            id={note.id}
-            index={index}
-            moveNote={moveNote}
-            size={note.size}
-          >
-            {note.content}
-          </Note>
-        ))} */}
       </div>
       <AugmentedPopup visible={showPopup} onClose={() => setShowPopup(false)} textHeading="Remove Widget">
         <div className="flex flex-col gap-5 p-8">

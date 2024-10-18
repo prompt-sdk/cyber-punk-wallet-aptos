@@ -31,20 +31,44 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const { toast } = useToast();
   const { data: session } = useSession();
 
+  const createDefaultAgent = useCallback(async () => {
+    //@ts-ignore
+    const userId = session?.user?.username || account?.address.toString();
+    const avatars = ['/avatar1.png', '/avatar2.png', '/avatar3.png'];
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+
+    const defaultAgent = {
+      name: 'Default Agent',
+      description: 'This is a default agent.',
+      introMessage: 'Hello! I am your default agent.',
+      tools: [],
+      widget: [],
+      prompt: '',
+      user_id: userId,
+      avatar: randomAvatar // Assign a random avatar
+    };
+    await createAgentAPI(defaultAgent);
+  }, [session, account, toast]);
+
   const fetchAgents = useCallback(async () => {
     setIsLoading(true);
+    //@ts-ignore
+    const userId = session?.user?.username || account?.address.toString();
     try {
-      const userId = session?.user?.username || account?.address.toString();
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
-        setAgents(response.data);
+        const fetchedAgents = response.data;
+        setAgents(fetchedAgents);
+        if (fetchedAgents.length === 0) {
+          await createDefaultAgent();
+        }
       }
     } catch (error) {
       console.error('Error fetching agents:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user?.username, account?.address, toast]);
+  }, [session, account, createDefaultAgent]);
 
   useEffect(() => {
     fetchAgents();
@@ -67,25 +91,6 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       throw error;
     }
   };
-
-  // const fetchAgents = useCallback(async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const userId = session?.user?.username || account?.address.toString();
-  //     if (userId) {
-  //       const response = await axios.get(`/api/agent?userId=${userId}`);
-  //       setAgents(response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching agents:', error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }, [session?.user?.username, account?.address, toast]);
-
-  // useEffect(() => {
-  //   fetchAgents();
-  // }, [fetchAgents]);
 
   const handleAgentClick = (agent: any) => {
     console.log(agent);
