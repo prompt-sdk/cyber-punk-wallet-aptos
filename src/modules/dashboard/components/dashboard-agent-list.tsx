@@ -16,6 +16,7 @@ type IDashboardAgentListProps = ComponentBaseProps & {
 };
 
 const DashboardAgentList: FC<IDashboardAgentListProps> = ({ className, items, onClick }) => {
+  //console.log('items', items);
   return (
     <Carousel opts={{ align: 'start', loop: true }} className={classNames('w-full', className)}>
       <CarouselContent>

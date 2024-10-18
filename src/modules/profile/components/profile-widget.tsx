@@ -40,15 +40,8 @@ const ProfileWidget: FC<ProfileWidgetProps> = ({ className, address }) => {
         }
         const agents = await response.json();
 
-        // Add random avatar to each agent
-        const updatedAgents = agents.map((agent: any) => ({
-          ...agent,
-          avatar: `/avatar1.png`
-        }));
-
-        setAgents(updatedAgents);
+        setAgents(agents);
       }
-
     } catch (error) {
       console.error('Error fetching agent:', error);
     } finally {
@@ -107,7 +100,7 @@ const ProfileWidget: FC<ProfileWidgetProps> = ({ className, address }) => {
       <div className="w-full">
         <p className="px-8 py-4">Agent Creator ({agents.length})</p>
         <div className="flex flex-col gap-6 px-8 py-6">
-          <DashboardAgentList items={agents} onClick={() => { }} />
+          <DashboardAgentList items={agents} onClick={() => {}} />
         </div>
         <Image src={line.src} alt="line" className="w-full" width={line.width} height={line.height} />
         <DashboardNotesBoard address={address} />

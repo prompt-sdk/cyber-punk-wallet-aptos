@@ -86,7 +86,7 @@ const ProfileInfor: FC<ProfileInforProps> = ({ className, address }) => {
       <div className="relative flex w-full flex-col gap-6 px-4 py-6">
         <div className="flex w-full flex-wrap items-start justify-between gap-2">
           <div className="flex grow flex-wrap items-center gap-2 md:flex-nowrap">
-            <DashboardAvatar className="shrink-0" imageUrl={AvatarImage.src} altText="Avatar" />
+            <DashboardAvatar className="shrink-0" imageUrl={'/avatar1.png'} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
               <p className="text-wrap break-words text-xl font-bold">{collapseAddress(address)}</p>
               <p className="text-sm">Wellcome</p>
