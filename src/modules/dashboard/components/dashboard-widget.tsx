@@ -33,7 +33,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
 
   const createDefaultAgent = useCallback(async () => {
     //@ts-ignore
-    const userId = session?.user?.username || account?.address.toString();
+    const userId = account?.address.toString() as string;
     const avatars = ['/avatar1.png', '/avatar2.png', '/avatar3.png'];
     const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
 
@@ -48,12 +48,13 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       avatar: randomAvatar // Assign a random avatar
     };
     await createAgentAPI(defaultAgent);
-  }, [session, account, toast]);
+    fetchAgents();
+  }, [account]);
 
   const fetchAgents = useCallback(async () => {
     setIsLoading(true);
     //@ts-ignore
-    const userId = session?.user?.username || account?.address.toString();
+    const userId = account?.address.toString();
     try {
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
@@ -68,7 +69,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [session, account, createDefaultAgent]);
+  }, [account, createDefaultAgent]);
 
   useEffect(() => {
     fetchAgents();
