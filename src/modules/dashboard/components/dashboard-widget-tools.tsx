@@ -62,7 +62,7 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
       tool: {
         code: 'default'
       },
-      size: 'xs-small'
+      size: 'small'
     };
     addWidget(newWidget);
   };
