@@ -20,13 +20,12 @@ type ToolRootProps = ComponentBaseProps;
 
 const COIN_LIST_URL = 'https://raw.githubusercontent.com/AnimeSwap/coin-list/main/aptos/mainnet.js';
 
-const ToolRoot: FC<ToolRootProps> = ({ className }) => {
+const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   const { data: session }: any = useSession();
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateTool, setIsOpenCreateTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
-  const [accountAddress, setAccountAddress] = useState<string>('');
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
@@ -140,11 +139,6 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
     }
   };
 
-  useEffect(() => {
-    if (account) {
-      setAccountAddress(account?.address.toString());
-    }
-  }, [account]);
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -296,7 +290,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className }) => {
   const fetchTools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);

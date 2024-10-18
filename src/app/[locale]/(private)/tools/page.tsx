@@ -1,10 +1,11 @@
-'use client';
 
 import { PageBaseProps } from '@/common/interfaces';
 
 import ToolRoot from '@/modules/tools/components/tool-root';
-
+import { auth } from '@/modules/auth/constants/auth.config';
 type PageProps = PageBaseProps;
-export default function ToolsPage(_pageProps: PageProps) {
-  return <ToolRoot />;
+export default async function ToolsPage(_pageProps: PageProps) {
+  const session: any = await auth();
+  console.log(session)
+  return <ToolRoot accountAddress={session.user.username} />;
 }
