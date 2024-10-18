@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { useForm, useWatch } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { Button } from '@/components/ui/button';
-import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import MultiSelectTools from '@/components/common/multi-select';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
@@ -21,7 +20,7 @@ type ToolRootProps = ComponentBaseProps;
 const COIN_LIST_URL = 'https://raw.githubusercontent.com/AnimeSwap/coin-list/main/aptos/mainnet.js';
 
 const ToolRoot: FC<any> = ({ className, accountAddress }) => {
-  const { data: session }: any = useSession();
+
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateTool, setIsOpenCreateTool] = useState<boolean>(false);
@@ -262,7 +261,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
           functions: funcName,
           address: form.getValues('address')
         },
-        user_id: session.user.username
+        user_id: accountAddress
       };
       console.log('Tool data:', toolData);
       await uploadDataToApi(toolData);

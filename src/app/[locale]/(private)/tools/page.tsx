@@ -6,6 +6,5 @@ import { auth } from '@/modules/auth/constants/auth.config';
 type PageProps = PageBaseProps;
 export default async function ToolsPage(_pageProps: PageProps) {
   const session: any = await auth();
-  console.log(session)
   return <ToolRoot accountAddress={session.user.username} />;
 }

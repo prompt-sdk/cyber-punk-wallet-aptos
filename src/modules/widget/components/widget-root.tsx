@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { Button } from '@/components/ui/button';
-import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import MultiSelectTools from '@/components/common/multi-select';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
@@ -17,8 +16,8 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 type WidgetRootProps = ComponentBaseProps;
 
-const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
-  const { data: session }: any = useSession();
+const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
+
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateWidget, setIsOpenCreateWidget] = useState<boolean>(false);
@@ -32,7 +31,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
 
   const fetchTools = useCallback(async () => {
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
@@ -40,7 +39,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
     } catch (error) {
       console.error('Error fetching tools:', error);
     }
-  }, [account, session]);
+  }, [account]);
 
   useEffect(() => {
     fetchTools();
@@ -49,7 +48,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
   const fetchWidgetTools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress
       const response = await fetch(`/api/tools?userId=${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
@@ -63,7 +62,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user?.username, account?.address.toString()]);
+  }, [account?.address.toString()]);
 
   useEffect(() => {
     fetchWidgetTools();
@@ -105,7 +104,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
           code: widgetCode,
           tool_ids: selectedWidgetTools
         },
-        user_id: account?.address.toString() || session?.user?.username
+        user_id: accountAddress
       };
       console.log('widgetData', widgetData);
       const response = await axios.post('/api/tools', widgetData);
