@@ -60,16 +60,16 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
         _id: '1',
         index: 0,
         type: 'text',
-        tool: { code: 'Welcome' },
-        size: 'small'
+        content: 'Welcome',
+        size: 'xs-small'
       };
 
       const toWidget = {
         _id: '2',
         index: 1,
         type: 'text',
-        tool: { code: 'To' },
-        size: 'small'
+        content: 'To',
+        size: 'xs-small'
       };
 
       const promptWalletWidget = {
@@ -106,7 +106,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             {widget.type === 'image' ? (
               <img src={widget.tool?.code} alt={widget.tool?.description || 'Widget Image'} />
             ) : widget.type === 'text' ? (
-              <span>{widget.tool?.code}</span>
+              <span>{widget.content}</span>
             ) : (
               <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
             )}

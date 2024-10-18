@@ -56,7 +56,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
-      console.log('filteredTools', filteredTools);
+      //console.log('filteredTools', filteredTools);
       setWidgets(filteredTools);
     } catch (error) {
       console.error('Error fetching widget tools:', error);
@@ -107,7 +107,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
         },
         user_id: account?.address.toString() || session?.user?.username
       };
-
+      console.log('widgetData', widgetData);
       const response = await axios.post('/api/tools', widgetData);
       console.log('Widget saved successfully:', response.data);
 
@@ -182,7 +182,7 @@ const WidgetRoot: FC<WidgetRootProps> = ({ className }) => {
               >
                 <h2 className="text-lg font-semibold">{widget.name}</h2>
                 <span className="rounded text-xs text-gray-500">{widget.tool.type || 'Widget'}</span>
-                <p className="text-sm text-white">{widget.tool.description || 'No description'}</p>
+                <p className="text-sm text-white">{widget.tool.description.slice(0, 30) + '...'}</p>
               </div>
             ))}
           </div>

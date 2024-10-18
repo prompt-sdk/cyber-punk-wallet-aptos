@@ -105,9 +105,15 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     try {
       const userId = session?.user?.username || account?.address.toString();
       const agentData = {
-        ...data,
+        name: data.name,
+        description: data.description,
+        introMessage: data.introMessage,
+        tool_ids: data.tools,
+        widget_ids: data.widget,
+        prompt: data.prompt,
         user_id: userId
       };
+      //@ts-ignore
       const createdAgent = await createAgentAPI(agentData);
       setAgents([...agents, createdAgent]);
       setIsOpenCreateAgent(false);
@@ -147,7 +153,6 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
         const response = await axios.get(`/api/agent?userId=${userId}`);
         setAgents(response.data);
       }
-
     } catch (error) {
       console.error('Error fetching agents:', error);
     } finally {

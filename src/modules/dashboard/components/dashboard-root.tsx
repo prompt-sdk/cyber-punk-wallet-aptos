@@ -8,26 +8,27 @@ import DashboardProfile from './dashboard-profile';
 import DashboardWidget from './dashboard-widget';
 import { useSession } from 'next-auth/react';
 import { WidgetSelectionModal } from './widget-selection-modal';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 type DashboardRootProps = ComponentBaseProps;
 
 const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
-  const { data: session } = useSession();
-
+  const { connected } = useWallet();
 
   return (
-    session ? <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
-      <div className="container flex flex-col items-center justify-center gap-6">
-        <DashboardProfile />
-        <DashboardWidget />
-        <WidgetSelectionModal />
-      </div>
-    </div> :
-      <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
+    <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
+      {connected ? (
         <div className="container flex flex-col items-center justify-center gap-6">
-          loading
+          <DashboardProfile />
+          <DashboardWidget />
+          <WidgetSelectionModal />
         </div>
-      </div>
+      ) : (
+        <div className="text-center">
+          <p>Loading...</p>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -31,7 +31,7 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
-      console.log('filteredTools', filteredTools);
+      //console.log('filteredTools', filteredTools);
       setWidgetOptions(filteredTools);
     } catch (error) {
       console.error('Error fetching widget tools:', error);
