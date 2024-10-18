@@ -24,14 +24,17 @@ import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
 import { Chat, Message } from 'types/chat'
 import { auth } from '@/modules/auth/constants/auth.config';
-import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
+import { SmartAction,SmartView } from '@/modules/chat/components/smartaction/action'
+import { getAptosBalance } from '@/libs/aptos/aptos-utils'
+import dynamic from 'next/dynamic';
 
-
+const SendAptButton = dynamic(() => import('@/modules/chat/components/send-apt-button').then(mod => mod.SendAptButton), { ssr: false });
 
 async function submitUserMessage(content: string) {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()
+  const session = await auth()
 
   aiState.update({
     ...aiState.get(),
@@ -67,129 +70,258 @@ async function submitUserMessage(content: string) {
     return z.string().describe(describe)
   }
 
-  const tools = dataTools.reduce((tool: any, item: any) => {
-    if (item.type == 'contractTool') {
-      const ParametersSchema = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
-        acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
-        return acc;
-      }, {})
-      type ParametersData = z.infer<typeof ParametersSchema>;
-      tool[item._id.toString()] = {
-        description: item.tool.description,
-        parameters: z.object(ParametersSchema),
-        generate: async function* (ParametersData: ParametersData) {
-          if (item.tool.type == 'entry') {
-            yield (
-              <BotCard>
-                <SmartActionSkeleton />
-              </BotCard>
-            )
 
-            await sleep(1000)
-            const data = { functionArguments: Object.values(ParametersData), function: item.name, typeArguments: item.tool.generic_type_params }
-            const toolCallId = nanoid()
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'assistant',
-                  content: [
-                    {
-                      type: 'tool-call',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      args: ParametersData
-                    }
-                  ]
-                },
-                {
-                  id: nanoid(),
-                  role: 'tool',
-                  content: [
-                    {
-                      type: 'tool-result',
-                      toolName: item.type + '_' + item.tool.type,
-                      toolCallId,
-                      result: data
-                    }
-                  ]
-                }
-              ]
-            })
-
-            return (
-              <BotCard>
+  const tools = {
+    ...dataTools.reduce((tool: any, item: any) => {
+      if (item.type == 'contractTool') {
+        const ParametersSchema = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
+          acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
+          return acc;
+        }, {})
+        type ParametersData = z.infer<typeof ParametersSchema>;
+        tool[item._id.toString()] = {
+          description: item.tool.description,
+          parameters: z.object(ParametersSchema),
+          generate: async function* (ParametersData: ParametersData) {
+            if (item.tool.type == 'entry') {
+              yield (
                 <BotCard>
-                  <SmartAction props={data} />
+                  <SmartActionSkeleton />
+                </BotCard>
+              )
+
+              await sleep(1000)
+
+              const toolCallId = nanoid()
+              aiState.done({
+                ...aiState.get(),
+                messages: [
+                  ...aiState.get().messages,
+                  {
+                    id: nanoid(),
+                    role: 'assistant',
+                    content: [
+                      {
+                        type: 'tool-call',
+                        toolName: item.type + item.tool.type,
+                        toolCallId,
+                        args: ParametersData
+                      }
+                    ]
+                  },
+                  {
+                    id: nanoid(),
+                    role: 'tool',
+                    content: [
+                      {
+                        type: 'tool-result',
+                        toolName: item.type + item.tool.type,
+                        toolCallId,
+                        result: ParametersData
+                      }
+                    ]
+                  }
+                ]
+              })
+
+              return (
+                <BotCard>
+                  <BotCard>
+                    <SmartAction props={ParametersData} />
+                  </BotCard>
+                </BotCard>
+              )
+
+            }
+            if (item.tool.type == 'view') {
+              yield (
+                <BotCard>
+                  <SmartActionSkeleton />
+                </BotCard>
+              )
+
+              await sleep(1000)
+
+              const toolCallId = nanoid()
+              const { text } = await generateText({
+                model: openai('gpt-4o'),
+                system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
+                prompt: '0.4'
+              });
+
+              aiState.done({
+                ...aiState.get(),
+                messages: [
+                  ...aiState.get().messages,
+                  {
+                    id: nanoid(),
+                    role: 'assistant',
+                    content: [
+                      {
+                        type: 'tool-call',
+                        toolName: item.type + item.tool.type,
+                        toolCallId,
+                        args: ParametersData
+                      }
+                    ]
+                  },
+                  {
+                    id: nanoid(),
+                    role: 'tool',
+                    content: [
+                      {
+                        type: 'tool-result',
+                        toolName: item.type + item.tool.type,
+                        toolCallId,
+                        result: text
+                      }
+                    ]
+                  }
+                ]
+              })
+
+              return <BotCard>
+                <BotCard>
+                  <SmartAction props={text} />
                 </BotCard>
               </BotCard>
-            )
+            }
           }
-          // if (item.tool.type == 'view') {
-          //   yield (
-          //     <BotCard>
-          //       <SmartActionSkeleton />
-          //     </BotCard>
-          //   )
+        };
+      }
+      if (item.type == 'widgetTool') {
 
-          //   await sleep(1000)
+      }
 
-          //   const toolCallId = nanoid()
-          //   const { text } = await generateText({
-          //     model: openai('gpt-4o'),
-          //     system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
-          //     prompt: '0.4'
-          //   });
+      return tool;
+    }, {}),
+    // Add a new tool for getting APT balance
+    getAptBalance: {
+      description: "Get the APT balance for the user",
+      parameters: z.object({}),
+      generate: async function* () {
+        yield (
+          <BotCard>
+            <SmartActionSkeleton />
+          </BotCard>
+        )
 
-          //   aiState.done({
-          //     ...aiState.get(),
-          //     messages: [
-          //       ...aiState.get().messages,
-          //       {
-          //         id: nanoid(),
-          //         role: 'assistant',
-          //         content: [
-          //           {
-          //             type: 'tool-call',
-          //             toolName: item.type + item.tool.type,
-          //             toolCallId,
-          //             args: ParametersData
-          //           }
-          //         ]
-          //       },
-          //       {
-          //         id: nanoid(),
-          //         role: 'tool',
-          //         content: [
-          //           {
-          //             type: 'tool-result',
-          //             toolName: item.type + item.tool.type,
-          //             toolCallId,
-          //             result: text
-          //           }
-          //         ]
-          //       }
-          //     ]
-          //   })
+        await sleep(1000)
 
-          //   return <BotCard>
-          //     <BotCard>
-          //       <SmartView props={text} />
-          //     </BotCard>
-          //   </BotCard>
-          // }
+        let address = '0x1'; // Default address if session or username is not available
+        if (session && session.user && session.user.username) {
+          address = session.user.username;
         }
-      };
+
+        const balance = await getAptosBalance(address);
+        const formattedBalance = parseFloat(balance).toFixed(2);
+
+        const toolCallId = nanoid()
+        aiState.done({
+          ...aiState.get(),
+          messages: [
+            ...aiState.get().messages,
+            {
+              id: nanoid(),
+              role: 'assistant',
+              content: [
+                {
+                  type: 'tool-call',
+                  toolName: 'getAptBalance',
+                  toolCallId,
+                  args: {}
+                }
+              ]
+            },
+            {
+              id: nanoid(),
+              role: 'tool',
+              content: [
+                {
+                  type: 'tool-result',
+                  toolName: 'getAptBalance',
+                  toolCallId,
+                  result: formattedBalance
+                }
+              ]
+            }
+          ]
+        })
+
+        return (
+          <BotCard>
+            <BotMessage content={`Your balance is ${formattedBalance} APT`} />
+          </BotCard>
+        )
+      }
+    },
+    sendApt: {
+      description: "Create a button to send a specified amount of APT to a specified address",
+      parameters: z.object({
+        toAddress: z.string().describe("The address to send APT to"),
+        amount: z.string().describe("The amount of APT to send")
+      }),
+      generate: async function* ({ toAddress, amount }: { toAddress: string, amount: string }) {
+        yield (
+          <BotCard>
+            <SmartActionSkeleton />
+          </BotCard>
+        )
+
+        await sleep(1000)
+
+        const toolCallId = nanoid()
+        aiState.done({
+          ...aiState.get(),
+          messages: [
+            ...aiState.get().messages,
+            {
+              id: nanoid(),
+              role: 'assistant',
+              content: [
+                {
+                  type: 'tool-call',
+                  toolName: 'sendApt',
+                  toolCallId,
+                  args: { toAddress, amount }
+                }
+              ]
+            },
+            {
+              id: nanoid(),
+              role: 'tool',
+              content: [
+                {
+                  type: 'tool-result',
+                  toolName: 'sendApt',
+                  toolCallId,
+                  result: `Button created to send ${amount} APT to ${toAddress}`
+                }
+              ]
+            }
+          ]
+        })
+
+        return (
+          <BotCard>
+            <BotMessage content={`Here's a button to send ${amount} APT to ${toAddress}:`} />
+            <SendAptButton toAddress={toAddress} amount={amount} />
+          </BotCard>
+        )
+      }
     }
-    return tool;
-  }, {});
-  const system_messenge = await getAgentById(aiState.get().agentId)
+  };
+
+  //get agentId a iState.get().agentId
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <SpinnerMessage />,
-    system: system_messenge?.prompt || 'You are assitant helpful',
+    system: ` You are a Helpful developer.\n 
+            Analyze each query to determine if it requires plain text information or an action via a tool. Do not ever send tool call arguments with your chat. You must specifically call the tool with the information\n
+            For informational queries like "show my balance", use the 'getAptBalance' tool to fetch and display the user's APT balance. The tool will automatically use the user's address from their session.\n
+            When the user wants to send APT, use the 'sendApt' tool to create a button for sending the specified amount of APT to the specified address. Make sure to extract both the amount and the recipient address from the user's message.\n
+            Always say something before or after tool usage.\n
+            Provide a response clearly and concisely. Always be polite, informative, and efficient.`,
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
