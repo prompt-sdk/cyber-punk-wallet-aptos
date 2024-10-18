@@ -9,13 +9,12 @@ import FormTextField from '@/modules/form/components/form-text-field';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
-import { useSession } from 'next-auth/react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import MultiSelectWidgets from '@/components/common/multi-select-widget';
 import axios from 'axios';
 import MultiSelectTools from '@/components/common/multi-select';
 
-const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
+const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const [agents, setAgents] = useState<any[]>([]);
   const [isOpenCreateAgent, setIsOpenCreateAgent] = useState<boolean>(false);
   const { toast } = useToast();
@@ -26,7 +25,6 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const [widgets, setWidgets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: session }: any = useSession();
   const { account } = useWallet();
   const agentForm = useForm({
     defaultValues: {
@@ -41,7 +39,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
 
   const fetchTools = useCallback(async () => {
     try {
-      const userId: any = session?.user?.username || account?.address.toString();
+      const userId: any = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
@@ -49,7 +47,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     } catch (error) {
       console.error('Error fetching tools:', error);
     }
-  }, [account, session]);
+  }, [account]);
 
   useEffect(() => {
     fetchTools();
@@ -58,7 +56,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const fetchWidgetTools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress;
       const response = await fetch(`/api/tools?userId=${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
@@ -71,7 +69,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user?.username, account?.address.toString()]);
+  }, []);
 
   useEffect(() => {
     fetchWidgetTools();
@@ -103,7 +101,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     prompt: string;
   }) => {
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress
       const agentData = {
         name: data.name,
         description: data.description,
@@ -148,7 +146,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
   const fetchAgents = useCallback(async () => {
     setIsLoadingAgents(true);
     try {
-      const userId = session?.user?.username || account?.address.toString();
+      const userId = accountAddress
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
         setAgents(response.data);
@@ -158,7 +156,7 @@ const AgentRoot: FC<ComponentBaseProps> = ({ className }) => {
     } finally {
       setIsLoadingAgents(false);
     }
-  }, [session?.user?.username, account?.address, toast]);
+  }, []);
 
   useEffect(() => {
     fetchAgents();
