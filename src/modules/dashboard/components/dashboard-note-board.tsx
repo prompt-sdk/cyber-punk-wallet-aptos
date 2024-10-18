@@ -13,37 +13,17 @@ import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
 import { ComponentBaseProps } from '@/common/interfaces';
+import InputWidget from './input-widget';
 
 type DashboardNotesBoardProps = ComponentBaseProps & {
   address?: string;
 };
 
 const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) => {
-  const [notes, setNotes] = useState<Array<WidgetItem>>(DASH_BOARD_NOTE_LIST);
-  const [widgetTools, setWidgetTools] = useState<any>([]);
-  const { data: session }: any = useSession();
-  const { widgets, removeWidget } = useWidgetModal();
+  const { widgets, addWidget, removeWidget } = useWidgetModal();
+  const [widgetsList, setWidgetsList] = useState<any>(widgets);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
-
-  const fetchWidgetTools = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/tools?userId=${session?.user?.username || address}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch tools');
-      }
-      const data = await response.json();
-      const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
-      console.log('filteredTools', filteredTools);
-      setWidgetTools(filteredTools);
-    } catch (error) {
-      console.error('Error fetching widget tools:', error);
-    }
-  }, [session?.user?.username, address]);
-
-  useEffect(() => {
-    fetchWidgetTools();
-  }, [fetchWidgetTools]);
 
   const checkIfWidgetHasButton = useCallback((code: string) => {
     //console.log('code', code);
@@ -51,15 +31,17 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
   }, []);
 
   const moveNote = (fromIndex: number, toIndex: number) => {
-    const updatedNotes = [...notes];
-    const [movedNote] = updatedNotes.splice(fromIndex, 1);
+    //moveWidget(fromIndex, toIndex);
+    const updatedWidgets = [...widgetsList];
+    const [movedWidget] = updatedWidgets.splice(fromIndex, 1);
 
-    updatedNotes.splice(toIndex, 0, movedNote);
-    setNotes(updatedNotes);
+    updatedWidgets.splice(toIndex, 0, movedWidget);
+    console.log('updatedWidgets', updatedWidgets);
+    setWidgetsList(updatedWidgets);
   };
 
   const handleWidgetClick = (widgetId: string, code: string) => {
-    if (!address && !checkIfWidgetHasButton(code)) {
+    if (!address) {
       setSelectedWidgetId(widgetId);
       setShowPopup(true);
     }
@@ -72,19 +54,62 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     setShowPopup(false);
   };
 
+  useEffect(() => {
+    if (widgets.length === 0) {
+      const welcomeWidget = {
+        _id: '1',
+        index: 0,
+        type: 'text',
+        tool: { code: 'Welcome' },
+        size: 'small'
+      };
+
+      const toWidget = {
+        _id: '2',
+        index: 1,
+        type: 'text',
+        tool: { code: 'To' },
+        size: 'small'
+      };
+
+      const promptWalletWidget = {
+        _id: '3',
+        index: 2,
+        type: 'image',
+        tool: { code: 'background.jpg', description: 'Prompt Wallet' },
+        size: 'large'
+      };
+      // @ts-ignore
+      addWidget(welcomeWidget);
+      // @ts-ignore
+      addWidget(toWidget);
+      // @ts-ignore
+      addWidget(promptWalletWidget);
+      setWidgetsList([welcomeWidget, toWidget, promptWalletWidget]);
+    } else {
+      setWidgetsList(widgets);
+    }
+  }, [widgets]);
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex min-h-[200px] w-full flex-wrap px-6">
-        {widgets.map((widget: any, index: number) => (
+      <div className="flex min-h-[200px] flex-wrap px-6">
+        {widgetsList.map((widget: any, index: number) => (
           <Note
-            key={widget._id}
-            id={widget._id}
+            key={widget.index}
+            id={widget.index}
             index={index}
             moveNote={moveNote}
             size={widget.size || 'medium'}
             onClick={() => handleWidgetClick(widget._id, widget.tool?.code)}
           >
-            <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
+            {widget.type === 'image' ? (
+              <img src={widget.tool?.code} alt={widget.tool?.description || 'Widget Image'} />
+            ) : widget.type === 'text' ? (
+              <span>{widget.tool?.code}</span>
+            ) : (
+              <ViewFrameDashboard id={widget._id.toString()} code={widget.tool?.code} />
+            )}
           </Note>
         ))}
       </div>

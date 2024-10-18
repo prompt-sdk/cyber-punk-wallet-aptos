@@ -36,15 +36,17 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
           <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
             <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
               <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-                <button className="h-10 w-10">
-                  <Image
-                    src={BackIcon.src}
-                    alt="Back Icon"
-                    className="h-full w-full translate-y-1 object-contain"
-                    width={BackIcon.width}
-                    height={BackIcon.height}
-                  />
-                </button>
+                <Link href="/dashboard" >
+                  <button className="h-10 w-10">
+                    <Image
+                      src={BackIcon.src}
+                      alt="Back Icon"
+                      className="h-full w-full translate-y-1 object-contain"
+                      width={BackIcon.width}
+                      height={BackIcon.height}
+                    />
+                  </button>
+                </Link>
                 <Link href="/widget" className="flex h-8 items-center justify-center gap-2">
                   <Image
                     src={EditIcon.src}

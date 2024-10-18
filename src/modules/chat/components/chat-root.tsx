@@ -51,6 +51,7 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import { toast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 type ChatRootProps = ComponentBaseProps;
 
@@ -648,15 +649,48 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
           <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
             <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-              <button className="h-10 w-10" onClick={handleBack}>
+              <Link href="/dashboard" >
+                <button className="h-10 w-10">
+                  <Image
+                    src={BackIcon.src}
+                    alt="Back Icon"
+                    className="h-full w-full translate-y-1 object-contain"
+                    width={BackIcon.width}
+                    height={BackIcon.height}
+                  />
+                </button>
+              </Link>
+              <Link href="/widget" className="flex h-8 items-center justify-center gap-2">
                 <Image
-                  src={BackIcon.src}
+                  src={EditIcon.src}
                   alt="Back Icon"
-                  className="h-full w-full translate-y-1 object-contain"
-                  width={BackIcon.width}
-                  height={BackIcon.height}
+                  className="h-full w-full object-contain"
+                  width={EditIcon.width}
+                  height={EditIcon.height}
                 />
-              </button>
+                <span className="text-nowrap">Widget</span>
+              </Link>
+              <Link href="/tools" className="flex h-8 items-center justify-center gap-2">
+                <Image
+                  src={EditIcon.src}
+                  alt="Back Icon"
+                  className="h-full w-full object-contain"
+                  width={EditIcon.width}
+                  height={EditIcon.height}
+                />
+                <span className="text-nowrap">Tools</span>
+              </Link>
+              <Link href="/agent" className="flex h-8 items-center justify-center gap-2">
+                <Image
+                  src={EditIcon.src}
+                  alt="Back Icon"
+                  className="h-full w-full object-contain"
+                  width={EditIcon.width}
+                  height={EditIcon.height}
+                />
+                <span className="text-nowrap">Agent</span>
+              </Link>
+
               <button className="flex h-8 items-center justify-center gap-2" onClick={handleNewChat}>
                 <Image
                   src={EditIcon.src}

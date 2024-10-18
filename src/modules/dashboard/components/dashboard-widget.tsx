@@ -18,7 +18,6 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import DashboardAvatar from './dashboard-avatar';
 import axios from 'axios';
-import { useSession } from 'next-auth/react';
 type DashboardWidgetProps = ComponentBaseProps;
 
 const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
@@ -28,8 +27,73 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const { account } = useWallet();
   const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
-  const { toast } = useToast();
-  const { data: session } = useSession();
+  const [contractId, setContractId] = useState('');
+  const [tools, setTools] = useState([]);
+  const [isLoadingTools, setIsLoadingTools] = useState(true);
+  const [isLoadingWidget, setIsLoadingWidget] = useState(true);
+
+  const createDefaultAgent = useCallback(async () => {
+    //@ts-ignore
+    const userId = account?.address.toString() as string;
+    const avatars = ['/avatar1.png', '/avatar2.png', '/avatar3.png'];
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+
+    const defaultAgent = {
+      name: 'Default Agent',
+      description: 'This is a default agent.',
+      introMessage: 'Hello! I am your default agent.',
+      tools: [],
+      widget: [],
+      prompt: '',
+      user_id: userId,
+      avatar: randomAvatar // Assign a random avatar
+    };
+    await createAgentAPI(defaultAgent);
+    fetchAgents();
+  }, [account?.address.toString()]);
+
+  const fetchTools = useCallback(async () => {
+    setIsLoadingTools(true);
+    try {
+      const userId = account?.address.toString();
+      const response = await axios.get(`/api/tools?userId=${userId}`);
+      const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
+      setTools(contractTools);
+      console.log('contractTools', contractTools);
+    } catch (error) {
+      console.error('Error fetching tools:', error);
+    } finally {
+      setIsLoadingTools(false);
+    }
+  }, [account?.address.toString()]);
+
+  useEffect(() => {
+    fetchTools();
+  }, [fetchTools]);
+
+  const fetchAgents = useCallback(async () => {
+    setIsLoading(true);
+    //@ts-ignore
+    const userId = account?.address.toString();
+    try {
+      if (userId) {
+        const response = await axios.get(`/api/agent?userId=${userId}`);
+        const fetchedAgents = response.data;
+        setAgents(fetchedAgents);
+        if (fetchedAgents.length === 0) {
+          await createDefaultAgent();
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching agents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [account?.address.toString(), createDefaultAgent]);
+
+  useEffect(() => {
+    fetchAgents();
+  }, [fetchAgents]);
 
   const createAgentAPI = async (agentData: {
     name: string;
@@ -49,55 +113,81 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     }
   };
 
-  const fetchAgentByUsername = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const userId = account?.address.toString();
-      if (userId) {
-        const response = await fetch(`/api/agent?userId=${userId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch agent');
-        }
-        let agents = await response.json();
-        console.log(agents);
-
-        if (agents.length === 0) {
-          // Create a new agent if no agents are found
-          const newAgent = await createAgentAPI({
-            name: 'Default Agent',
-            description: 'This is your default agent.',
-            introMessage: "Hello! I'm your default agent ready to assist you.",
-            tools: [],
-            widget: [],
-            prompt: '',
-            user_id: userId
-          });
-          agents = [newAgent];
-        }
-
-        // Add avatar to each agent
-        const updatedAgents = agents.map((agent: any) => ({
-          ...agent,
-          avatar: `/avatar1.png`
-        }));
-
-        setAgents(updatedAgents);
-      }
-    } catch (error) {
-      console.error('Error fetching or creating agent:', error);
-      toast({
-        title: 'Error',
-        description: 'There was a problem fetching or creating the agent. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [account, toast]);
-
   useEffect(() => {
-    fetchAgentByUsername();
-  }, [fetchAgentByUsername]);
+    if (!isLoadingTools && tools.length === 0) {
+      const createAndSaveWidget = async () => {
+        await createToolAPI();
+        await saveWidget();
+      };
+      createAndSaveWidget();
+    }
+  }, [isLoadingTools, tools]);
+
+  const uploadDataToApi = async (data: any) => {
+    try {
+      const response = await axios.post('/api/tools', data);
+      setContractId(response.data.upsertedId);
+      console.log('Data uploaded successfully:', response.data);
+    } catch (error) {
+      console.error('Error uploading data:', error);
+    }
+  };
+
+  const createToolAPI = useCallback(async () => {
+    if (account?.address.toString()) {
+      const toolData = {
+        type: 'contractTool',
+        name: `0x1::delegation_pool::add_stake`,
+        tool: {
+          name: `0x1::delegation_pool::add_stake`,
+          description:
+            "The `add_stake` function allows a delegator to add a specified amount of coins to the delegation pool. This amount is converted into shares, which represent the delegator's stake in the pool. The function ensures that the delegator is allowlisted and synchronizes the delegation pool with the underlying stake pool before executing the addition. The function also calculates and deducts any applicable fees from the added stake, ensuring that the delegator's balance is updated accordingly.",
+          params: {
+            user: {
+              type: 'address',
+              description: 'The address of the delegator.'
+            },
+            amount: {
+              type: 'u64',
+              description: 'The amount of coins to be added to the delegation pool.'
+            }
+          },
+          generic_type_params: [],
+          return: [],
+          type: 'entry',
+          functions: 'add_stake',
+          address: '0x1'
+        },
+        user_id: account.address.toString()
+      };
+      console.log('Tool data:', toolData);
+      await uploadDataToApi(toolData);
+    }
+  }, [account?.address.toString()]);
+
+  const saveWidget = useCallback(async () => {
+    if (account?.address.toString()) {
+      try {
+        const widgetData = {
+          type: 'widgetTool',
+          tool: {
+            name: 'Widget Stake',
+            description: `create button action stake 0.1 aptos to ${account.address.toString()}`,
+            prompt: 'create button action stake 0.1 aptos to 0x123123',
+            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${account.address.toString()} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to 0x123123\n        </a>\n    )\n}`,
+            tool_ids: [contractId]
+          },
+          user_id: account.address.toString(),
+          name: 'Widget Stake'
+        };
+
+        const response = await axios.post('/api/tools', widgetData);
+        console.log('Widget saved successfully:', response.data);
+      } catch (error) {
+        console.error('Error saving widget:', error);
+      }
+    }
+  }, [account?.address.toString(), contractId]);
 
   const handleAgentClick = (agent: any) => {
     console.log(agent);
@@ -108,7 +198,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const startChat = async (agentId: string) => {
     router.push(`/chat?agentId=${agentId}`);
   };
-  // console.log(agents);
+  //console.log(agents);
 
   return (
     <BoderImage
