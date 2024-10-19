@@ -22,7 +22,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
   } else {
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto scrollbar">
           {chats?.length ? (
             <div className="space-y-2 px-2">
               <SidebarItems chats={chats} />
