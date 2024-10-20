@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { formatRelativeDate } from '@/common/utils/date-time.util';
 import { kv } from '@vercel/kv';
-import { useRouter } from '@/navigation';
+import { useRouter } from 'next/navigation';
 
 import { AIChat, ChatMessage } from '../interfaces/chat.interface';
 

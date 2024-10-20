@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
 import Link from 'next/link';
-import { usePathname, useRouter } from '@/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export type SelectOption = {
   label: string;

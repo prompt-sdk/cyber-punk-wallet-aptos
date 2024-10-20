@@ -9,7 +9,6 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { MediaContextProvider } from '@/components/common/media';
 import ServiceWorker from '@/components/common/service-worker';
-import Tracking from '@/components/common/third-party/tracking';
 import { SidebarProvider } from '@/hooks/use-sidebar'
 
 import ErrorBoundary from '../error-boundary';
@@ -38,7 +37,6 @@ function Providers({ children }: ProvidersProps) {
   return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: asyncStoragePersister }}>
       <ErrorBoundary>
-        <Tracking />
         <ServiceWorker />
         <SidebarProvider>
           <TooltipProvider>

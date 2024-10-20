@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
 
-import { Link } from '@/navigation';
+import Link from 'next/link'
 
 type MenuProps = ComponentBaseProps;
 

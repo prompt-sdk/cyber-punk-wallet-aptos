@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-import { usePathname } from '@/navigation';
+import { usePathname } from 'next/navigation';
 
 import Tracker from './utils/tracker';
 import GtagScript from './gtag';

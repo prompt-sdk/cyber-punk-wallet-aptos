@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from 'next/navigation';
 
-import { usePathname, useRouter } from '@/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function useSidebar() {
   const router = useRouter();

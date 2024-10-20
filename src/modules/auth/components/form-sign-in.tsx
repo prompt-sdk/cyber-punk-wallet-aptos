@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -17,7 +16,6 @@ import { signInValidator } from '../validators/sign-in.validator';
 import { Form } from '@/components/ui/form';
 
 const FormSignIn = () => {
-  const t = useTranslations();
   const authState = useAuthState();
 
   const defaultValues: SignInDto = {

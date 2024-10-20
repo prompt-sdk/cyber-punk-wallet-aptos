@@ -1,10 +1,10 @@
-import { useRouter } from '@/navigation';
+import { useRouter } from 'next/navigation';
 
 import { act, fireEvent, render } from '@tests/unit/utils/test.util';
 
 import Unauthenticated from '../unauthenticated';
 
-vi.mock('@/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: vi.fn().mockReturnValue({
     push: vi.fn()
   })

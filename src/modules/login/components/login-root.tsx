@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useRouter } from '@/navigation';
+import { useRouter } from 'next/navigation';
 
 import { LoginFormData } from '../interfaces/login.interface';
 

@@ -1,7 +1,6 @@
 import { FC } from 'react';
-import { useTranslations } from 'next-intl';
 
-import { Link } from '@/navigation';
+import Link from 'next/link'
 
 type ErrorInformationType = {
   code: number;
@@ -9,7 +8,6 @@ type ErrorInformationType = {
 };
 
 const ErrorInformation: FC<ErrorInformationType> = ({ code, message }) => {
-  const t = useTranslations();
 
   return (
     <div className="grid min-h-screen place-items-center p-4 sm:p-8">
@@ -21,7 +19,7 @@ const ErrorInformation: FC<ErrorInformationType> = ({ code, message }) => {
           href={'/'}
           className="inline-flex items-center underline hover:no-underline focus:outline-none sm:text-base"
         >
-          {t('back_to_home')}
+          Back to home
         </Link>
       </div>
     </div>

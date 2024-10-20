@@ -4,7 +4,7 @@ import { FC, ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ErrorBoundary as ReactErrorBoundary, useErrorBoundary } from 'react-error-boundary';
 
-import { useRouter } from '@/navigation';
+import { useRouter } from 'next/navigation';
 
 type ErrorFallbackProps = {
   error: Error;

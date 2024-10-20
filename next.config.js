@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const Path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
-const withNextIntl = require('next-intl/plugin')('./i18n.ts');
 
 const nextConfig = async () => {
   /** @type {import('next').NextConfig} */
@@ -49,7 +48,7 @@ const nextConfig = async () => {
     }
   };
 
-  return withNextIntl(nextConfig);
+  return nextConfig;
 };
 
 module.exports = nextConfig;

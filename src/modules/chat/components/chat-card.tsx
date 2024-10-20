@@ -66,7 +66,7 @@ export function BotMessage({
             <div className="grow">
                 {/* get chat id */}
                 <ChatMessageItem creator={'Smart Action'} isUser={false} >
-                    <ErrorBoundary fallback={<div className='whitespace-pre-wrap'>{text}</div>}>
+                    <ErrorBoundary fallback={<div className='whitespace-pre-wrap'>...</div>}>
                         <MemoizedReactMarkdown
                             className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
                             remarkPlugins={[remarkGfm, remarkMath]}
