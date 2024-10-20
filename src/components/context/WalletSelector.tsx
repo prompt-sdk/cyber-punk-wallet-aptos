@@ -1,16 +1,10 @@
 'use client';
 import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { redirect } from 'next/navigation'
 import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+
 import { useToast } from '@/components/ui/use-toast';
 import {
   APTOS_CONNECT_ACCOUNT_URL,
@@ -33,12 +27,14 @@ export function WalletSelector() {
   const { account, connected, disconnect, wallet } = useWallet();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const closeDialog = useCallback(() => setIsDialogOpen(false), []);
 
   const copyAddress = useCallback(async () => {
     if (!account?.address) return;
     try {
       await navigator.clipboard.writeText(account.address);
+
       toast({
         title: 'Success',
         description: 'Copied wallet address to clipboard.'
@@ -54,6 +50,7 @@ export function WalletSelector() {
 
 
   const handleConnect = async () => {
+    setIsLoading(true)
     if (connected && account?.address) {
       // Try to register the user first
       toast({
@@ -61,40 +58,32 @@ export function WalletSelector() {
         description: 'Please wait while we connect your wallet.'
       });
 
+
       const user = await getUser(account.address);
 
       if (user) {
         // If registration is successful, sign in
         await authenticate({ username: account.address, password: account.address });
-        await window.location.replace(`/`)
+        await window.location.reload()
 
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
-        await window.location.replace(`/`)
+        await window.location.reload()
       }
     }
   };
 
   useEffect(() => {
-    if (connected) {
+    if (account?.address) {
       handleConnect();
     }
-  }, [connected]);
-
-
-  if (status === 'loading') {
-    return <div className="flex w-full grow items-center justify-center py-4">
-      <div className="container flex flex-col items-center justify-center gap-6">
-        loading
-      </div>
-    </div>
-  }
+  }, [account]);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Connect a Wallet</Button>
+        <Button>{isLoading ? 'Loading' : 'Connect a Wallet'}</Button>
       </DialogTrigger>
       <ConnectWalletDialog close={closeDialog} />
     </Dialog>
