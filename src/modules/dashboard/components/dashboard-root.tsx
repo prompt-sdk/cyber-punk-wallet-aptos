@@ -9,15 +9,22 @@ import DashboardWidget from './dashboard-widget';
 import { useSession } from 'next-auth/react';
 import { WidgetSelectionModal } from './widget-selection-modal';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { flatMap } from 'lodash-es';
 
 type DashboardRootProps = ComponentBaseProps;
 
 const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
   const { connected } = useWallet();
+  const [isConnected, setIsConnected] = useState(false);
 
+  useEffect(() => {
+    if (connected) {
+      setIsConnected(true);
+    }
+  }, [connected])
   return (
     <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
-      {connected ? (
+      {isConnected ? (
         <div className="container flex flex-col items-center justify-center gap-6">
           <DashboardProfile />
           <DashboardWidget />
