@@ -48,7 +48,6 @@ import { Textarea } from '@/components/ui/textarea';
 import MultiSelectTools from '@/components/common/multi-select';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';

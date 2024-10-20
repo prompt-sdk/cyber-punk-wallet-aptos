@@ -15,12 +15,10 @@ import Image from 'next/image';
 import BotIcon from '@/assets/svgs/bot-icon.svg';
 import UserIcon from '@/assets/svgs/user-icon.svg'
 // Different types of message bubbles.
-import { useSession } from 'next-auth/react';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 export function UserMessage({ children }: { children: React.ReactNode }) {
-    const { data: session }: any = useSession();
     const { account } = useWallet();
     return (
         <div

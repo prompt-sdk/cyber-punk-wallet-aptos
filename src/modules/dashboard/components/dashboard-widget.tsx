@@ -229,7 +229,9 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     >
       <DashboardBottomProfileDecor />
       <div className="w-full">
-        <p className="px-8 py-4">Agent Creator ({agents.length})</p>
+        <a href='/agent'>
+          <p className="px-8 py-4">Agent Creator ({agents.length})</p>
+        </a>
         <div className="flex flex-col gap-6 px-8 py-6">
           {isLoading ? (
             <div className="flex h-20 items-center justify-center">

@@ -24,7 +24,7 @@ import {
   truncateAddress,
   useWallet
 } from '@aptos-labs/wallet-adapter-react';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
 import { getAptosClient } from '@/modules/auth-aptos/utils/aptos-client';
@@ -50,7 +50,6 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const [receive, setReceive] = useState<string | null>(null);
   const [isOpenReceive, setIsOpenReceive] = useState<boolean>(false);
   const [pending, setPending] = useState<boolean>(false);
-  const { data: session }: any = useSession();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const address = searchParams.get('address');
@@ -92,9 +91,6 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
     loadBalance();
   }, [loadBalance]);
 
-  if (!session) {
-    return null;
-  }
 
   const toggleOpenSend = () => {
     setIsOpenSend(!isOpenSend);
@@ -187,7 +183,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   }, [account?.address, toast]);
 
   const copyProfileLink = useCallback(async () => {
-    const profileUrl = `${window.location.origin}/profile/${session?.user?.username || account?.address.toString()}`;
+    const profileUrl = `${window.location.origin}/profile/${account?.address.toString()}`;
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast({
@@ -201,7 +197,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
         description: 'Failed to copy profile link.'
       });
     }
-  }, [account?.address, session?.user?.username, toast]);
+  }, [account?.address, toast]);
 
   const handleDisconnect = useCallback(async () => {
     if (account) {
@@ -219,7 +215,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
             <DashboardAvatar className="shrink-0" imageUrl={'/avatar1.png'} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
               <p className="text-wrap break-words text-xl font-bold">
-                {collapseAddress(session?.user?.username || (account?.address.toString() as string))}
+                {collapseAddress(account?.address.toString() || "")}
               </p>
               <p className="text-sm">Welcome back</p>
             </div>
@@ -234,7 +230,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a
-                  href={`${window.location.origin}/profile/${session?.user?.username || account?.address.toString()}`}
+                  href={`${window.location.origin}/profile/${account?.address.toString()}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex gap-2"

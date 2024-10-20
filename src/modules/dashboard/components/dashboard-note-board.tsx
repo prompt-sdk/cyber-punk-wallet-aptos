@@ -7,7 +7,6 @@ import { WidgetItem } from '../interfaces/dashboard.interface';
 import { DASH_BOARD_NOTE_LIST } from '../constants/dashboard-data.constant';
 
 import Note from './dashboard-note';
-import { useSession } from 'next-auth/react';
 import { ViewFrame, ViewFrameDashboard } from '@/modules/chat/validation/ViewFarm';
 import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';

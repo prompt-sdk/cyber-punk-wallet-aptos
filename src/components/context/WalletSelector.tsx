@@ -82,7 +82,7 @@ export function WalletSelector() {
     if (connected && !session) {
       handleConnect();
     }
-  }, [connected, session, handleConnect]);
+  }, [connected, handleConnect]);
 
   const handleDisconnect = useCallback(async () => {
     if (account) {
