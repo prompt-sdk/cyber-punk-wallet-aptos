@@ -2,9 +2,9 @@ import { AIChat, BotChatMessage, User, UserChatHistoryItem, UserChatMessage } fr
 
 export const AI_CHAT_LIST: AIChat[] = [
   {
-    avatar: '/api/placeholder/96/96',
-    name: 'Smart Action',
-    id: 'smart-action',
+    avatar: '/widget',
+    name: 'Widgets',
+    id: 'Widget',
     message: 'Message Smart Action...'
   },
   {
@@ -15,6 +15,23 @@ export const AI_CHAT_LIST: AIChat[] = [
   }
 ];
 
+export const SIDEBAR_LIST: any[] = [
+  {
+    url: '/widget',
+    name: 'Widget',
+    id: 'Widget'
+  },
+  {
+    url: '/tools',
+    name: 'Tool',
+    id: 'tools'
+  },
+  {
+    url: '/agent',
+    name: 'Agent',
+    id: 'agent'
+  }
+];
 // Sample users
 export const USERS: User[] = [
   {

@@ -24,7 +24,7 @@ export const WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
 
   const fetchWidgetTools = useCallback(async () => {
     setIsLoading(true);
-    console.log("123", account?.address?.toString(), session?.user?.username)
+
     try {
       const response = await fetch(`/api/tools?userId=${userId}`);
       if (!response.ok) {

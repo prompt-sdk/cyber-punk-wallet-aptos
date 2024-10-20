@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
+import Link from 'next/link';
+import { usePathname, useRouter } from '@/navigation';
 
 export type SelectOption = {
   label: string;
@@ -14,12 +16,14 @@ interface IDropdownSelectProps {
 }
 
 const DropdownSelect: React.FC<IDropdownSelectProps> = ({ options, onSelect, initialValue }) => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | null>(initialValue || null);
   const dropdownRef = useRef<HTMLDivElement | null>(null); // Ref for the dropdown
 
   useEffect(() => {
     if (initialValue) {
+      console.log(options)
       const selectedOption = options.find(option => option.value === initialValue);
 
       if (selectedOption) {
@@ -34,12 +38,8 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({ options, onSelect, ini
 
   const handleOptionSelect = (value: string) => {
     const selectedOption = options.find(option => option.value === value);
+    router.push(value)
 
-    if (selectedOption) {
-      setSelectedValue(selectedOption.label);
-      onSelect(value);
-      setIsOpen(false);
-    }
   };
 
   // Close dropdown when clicking outside
@@ -86,7 +86,9 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({ options, onSelect, ini
                 className="cursor-pointer p-2 transition-all duration-300 hover:bg-gray-200 hover:text-[#2C3035]"
                 onClick={() => handleOptionSelect(option.value)}
               >
-                {option.label}
+                <Link href={option.value} >
+                  {option.label}
+                </Link>
               </div>
             ))}
           </motion.div>

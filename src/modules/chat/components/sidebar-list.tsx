@@ -1,7 +1,9 @@
+'use client'
 
 import { clearChats, getChats } from '@/libs/chat/chat.actions'
 import { ClearHistory } from './clear-history'
 import { SidebarItems } from './sidebar-items'
+import SelectPage from './select-page'
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
 
@@ -22,7 +24,8 @@ export async function SidebarList({ userId }: SidebarListProps) {
   } else {
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-auto scrollbar">
+        <div className="flex-1 overflow-auto">
+          <SelectPage />
           {chats?.length ? (
             <div className="space-y-2 px-2">
               <SidebarItems chats={chats} />
