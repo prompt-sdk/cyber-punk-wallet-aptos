@@ -3,7 +3,7 @@
 import { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
-import { signOut } from 'next-auth/react';
+
 import DashboardProfile from './dashboard-profile';
 import DashboardWidget from './dashboard-widget';
 import { WidgetSelectionModal } from './widget-selection-modal';
@@ -15,14 +15,10 @@ type DashboardRootProps = ComponentBaseProps;
 const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
   const { connected } = useWallet();
   const [isConnected, setIsConnected] = useState(false);
-  const handleSignOut = async () => {
-    await signOut();
-  }
+
   useEffect(() => {
     if (connected) {
       setIsConnected(true);
-    } else {
-      //  handleSignOut();
     }
   }, [connected])
   return (

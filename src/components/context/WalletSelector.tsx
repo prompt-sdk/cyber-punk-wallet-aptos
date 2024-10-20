@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { useSession, signOut } from 'next-auth/react';
 import { redirect } from 'next/navigation'
 import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -53,9 +52,8 @@ export function WalletSelector() {
     }
   }, [account?.address, toast]);
 
-  const { data: session, status } = useSession();
 
-  const handleConnect = useCallback(async () => {
+  const handleConnect = async () => {
     if (connected && account?.address) {
       // Try to register the user first
       toast({
@@ -76,20 +74,14 @@ export function WalletSelector() {
         await window.location.replace(`/`)
       }
     }
-  }, [connected, account]);
+  };
 
   useEffect(() => {
-    if (connected && !session) {
+    if (connected) {
       handleConnect();
     }
-  }, [connected, handleConnect]);
+  }, [connected]);
 
-  const handleDisconnect = useCallback(async () => {
-    if (account) {
-      await disconnect();
-    }
-    await signOut();
-  }, [disconnect]);
 
   if (status === 'loading') {
     return <div className="flex w-full grow items-center justify-center py-4">
