@@ -250,6 +250,7 @@ export const AI = createAI<AIState, UIState>({
 
       if (aiState) {
         const uiState = getUIStateFromAIState(aiState)
+        console.log(uiState)
         return uiState
       }
     } else {
@@ -258,7 +259,6 @@ export const AI = createAI<AIState, UIState>({
   },
   onSetAIState: async ({ state }) => {
     'use server'
-
     const session: any = await auth()
     if (session && session.user) {
       const { chatId, messages, agentId } = state
@@ -268,7 +268,6 @@ export const AI = createAI<AIState, UIState>({
 
       const firstMessageContent = messages[0].content as string
       const title = firstMessageContent.substring(0, 100)
-
       const chat: Chat = {
         id: chatId,
         agentId,

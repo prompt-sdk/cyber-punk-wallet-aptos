@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: ChatPageProps): Promise<Metad
     return {};
   }
 
-  const chat = await getChat(params.id, session.user.username);
+  const chat = await getChat(params.id, session.user.id);
 
   if (!chat || 'error' in chat) {
     redirect('/');
