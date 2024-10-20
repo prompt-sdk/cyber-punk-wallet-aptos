@@ -250,7 +250,6 @@ export const AI = createAI<AIState, UIState>({
 
       if (aiState) {
         const uiState = getUIStateFromAIState(aiState)
-        console.log(uiState)
         return uiState
       }
     } else {
