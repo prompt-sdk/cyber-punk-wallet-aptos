@@ -33,21 +33,21 @@ export async function generateMetadata({ params }: ChatPageProps): Promise<Metad
 export default async function ChatPage({ params }: ChatPageProps) {
   const session: any = (await auth()) as Session;
   const missingKeys = await getMissingKeys();
-  console.log(session);
+
   if (!session?.user) {
     redirect(`/login?next=/chat/${params.id}`);
   }
-
   const userId = session.user.id as string;
   const chat = await getChat(params.id, userId);
   if (!chat || 'error' in chat) {
-    console.log("hello123");
+
     redirect('/');
   } else {
-    if (chat?.userId !== session?.user?.username) {
+
+    if (chat?.userId !== session?.user?.id) {
       notFound();
     }
-    console.log("hello", chat);
+    console.log("hello4", chat);
     return (
       <AI initialAIState={{ chatId: chat.id, messages: chat.messages, agentId: chat.agentId }}>
         <Chat id={chat.id} session={session} initialMessages={chat.messages} missingKeys={missingKeys} />
