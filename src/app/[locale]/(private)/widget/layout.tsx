@@ -47,37 +47,7 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
                     />
                   </button>
                 </Link>
-                <Link href="/widget" className="flex h-8 items-center justify-center gap-2">
-                  <Image
-                    src={EditIcon.src}
-                    alt="Back Icon"
-                    className="h-full w-full object-contain"
-                    width={EditIcon.width}
-                    height={EditIcon.height}
-                  />
-                  <span className="text-nowrap">Widget</span>
-                </Link>
-                <Link href="/tools" className="flex h-8 items-center justify-center gap-2">
-                  <Image
-                    src={EditIcon.src}
-                    alt="Back Icon"
-                    className="h-full w-full object-contain"
-                    width={EditIcon.width}
-                    height={EditIcon.height}
-                  />
-                  <span className="text-nowrap">Tools</span>
-                </Link>
-                <Link href="/agent" className="flex h-8 items-center justify-center gap-2">
-                  <Image
-                    src={EditIcon.src}
-                    alt="Back Icon"
-                    className="h-full w-full object-contain"
-                    width={EditIcon.width}
-                    height={EditIcon.height}
-                  />
-                  <span className="text-nowrap">Agent</span>
-                </Link>
-                {/* 
+
                 <button className="flex h-8 items-center justify-center gap-2">
                   <Image
                     src={EditIcon.src}
@@ -87,7 +57,7 @@ export default async function PublicLayout({ children, params }: LayoutProps) {
                     height={EditIcon.height}
                   />
                   <span className="text-nowrap">New Chat</span>
-                </button> */}
+                </button>
               </div>
               <div className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden rounded-b-3xl">
                 <div className="relative lg:w-[300px] xl:w-[380px]">
