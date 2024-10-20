@@ -68,12 +68,12 @@ export function WalletSelector() {
       if (user) {
         // If registration is successful, sign in
         await authenticate({ username: account.address, password: account.address });
-        await window.location.replace(`/dashboard`)
+        await window.location.replace(`/`)
 
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
-        await window.location.replace(`/dashboard`)
+        await window.location.replace(`/`)
       }
     }
   }, [connected, account]);
@@ -99,28 +99,7 @@ export function WalletSelector() {
     </div>
   }
 
-  return session ? (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button>{account?.ansName || truncateAddress(account?.address) || 'Unknown'}</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={copyAddress} className="gap-2">
-          <Copy className="h-4 w-4" /> Copy address
-        </DropdownMenuItem>
-        {wallet && isAptosConnectWallet(wallet) && (
-          <DropdownMenuItem asChild>
-            <a href={APTOS_CONNECT_ACCOUNT_URL} target="_blank" rel="noopener noreferrer" className="flex gap-2">
-              <User className="h-4 w-4" /> Account
-            </a>
-          </DropdownMenuItem>
-        )}
-        <DropdownMenuItem onSelect={handleDisconnect} className="gap-2">
-          <LogOut className="h-4 w-4" /> Disconnect
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  ) : (
+  return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Button>Connect a Wallet</Button>

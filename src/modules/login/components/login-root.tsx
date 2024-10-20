@@ -23,14 +23,12 @@ import ChatPopup from '@/modules/chat/components/chat-popup';
 import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
 import { WalletSelector } from '@/components/context/WalletSelector';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { useSession } from 'next-auth/react';
 
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   const router = useRouter();
   const { connected } = useWallet();
-  const { data: session } = useSession();
   const { toast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -46,10 +44,10 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
   } = form;
 
   useEffect(() => {
-    if (session && connected) {
-      router.push('/dashboard');
+    if (connected) {
+      router.push('/');
     }
-  }, [session, connected]);
+  }, [connected]);
 
   const onSubmit = (_data: LoginFormData) => {
     toast({
@@ -78,7 +76,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
             className="relative z-1 flex flex-col gap-4 px-10 py-14 sm:gap-8 sm:px-7"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div>
+            <div className='flex w-full flex-col gap-3 sm:gap-5'>
               <h1 className="text-xs sm:text-xl">Welcome to Aptos</h1>
               <p className="text-[10px] sm:text-xs">Sign in with your Google account to continue</p>
             </div>
@@ -99,8 +97,9 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
                   height={TransparentBtnFrame.height}
                 />
               </a> */}
-              <WalletSelector />
+
             </div>
+            <WalletSelector />
           </form>
         </div>
         {/* <OAuthGoogleSignInButton /> */}
