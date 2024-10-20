@@ -11,7 +11,6 @@ export const publicPages = [
 export const pathnames = {
   '/': '/',
   '/login': '/login',
-  '/dashboard': '/dashboard',
   '/chat': '/chat',
   '/chat/[id]': '/chat/[id]',
   '/callback': '/callback',

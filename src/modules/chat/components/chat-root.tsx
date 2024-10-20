@@ -48,6 +48,7 @@ import { Textarea } from '@/components/ui/textarea';
 import MultiSelectTools from '@/components/common/multi-select';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { useSession } from 'next-auth/react';
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 import { toast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -648,7 +649,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
           <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
             <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-              <Link href="/dashboard" >
+              <Link href="/" >
                 <button className="h-10 w-10">
                   <Image
                     src={BackIcon.src}
