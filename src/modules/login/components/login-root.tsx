@@ -43,11 +43,6 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     watch
   } = form;
 
-  useEffect(() => {
-    if (connected) {
-      router.push('/');
-    }
-  }, [connected]);
 
   const onSubmit = (_data: LoginFormData) => {
     toast({

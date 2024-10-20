@@ -22,7 +22,7 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
     if (connected) {
       setIsConnected(true);
     } else {
-      handleSignOut();
+      //  handleSignOut();
     }
   }, [connected])
   return (

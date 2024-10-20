@@ -53,7 +53,6 @@ export const viewport: Viewport = {
 
 
 export async function generateMetadata(_layoutProps: LayoutProps): Promise<Metadata> {
-  // https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadata-fields
   return {
     metadataBase: new URL(WEBSITE_URL),
     title: {
