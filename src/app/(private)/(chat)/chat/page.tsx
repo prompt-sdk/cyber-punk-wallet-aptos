@@ -1,9 +1,6 @@
-import { type Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
-import { Message, Session } from 'types/chat';
-import { PageBaseProps } from '@/common/interfaces';
+import { Message } from 'types/chat';
 import { AI } from '@/libs/chat/ai.actions';
-import { getChat, getMissingKeys } from '@/libs/chat/chat.actions';
+import { getMissingKeys } from '@/libs/chat/chat.actions';
 import { creatAgentWithTool, getAgentById, getWidgetByID } from '@/libs/db/store-mongodb';
 
 import { auth } from '@/modules/auth/constants/auth.config';
@@ -15,6 +12,7 @@ export const metadata = {
 };
 
 export interface IChatPageProps {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   params: {};
   searchParams: {
     agentId: string;

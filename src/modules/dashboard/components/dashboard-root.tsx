@@ -1,33 +1,38 @@
 'use client';
 
 import { FC, useEffect, useState } from 'react';
+import { signOut } from 'next-auth/react';
+import { Session } from 'next-auth/types';
 import classNames from 'classnames';
 import { ComponentBaseProps } from '@/common/interfaces';
+import { AccountInfo, useWallet } from '@aptos-labs/wallet-adapter-react';
 
 import DashboardProfile from './dashboard-profile';
 import DashboardWidget from './dashboard-widget';
 import { WidgetSelectionModal } from './widget-selection-modal';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { signOut } from 'next-auth/react';
 
-type DashboardRootProps = ComponentBaseProps;
+type DashboardRootProps = ComponentBaseProps & {
+  session: Session | null;
+};
 
-const DashboardRoot: FC<any> = ({ className, session }) => {
-  const { connected, account } = useWallet();
+const DashboardRoot: FC<DashboardRootProps> = ({ className, session }) => {
+  const { connected: hasConnected, account } = useWallet();
   const [isConnected, setIsConnected] = useState(false);
 
-  const handle = async (account: any) => {
-    if (account?.address == session?.user.username) {
+  const handle = async (handleAccount: AccountInfo) => {
+    if (handleAccount?.address == session?.user.username) {
       setIsConnected(true);
     } else {
       await signOut();
     }
   };
+
   useEffect(() => {
-    if (connected) {
+    if (hasConnected && account) {
       handle(account);
     }
-  }, [account, connected]);
+  }, [account, hasConnected]);
+
   return (
     <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
       {isConnected ? (
