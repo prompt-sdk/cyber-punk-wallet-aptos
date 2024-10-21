@@ -15,7 +15,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
     initialMessages?: Message[]
     id?: string
     session?: Session
-    missingKeys: string[]
+    missingKeys: string[],
 }
 
 export function Chat({ id, className, session, missingKeys }: ChatProps) {

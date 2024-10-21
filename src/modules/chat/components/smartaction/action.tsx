@@ -8,10 +8,6 @@ import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai'
 export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
-  console.log("data", data)
-  const bigintArray = data.functionArguments.map((item: any) =>
-    typeof item === 'number' ? BigInt(item * 10 ** 18) : item
-  );
 
   const onTransfer = async () => {
     const aptosClient = getAptosClient();
