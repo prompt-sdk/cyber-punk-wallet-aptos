@@ -1,4 +1,3 @@
-
 import { PageBaseProps } from '@/common/interfaces';
 
 import ToolRoot from '@/modules/tools/components/tool-root';

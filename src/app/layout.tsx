@@ -29,15 +29,12 @@ const fontOrbitron = Orbitron({
   weight: ['400', '500', '700', '800', '900']
 });
 export default async function RootLayout({ children }: LayoutProps) {
-
   return (
-    <Html >
+    <Html>
       <Head />
       <Body className={classNames(fontNunito.variable, fontOrbitron.variable, fontOrbitron.className)}>
         <Root>
-          <ClientProviders>
-            {children}
-          </ClientProviders>
+          <ClientProviders>{children}</ClientProviders>
         </Root>
       </Body>
     </Html>
@@ -50,7 +47,6 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: light)', color: '#ffffff' }
   ]
 };
-
 
 export async function generateMetadata(_layoutProps: LayoutProps): Promise<Metadata> {
   return {

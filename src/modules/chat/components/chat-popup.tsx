@@ -29,8 +29,9 @@ type ChatPopupProps = ComponentBaseProps & {
   };
 };
 
-const RecentChatItem: FC<{ item: { id?: string; title: string; description: string }, agentId: string }> = ({
-  item: { id, title, description }, agentId
+const RecentChatItem: FC<{ item: { id?: string; title: string; description: string }; agentId: string }> = ({
+  item: { id, title, description },
+  agentId
 }) => {
   return (
     <Link
@@ -145,11 +146,12 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
 
             <Carousel opts={{ align: 'start', loop: true }} className={classNames('w-full')}>
               <CarouselContent>
-                {inforAgent?.messenge_template && inforAgent?.messenge_template.map((item, index) => (
-                  <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
-                    <RecentChatItem item={item} agentId={inforAgent._id.toString()} />
-                  </CarouselItem>
-                ))}
+                {inforAgent?.messenge_template &&
+                  inforAgent?.messenge_template.map((item, index) => (
+                    <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
+                      <RecentChatItem item={item} agentId={inforAgent._id.toString()} />
+                    </CarouselItem>
+                  ))}
               </CarouselContent>
             </Carousel>
           </div>

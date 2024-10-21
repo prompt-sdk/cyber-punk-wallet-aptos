@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { Chat } from 'types/chat'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Chat } from 'types/chat';
+import { AnimatePresence, motion } from 'framer-motion';
 
-import { removeChat, shareChat } from '@/libs/chat/chat.actions'
+import { removeChat, shareChat } from '@/libs/chat/chat.actions';
 
-import { SidebarActions } from './sidebar-actions'
-import { SidebarItem } from './sidebar-item'
+import { SidebarActions } from './sidebar-actions';
+import { SidebarItem } from './sidebar-item';
 
 interface SidebarItemsProps {
-  chats?: Chat[]
+  chats?: Chat[];
 }
 
 export function SidebarItems({ chats }: SidebarItemsProps) {
-  if (!chats?.length) return null
+  if (!chats?.length) return null;
 
   return (
     <AnimatePresence>
@@ -28,15 +28,11 @@ export function SidebarItems({ chats }: SidebarItemsProps) {
               }}
             >
               <SidebarItem index={index} chat={chat}>
-                <SidebarActions
-                  chat={chat}
-                  removeChat={removeChat}
-                  shareChat={shareChat}
-                />
+                <SidebarActions chat={chat} removeChat={removeChat} shareChat={shareChat} />
               </SidebarItem>
             </motion.div>
           )
       )}
     </AnimatePresence>
-  )
+  );
 }

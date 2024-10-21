@@ -27,7 +27,6 @@ import { Toaster } from '@/components/ui/toaster';
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
-
   const { toast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -41,7 +40,6 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
     formState: { errors, isValid },
     watch
   } = form;
-
 
   const onSubmit = (_data: LoginFormData) => {
     toast({
@@ -70,7 +68,7 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
             className="relative z-1 flex flex-col gap-4 px-10 py-14 sm:gap-8 sm:px-7"
             onSubmit={handleSubmit(onSubmit)}
           >
-            <div className='flex w-full flex-col gap-3 sm:gap-5'>
+            <div className="flex w-full flex-col gap-3 sm:gap-5">
               <h1 className="text-xs sm:text-xl">Welcome to Aptos</h1>
               <p className="text-[10px] sm:text-xs">Sign in with your Google account to continue</p>
             </div>
@@ -91,7 +89,6 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
                   height={TransparentBtnFrame.height}
                 />
               </a> */}
-
             </div>
             <WalletSelector />
           </form>

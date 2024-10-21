@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import Link from 'next/link'
+import Link from 'next/link';
 
 type ErrorInformationType = {
   code: number;
@@ -8,7 +8,6 @@ type ErrorInformationType = {
 };
 
 const ErrorInformation: FC<ErrorInformationType> = ({ code, message }) => {
-
   return (
     <div className="grid min-h-screen place-items-center p-4 sm:p-8">
       <div className="text-center">

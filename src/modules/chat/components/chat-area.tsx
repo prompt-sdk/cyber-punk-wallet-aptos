@@ -61,7 +61,7 @@ const ChatArea: FC<ChatAreaProps> = ({ conversationList, messagesEndRef, userAdd
               className="h-10 w-10 shrink-0"
             />
             <div className="grow">
-              <ChatMessageItem creator='testtest' children isUser={isUser} />
+              <ChatMessageItem creator="testtest" children isUser={isUser} />
             </div>
             <div className="h-10 w-10 shrink-0" />
           </div>

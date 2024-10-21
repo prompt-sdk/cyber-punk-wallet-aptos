@@ -9,7 +9,6 @@ import AngleDownIcon from '@/assets/svgs/angle-down-icon.svg';
 import ChatBotResponseFrame from '@/assets/svgs/chat-bot-response-frame.svg';
 import ChatUserMessageFrame from '@/assets/svgs/chat-user-message-frame.svg';
 
-
 type ChatMessageItemProps = ComponentBaseProps & {
   creator: string;
   children: React.ReactNode;

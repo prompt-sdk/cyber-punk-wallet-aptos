@@ -649,7 +649,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
         <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
           <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
             <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-              <Link href="/" >
+              <Link href="/">
                 <button className="h-10 w-10">
                   <Image
                     src={BackIcon.src}
@@ -784,7 +784,7 @@ const ChatRoot: FC<ChatRootProps> = ({ className }) => {
                       'aug-round-r1 aug-round-bl1 aug-tr1-8 aug-br1-8 aug-bl1-8 p-4',
                       'flex cursor-pointer flex-col gap-2'
                     )}
-                    onClick={() => { }}
+                    onClick={() => {}}
                   >
                     <p className="text=[#6B7280]">{'Select widget'}</p>
                     <p className="text-[#9CA3AF]">{'For APT'}</p>

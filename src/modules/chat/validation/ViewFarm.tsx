@@ -50,7 +50,7 @@ export const ViewFrame = ({ code }: { code: string }) => {
     </>
   );
 };
-export const ViewFrameDashboard = ({ code, id }: { code: string, id: string }) => {
+export const ViewFrameDashboard = ({ code, id }: { code: string; id: string }) => {
   const config = new AptosConfig({ network: Network.MAINNET });
   const aptos = new Aptos(config);
 

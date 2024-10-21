@@ -10,7 +10,6 @@ import { WidgetSelectionModal } from './widget-selection-modal';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { signOut } from 'next-auth/react';
 
-
 type DashboardRootProps = ComponentBaseProps;
 
 const DashboardRoot: FC<any> = ({ className, session }) => {
@@ -21,16 +20,14 @@ const DashboardRoot: FC<any> = ({ className, session }) => {
     if (account?.address == session?.user.username) {
       setIsConnected(true);
     } else {
-      await signOut()
+      await signOut();
     }
-
-  }
+  };
   useEffect(() => {
     if (connected) {
       handle(account);
     }
-
-  }, [account, connected])
+  }, [account, connected]);
   return (
     <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
       {isConnected ? (

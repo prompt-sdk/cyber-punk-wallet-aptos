@@ -1,43 +1,39 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-import { motion } from 'framer-motion'
+import { motion } from 'framer-motion';
 
-import { buttonVariants } from '@/components/ui/button'
-import { IconMessage, IconUsers } from '@/components/ui/icons'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
-import { useLocalStorage } from '@/hooks/use-local-storage'
-import { type Chat } from 'types/chat'
-import { cn } from '../utils/utils'
+import { buttonVariants } from '@/components/ui/button';
+import { IconMessage, IconUsers } from '@/components/ui/icons';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { type Chat } from 'types/chat';
+import { cn } from '../utils/utils';
 
 interface SidebarItemProps {
-  index: number
-  chat: Chat
-  children: React.ReactNode
+  index: number;
+  chat: Chat;
+  children: React.ReactNode;
 }
 
 export function SidebarItem({ index, chat, children }: SidebarItemProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const isActive = pathname === chat.path
-  const [newChatId, setNewChatId] = useLocalStorage('newChatId', null)
-  const shouldAnimate = index === 0 && isActive && newChatId
+  const isActive = pathname === chat.path;
+  const [newChatId, setNewChatId] = useLocalStorage('newChatId', null);
+  const shouldAnimate = index === 0 && isActive && newChatId;
 
-  if (!chat?.id) return null
+  if (!chat?.id) return null;
 
   return (
     <motion.div
       className={cn(
         buttonVariants({ variant: 'ghost' }),
-        'flex flex-col gap-4 h-20 transition-colors p-0  dark:hover:bg-zinc-300/10',
+        'flex h-20 flex-col gap-4 p-0 transition-colors  dark:hover:bg-zinc-300/10',
         isActive && 'bg-zinc-800  font-semibold dark:bg-zinc-800 '
       )}
       variants={{
@@ -57,21 +53,11 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         ease: 'easeIn'
       }}
     >
-
-      <Link
-        href={chat.path}
-        className={cn(
-          buttonVariants({ variant: 'ghost' }),
-          'group w-full h-20'
-        )}
-      >
-        <div className=" left-2 top-1 flex size-6 h-30 items-center justify-center">
+      <Link href={chat.path} className={cn(buttonVariants({ variant: 'ghost' }), 'group h-20 w-full')}>
+        <div className=" h-30 left-2 top-1 flex size-6 items-center justify-center">
           {chat.sharePath ? (
             <Tooltip delayDuration={1000}>
-              <TooltipTrigger
-                tabIndex={-1}
-                className="focus:bg-muted focus:ring-1 focus:ring-ring"
-              >
+              <TooltipTrigger tabIndex={-1} className="focus:bg-muted focus:ring-1 focus:ring-ring">
                 <IconUsers className="mr-2 mt-1 text-zinc-500" />
               </TooltipTrigger>
               <TooltipContent>This is a shared chat.</TooltipContent>
@@ -80,10 +66,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
             <IconMessage className="mr-2 mt-1 text-zinc-500" />
           )}
         </div>
-        <div
-          className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all"
-          title={chat.title}
-        >
+        <div className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all" title={chat.title}>
           <span className="whitespace-nowrap">
             {shouldAnimate ? (
               chat.title.split('').map((character, index) => (
@@ -109,7 +92,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
                   }}
                   onAnimationComplete={() => {
                     if (index === chat.title.length - 1) {
-                      setNewChatId(null)
+                      setNewChatId(null);
                     }
                   }}
                 >
@@ -123,7 +106,6 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
         </div>
         {isActive && <div className=" right-2 top-1">{children}</div>}
       </Link>
-
     </motion.div>
-  )
+  );
 }

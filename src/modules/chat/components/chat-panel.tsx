@@ -1,20 +1,23 @@
 import * as React from 'react';
-
-import { shareChat } from '@/libs/chat/chat.actions';
-import { Button } from '@/components/ui/button';
-import { PromptForm } from './prompt-form';
-import { ButtonScrollToBottom } from './button-scroll-to-bottom';
-import { IconShare } from '@/components/ui/icons';
-import { FooterText } from './footer';
-import { ChatShareDialog } from './chat-share-dialog';
-import { useAIState, useActions, useUIState } from 'ai/rsc';
-import type { AI } from '@/libs/chat/ai.actions';
-import { nanoid } from 'nanoid';
-import { UserMessage } from '@/modules/chat/components/chat-card';
-import { useSearchParams } from 'next/navigation'
-import classNames from 'classnames';
-import '@/modules/augmented/style.scss';
+import { useSearchParams } from 'next/navigation';
+import { useActions, useAIState, useUIState } from 'ai/rsc';
 import axios from 'axios';
+import classNames from 'classnames';
+import { nanoid } from 'nanoid';
+import type { AI } from '@/libs/chat/ai.actions';
+import { shareChat } from '@/libs/chat/chat.actions';
+
+import { Button } from '@/components/ui/button';
+import { IconShare } from '@/components/ui/icons';
+
+import { UserMessage } from '@/modules/chat/components/chat-card';
+
+import { ButtonScrollToBottom } from './button-scroll-to-bottom';
+import { ChatShareDialog } from './chat-share-dialog';
+import { FooterText } from './footer';
+import { PromptForm } from './prompt-form';
+
+import '@/modules/augmented/style.scss';
 
 export interface ChatPanelProps {
   id?: string;
@@ -31,22 +34,23 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
   const { submitUserMessage } = useActions();
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false);
   const [messagesTemplate, setMessagesTemplate] = React.useState([]);
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-  const prompt = searchParams.get('prompt')
-  const agentId = searchParams.get('agentId')
+  const prompt = searchParams.get('prompt');
+  const agentId = searchParams.get('agentId');
 
   React.useEffect(() => {
     const getChatTemplate = async () => {
       const response = await axios.get(`/api/agent?agentId=${agentId}`);
-      console.log('response', response.data.messenge_template)
-      setMessagesTemplate(response.data.messenge_template)
-    }
+
+      console.log('response', response.data.messenge_template);
+      setMessagesTemplate(response.data.messenge_template);
+    };
 
     if (agentId) {
-      getChatTemplate()
+      getChatTemplate();
     }
-  }, [agentId])
+  }, [agentId]);
   const exampleMessages: any[] = [
     {
       heading: 'What are the',
@@ -69,6 +73,7 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
       message: `What are some recent events about $DOGE?`
     }
   ];
+
   React.useEffect(() => {
     const sendChat = async () => {
       setMessages(currentMessages => [
@@ -82,12 +87,13 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
       const responseMessage = await submitUserMessage(prompt);
 
       setMessages(currentMessages => [...currentMessages, responseMessage]);
-    }
+    };
 
     if (prompt) {
-      sendChat()
+      sendChat();
     }
-  }, [prompt])
+  }, [prompt]);
+
   return (
     <div className="absolute inset-x-0 bottom-0 w-full  from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
       <ButtonScrollToBottom isAtBottom={isAtBottom} scrollToBottom={scrollToBottom} />
@@ -102,28 +108,28 @@ export function ChatPanel({ id, title, input, setInput, isAtBottom, scrollToBott
               </Button>
               <ChatShareDialog
                 open={shareDialogOpen}
-                onOpenChange={setShareDialogOpen}
-                onCopy={() => setShareDialogOpen(false)}
                 shareChat={shareChat}
                 chat={{
                   id,
                   title,
                   messages: aiState.messages
                 }}
+                onOpenChange={setShareDialogOpen}
+                onCopy={() => setShareDialogOpen(false)}
               />
             </div>
           </div>
         ) : null
       ) : null}
 
-
       <div className="w-full p-10">
-        <div className="gird-cols-2 grid shrink-0 gap-5 md:grid-cols-4 pb-5">
-          {messagesTemplate && messages.length === 1 &&
+        <div className="gird-cols-2 grid shrink-0 gap-5 pb-5 md:grid-cols-4">
+          {messagesTemplate &&
+            messages.length === 1 &&
             messagesTemplate.map((example: any, index) => (
               <div
-                data-augmented-ui
                 key={example.title}
+                data-augmented-ui
                 className={classNames(
                   'border-none outline-none',
                   'aug-tl1-2 aug-clip-tl',

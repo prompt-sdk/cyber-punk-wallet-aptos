@@ -49,16 +49,14 @@ export function WalletSelector() {
     }
   }, [account?.address, toast]);
 
-
   const handleConnect = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     if (connected && account?.address) {
       // Try to register the user first
       toast({
         title: 'Connecting wallet...',
         description: 'Please wait while we connect your wallet.'
       });
-
 
       const user = await getUser(account.address);
 
@@ -67,7 +65,6 @@ export function WalletSelector() {
         await authenticate({ username: account.address, password: account.address });
         router.push(window.location.href);
         router.refresh();
-
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
