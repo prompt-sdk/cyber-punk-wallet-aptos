@@ -175,7 +175,7 @@ async function submitUserMessage(content: string) {
   const agentBot = await getAgentById(aiState.get().agentId)
   const result = await streamUI({
     model: openai('gpt-4o'),
-    initial: <SpinnerMessage />,
+    initial: <BotCard><SmartActionSkeleton /></BotCard>,
     system: `You are  ${agentBot?.name || 'Helpful assistant '}` + '\n\n' + agentBot?.prompt || '',
     messages: [
       ...aiState.get().messages.map((message: any) => ({

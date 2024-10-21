@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 type ChatPopupProps = ComponentBaseProps & {
   onClose?: () => void;
   inforAgent?: {
+    _id: Object;
     name: string;
     description: string;
     introMessage: string;
@@ -33,7 +34,7 @@ const RecentChatItem: FC<{ item: { id?: string; title: string; description: stri
 }) => {
   return (
     <Link
-      href={`/chat?prompt=${description}`}
+      href={`/chat?prompt=${description}&agentId=${id}`}
       data-augmented-ui
       className={classNames(
         'border-none outline-none',
@@ -104,7 +105,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
     const content = contentEditableRef.current?.innerHTML || '';
 
     if (content) {
-      router.push(`/chat?prompt=${content}`);
+      router.push(`/chat?prompt=${content}&agentId=${inforAgent?._id.toString()}`);
       clearContent();
     }
   };
