@@ -4,7 +4,7 @@ import { AI_CHAT_LIST, USERS } from '../constants/chat.constant';
 
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, dangerouslyAllowBrowser: true });
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, dangerouslyAllowBrowser: true });
 
 export const simulateBotResponse = (userMessage: string): Promise<string> => {
   return new Promise(resolve => {
