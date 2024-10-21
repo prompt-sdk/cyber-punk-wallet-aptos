@@ -58,7 +58,7 @@ const ChatMessageItem: FC<ChatMessageItemProps> = ({ creator, children, isUser }
         animate={{ height: isCollapsed ? 0 : 'auto' }}
         transition={{ duration: 0.3 }}
       >
-        <div className="px-4 py-3"  > {children}</div>
+        <div className="px-4 py-3"> {children}</div>
       </motion.div>
     </BoderImage>
   );

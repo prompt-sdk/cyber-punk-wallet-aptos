@@ -144,7 +144,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
 
             <Carousel opts={{ align: 'start', loop: true }} className={classNames('w-full')}>
               <CarouselContent>
-                {inforAgent?.messenge_template.map((item, index) => (
+                {inforAgent?.messenge_template && inforAgent?.messenge_template.map((item, index) => (
                   <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
                     <RecentChatItem item={item} />
                   </CarouselItem>

@@ -33,7 +33,7 @@ export const SmartAction = ({ props: data }: { props: any }) => {
   return (
 
     <>
-      <div className="flex flex-col gap-3 px-4 py-3">
+      <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0">
         <span>
           Function :
         </span>
