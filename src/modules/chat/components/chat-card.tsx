@@ -137,7 +137,7 @@ export function BotCard({
             />
             <div className="grow">
                 {/* get chat id */}
-                <ChatMessageItem creator={'test'} isUser={false} >
+                <ChatMessageItem creator={'test test'} isUser={false} >
                     {children}
                 </ChatMessageItem>
 
