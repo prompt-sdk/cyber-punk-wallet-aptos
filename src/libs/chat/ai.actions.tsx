@@ -48,8 +48,6 @@ async function submitUserMessage(content: string) {
 
   const agent: any = await getAgentById(aiState.get().agentId)
   const tool_ids = agent.tool_ids
-  console.log(tool_ids);
-  //new objectID
   const dataTools = await getTools(tool_ids);
   const zodExtract = (type: any, describe: any) => {
     if (type == 'u128') return z.number().describe(describe)
@@ -180,11 +178,11 @@ async function submitUserMessage(content: string) {
     }
     return tool;
   }, {});
-  const system_messenge = await getAgentById(aiState.get().agentId)
+  const agentBot = await getAgentById(aiState.get().agentId)
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <SpinnerMessage />,
-    system: system_messenge?.prompt || 'You are assitant helpful',
+    system: agentBot?.prompt || 'You are helpful assitant',
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
@@ -193,9 +191,10 @@ async function submitUserMessage(content: string) {
       }))
     ],
     text: ({ content, done, delta }) => {
+
       if (!textStream) {
         textStream = createStreamableValue('')
-        textNode = <BotMessage content={textStream.value} />
+        textNode = <BotMessage name={agentBot?.name} content={textStream.value} />
       }
       if (done) {
         textStream.done()
@@ -247,9 +246,10 @@ export const AI = createAI<AIState, UIState>({
     const session: any = await auth()
     if (session && session.user) {
       const aiState = getAIState() as Chat
-
+      const agentBot = await getAgentById(aiState.agentId)
+      console.log(agentBot);
       if (aiState) {
-        const uiState = getUIStateFromAIState(aiState)
+        const uiState = getUIStateFromAIState(aiState, agentBot)
         return uiState
       }
     } else {
@@ -283,7 +283,7 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
-export const getUIStateFromAIState = (aiState: Chat) => {
+export const getUIStateFromAIState = (aiState: Chat, agentBot: any) => {
   return aiState.messages
     .filter(message => message.role !== 'system')
     .map((message, index) => ({
@@ -307,7 +307,7 @@ export const getUIStateFromAIState = (aiState: Chat) => {
           <UserMessage>{message.content as string}</UserMessage>
         ) : message.role === 'assistant' &&
           typeof message.content === 'string' ? (
-          <BotMessage content={message.content} />
+          <BotMessage name={agentBot?.name} content={message.content} />
         ) : null
     }))
 }

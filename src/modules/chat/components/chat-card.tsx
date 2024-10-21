@@ -44,10 +44,12 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
 
 export function BotMessage({
     content,
-    className
+    className,
+    name
 }: {
     content: string | StreamableValue<string>
-    className?: string
+    className?: string,
+    name: string
 }) {
     const text = useStreamableText(content)
     return (
@@ -63,7 +65,7 @@ export function BotMessage({
             />
             <div className="grow">
                 {/* get chat id */}
-                <ChatMessageItem creator={'Smart Action'} isUser={false} >
+                <ChatMessageItem creator={name} isUser={false} >
                     <ErrorBoundary fallback={<div className='whitespace-pre-wrap'>...</div>}>
                         <MemoizedReactMarkdown
                             className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
