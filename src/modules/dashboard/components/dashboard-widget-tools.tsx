@@ -1,17 +1,22 @@
 'use client';
 
-import { FC, useState, useRef } from 'react';
+import { FC, useRef, useState } from 'react';
+import Link from 'next/link';
 import classNames from 'classnames';
 import { motion } from 'framer-motion';
 import { ComponentBaseProps } from '@/common/interfaces';
+
 import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
+import { WIDGET_SIZE, WIDGET_TYPES } from '@/modules/widget/constants/widget.constant';
 
 import DashboardWidgetToolToggleButton from './dashboard-widget-tool-toggle-button';
-import Link from 'next/link';
 
-type DashboardWidgetToolsProps = ComponentBaseProps;
+type DashboardWidgetToolsProps = ComponentBaseProps & {
+  widgetItem?: any;
+  onCkick?: () => void;
+};
 
-const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
+const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className, widgetItem, onCkick }) => {
   const [isVisible, setIsVisible] = useState(false);
   const { openWidgetModal, addImageWidget, addWidget } = useWidgetModal();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,9 +33,11 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const handleUploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log('File input triggered');
     const file = event.target.files?.[0];
+
     if (file) {
       try {
         const base64Image = await convertToBase64(file);
+
         console.log('Image converted to base64');
         addImageWidget(base64Image);
       } catch (error) {
@@ -43,6 +50,7 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = error => reject(error);
@@ -56,14 +64,15 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
   const handleAddInputWidget = () => {
     const newWidget = {
       _id: Date.now().toString(),
-      type: 'input',
+      type: WIDGET_TYPES.INPUT,
       name: 'Input Widget',
       icon: 'ico-file-text-edit',
       tool: {
         code: 'default'
       },
-      size: 'small'
+      size: WIDGET_SIZE.SMALL
     };
+
     addWidget(newWidget);
   };
 
@@ -77,11 +86,11 @@ const DashboardWidgetTools: FC<DashboardWidgetToolsProps> = ({ className }) => {
           transition={{ duration: 0.3 }}
         >
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
-            onChange={handleUploadImage}
             style={{ display: 'none' }}
-            ref={fileInputRef}
+            onChange={handleUploadImage}
           />
           <button type="button" onClick={handleImageButtonClick}>
             <i className="ico-image text-xl" />

@@ -264,9 +264,6 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
         </div>
         <Image src={line.src} alt="line" className="w-full" width={line.width} height={line.height} />
         <DashboardNotesBoard />
-        <div className="px-8 py-6">
-          <DashboardWidgetTools />
-        </div>
       </div>
       {selectedAgent && (
         <ChatPopup visible={isOpenModal} onClose={() => setIsOpenModal(false)} inforAgent={selectedAgent} />

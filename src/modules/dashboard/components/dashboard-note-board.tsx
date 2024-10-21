@@ -1,34 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { ComponentBaseProps } from '@/common/interfaces';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
 
-import { WidgetItem } from '../interfaces/dashboard.interface';
-
-import { DASH_BOARD_NOTE_LIST } from '../constants/dashboard-data.constant';
+import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
+import { ViewFrameDashboard } from '@/modules/chat/validation/ViewFarm';
+import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
+import { DUMMY_WIDGET_LIST } from '@/modules/widget/constants/widget.constant';
+import { Widget } from '@/modules/widget/interfaces/widget.interface';
 
 import Note from './dashboard-note';
-import { ViewFrame, ViewFrameDashboard } from '@/modules/chat/validation/ViewFarm';
-import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
-import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
-import { Button } from '@/components/ui/button';
-import { ComponentBaseProps } from '@/common/interfaces';
-import InputWidget from './input-widget';
-import CustomButton from '@/libs/svg-icons/input/custom-button';
+import DashboardWidgetTools from './dashboard-widget-tools';
 
 type DashboardNotesBoardProps = ComponentBaseProps & {
   address?: string;
 };
 
 const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) => {
-  const { widgets, addWidget, removeWidget } = useWidgetModal();
-  const [widgetsList, setWidgetsList] = useState<any>(widgets);
-  const [showPopup, setShowPopup] = useState(false);
+  const { widgets, removeWidget } = useWidgetModal();
+  const [widgetsList, setWidgetsList] = useState<Widget[]>(widgets);
+  const [isShowDeletePopup, setIsShowDeletePopup] = useState(false);
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
 
-  const checkIfWidgetHasButton = useCallback((code: string) => {
-    //console.log('code', code);
-    return code.toLowerCase().includes('<a') || code.toLowerCase().includes('a>');
-  }, []);
+  // const checkIfWidgetHasButton = useCallback((code: string) => {
+  //   //console.log('code', code);
+  //   return code.toLowerCase().includes('<a') || code.toLowerCase().includes('a>');
+  // }, []);
 
   const moveNote = (fromIndex: number, toIndex: number) => {
     //moveWidget(fromIndex, toIndex);
@@ -40,10 +38,10 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     setWidgetsList(updatedWidgets);
   };
 
-  const handleWidgetClick = (widgetId: string, code: string) => {
+  const handleWidgetClick = (widgetId: string) => {
     if (!address) {
       setSelectedWidgetId(widgetId);
-      setShowPopup(true);
+      // setShowDeletePopup(true);
     }
   };
 
@@ -51,45 +49,20 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
     if (selectedWidgetId) {
       removeWidget(selectedWidgetId);
     }
-    setShowPopup(false);
+    setIsShowDeletePopup(false);
   };
 
   useEffect(() => {
     if (widgets.length === 0) {
-      const welcomeWidget = {
-        _id: '1',
-        index: 0,
-        type: 'text',
-        content: 'Welcome',
-        size: 'xs-small'
-      };
-
-      const toWidget = {
-        _id: '2',
-        index: 1,
-        type: 'text',
-        content: 'To',
-        size: 'xs-small'
-      };
-
-      const promptWalletWidget = {
-        _id: '3',
-        index: 2,
-        type: 'image',
-        tool: { code: 'background.jpg', description: 'Prompt Wallet' },
-        size: 'large'
-      };
-      // @ts-ignore
-      addWidget(welcomeWidget);
-      // @ts-ignore
-      addWidget(toWidget);
-      // @ts-ignore
-      addWidget(promptWalletWidget);
-      setWidgetsList([welcomeWidget, toWidget, promptWalletWidget]);
+      setWidgetsList(DUMMY_WIDGET_LIST);
     } else {
       setWidgetsList(widgets);
     }
   }, [widgets]);
+
+  const handleClickDelete = () => {
+    setIsShowDeletePopup(true);
+  };
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -101,7 +74,9 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             index={index}
             moveNote={moveNote}
             size={widget.size || 'medium'}
+            isSelected={selectedWidgetId === widget._id}
             onClick={() => handleWidgetClick(widget._id, widget.tool?.code)}
+            onDelete={handleClickDelete}
           >
             {widget.type === 'image' ? (
               <img src={widget.tool?.code} alt={widget.tool?.description || 'Widget Image'} />
@@ -113,18 +88,25 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
           </Note>
         ))}
       </div>
-      <AugmentedPopup visible={showPopup} onClose={() => setShowPopup(false)} textHeading="Remove Widget">
+      <AugmentedPopup
+        visible={isShowDeletePopup}
+        textHeading="Remove Widget"
+        onClose={() => setIsShowDeletePopup(false)}
+      >
         <div className="flex flex-col gap-5 p-8">
           <p>{`Are you sure you want to remove this widget?`}</p>
           <div className="mt-4 flex justify-end gap-2">
             <CustomButton
               className="text-sm font-semibold"
-              onClick={() => setShowPopup(false)}
+              onClick={() => setIsShowDeletePopup(false)}
             >{`Cancel`}</CustomButton>
             <CustomButton className="text-sm font-semibold" onClick={handleConfirmRemove}>{`Remove`}</CustomButton>
           </div>
         </div>
       </AugmentedPopup>
+      <div className="px-8 py-6">
+        <DashboardWidgetTools />
+      </div>
     </DndProvider>
   );
 };
