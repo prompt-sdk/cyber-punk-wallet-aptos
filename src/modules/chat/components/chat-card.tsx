@@ -119,10 +119,12 @@ export function BotMessage({
 
 export function BotCard({
     children,
-    showAvatar = true
+    showAvatar = true,
+    name
 }: {
     children: React.ReactNode
     showAvatar?: boolean
+    name: string
 }) {
     return (
         <div
@@ -137,7 +139,7 @@ export function BotCard({
             />
             <div className="grow">
                 {/* get chat id */}
-                <ChatMessageItem creator={'test test'} isUser={false} >
+                <ChatMessageItem creator={name} isUser={false} >
                     {children}
                 </ChatMessageItem>
 

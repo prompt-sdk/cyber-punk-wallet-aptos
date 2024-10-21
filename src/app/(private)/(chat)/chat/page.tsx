@@ -30,7 +30,7 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
     const session: any = (await auth()) as Session
     const missingKeys = await getMissingKeys()
     const agent = await getAgentById(searchParams.agentId)
-    console.log(agent);
+
     const introMessenge = {
       id: nanoid(),
       role: 'assistant',

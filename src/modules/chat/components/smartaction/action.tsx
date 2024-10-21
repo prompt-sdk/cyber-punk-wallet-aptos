@@ -8,6 +8,10 @@ import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai'
 export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
+  console.log("data", data)
+  const bigintArray = data.functionArguments.map((item: any) =>
+    typeof item === 'number' ? BigInt(item * 10 ** 18) : item
+  );
 
   const onTransfer = async () => {
     const aptosClient = getAptosClient();
@@ -33,12 +37,16 @@ export const SmartAction = ({ props: data }: { props: any }) => {
   return (
 
     <>
-      <div className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0">
+      <div className="flex flex-col gap-3 px-4 py-3 text-white">
         <span>
-          Function :
+          Function : {data.function}
         </span>
         <p>
-          {JSON.stringify(data)}
+          {JSON.stringify(data, (key, value) =>
+            typeof value === 'bigint'
+              ? value.toString()
+              : value // return everything else unchanged
+          )}
         </p>
 
         <div
