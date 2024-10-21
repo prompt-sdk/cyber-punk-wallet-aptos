@@ -29,12 +29,12 @@ type ChatPopupProps = ComponentBaseProps & {
   };
 };
 
-const RecentChatItem: FC<{ item: { id?: string; title: string; description: string } }> = ({
-  item: { id, title, description }
+const RecentChatItem: FC<{ item: { id?: string; title: string; description: string }, agentId: string }> = ({
+  item: { id, title, description }, agentId
 }) => {
   return (
     <Link
-      href={`/chat?prompt=${description}&agentId=${id}`}
+      href={`/chat?prompt=${description}&agentId=${agentId}`}
       data-augmented-ui
       className={classNames(
         'border-none outline-none',
@@ -147,7 +147,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
               <CarouselContent>
                 {inforAgent?.messenge_template && inforAgent?.messenge_template.map((item, index) => (
                   <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
-                    <RecentChatItem item={item} />
+                    <RecentChatItem item={item} agentId={inforAgent._id.toString()} />
                   </CarouselItem>
                 ))}
               </CarouselContent>
