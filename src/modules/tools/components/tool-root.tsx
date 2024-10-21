@@ -1,38 +1,45 @@
 'use client';
 
 import { FC, useCallback, useEffect, useState } from 'react';
+import { Session } from 'next-auth/types';
+import axios from 'axios';
 import classNames from 'classnames';
 import { useForm, useWatch } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
-import { Button } from '@/components/ui/button';
-import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
-import MultiSelectTools from '@/components/common/multi-select';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+
+import { useToast } from '@/hooks/use-toast';
+
+import BoderImage from '@/components/common/border-image';
+import DropdownSelect from '@/components/common/dropdown-select-button';
+
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import FormTextField from '@/modules/form/components/form-text-field';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import axios from 'axios';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { SidebarDesktop } from '@/modules/chat/components/sidebar-desktop';
-import CustomButton from '@/libs/svg-icons/input/custom-button';
-import DropdownSelect from '@/components/common/dropdown-select-button';
-import BoderImage from '@/components/common/border-image';
+
 import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 
-type ToolRootProps = ComponentBaseProps;
+type ToolRootProps = ComponentBaseProps & {
+  session: Session | null;
+};
 
 const COIN_LIST_URL = 'https://raw.githubusercontent.com/AnimeSwap/coin-list/main/aptos/mainnet.js';
 
-const ToolRoot: FC<any> = ({ className, accountAddress }) => {
+const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
   const { account } = useWallet();
   const { toast } = useToast();
+  const accountAddress = session?.user.username;
   const [isOpenCreateTool, setIsOpenCreateTool] = useState<boolean>(false);
   const [tools, setTools] = useState<any[]>([]);
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
-  const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
+  // const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
+
+  console.log('🚀 ~ setSelectedTools:', setSelectedTools);
+
+  console.log('🚀 ~ selectedTools:', selectedTools);
   const [loadingFunctions, setLoadingFunctions] = useState<Record<string, boolean>>({});
   const [coinList, setCoinList] = useState<Array<{ symbol: string; name: string; address: string }>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -59,26 +66,41 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     watch
   } = form;
 
-  const loadSourceData = async (account: string, packages: string[], modules: string[], functions: string[]) => {
-    const newFunctions = functions.filter(func => !sourceData[func]);
+  const loadSourceData = async (
+    loadSourceDataAccount: string,
+    packages: string[],
+    modules: string[],
+    loadSourceDataFunctions: string[]
+  ) => {
+    const newFunctions = loadSourceDataFunctions.filter(func => !sourceData[func]);
+
     if (newFunctions.length === 0) return;
 
     const newLoadingFunctions = newFunctions.reduce((acc, func) => ({ ...acc, [func]: true }), {});
+
     setLoadingFunctions(prev => ({ ...prev, ...newLoadingFunctions }));
 
     try {
       const responses = await Promise.all(
         newFunctions.map(async func => {
           const response = await axios.get('/api/source', {
-            params: { account, package: packages.join(','), module: modules.join(','), functions: func }
+            params: {
+              account: loadSourceDataAccount,
+              package: packages.join(','),
+              module: modules.join(','),
+              functions: func
+            }
           });
+
           setLoadingFunctions(prev => ({ ...prev, [func]: false }));
+
           return { func, data: response.data };
         })
       );
 
       const newSourceData = responses.reduce((acc: any, { func, data }) => {
         acc[func] = data?.returns.length > 0 ? data?.returns[0] : data;
+
         return acc;
       }, {});
 
@@ -91,37 +113,42 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
 
   //console.log('sourceData', sourceData);
 
-  const fetchModuleData = async (account: string) => {
+  const fetchModuleData = async (fetchModuleDataAccount: string) => {
     setIsLoadingPackages(true);
     try {
-      const response = await axios.get(`/api/modules?account=${account}`);
+      const response = await axios.get(`/api/modules?account=${fetchModuleDataAccount}`);
+
       setModuleData(response.data);
+
       return response.data;
     } catch (error) {
       console.error('Error fetching module data:', error);
+
       return null;
     } finally {
       setIsLoadingPackages(false);
     }
   };
 
-  const fetchFunctions = async (account: string) => {
+  const fetchFunctions = async (fetchFunctionAccount: string) => {
     setIsLoadingModules(true);
     try {
-      const response = await axios.get(`/api/abis?account=${account}`);
+      const response = await axios.get(`/api/abis?account=${fetchFunctionAccount}`);
       //console.log('API Response:', response.data);
 
       // Check if is_entry is present in the response
-      const hasIsEntry = response.data.some((module: any) =>
-        module.exposed_functions.some((func: any) => 'is_entry' in func)
-      );
+      // const hasIsEntry = response.data.some((module: any) =>
+      //   module.exposed_functions.some((func: any) => 'is_entry' in func)
+      // );
 
       //console.log('Has is_entry property:', hasIsEntry);
 
       setFunctions(response.data);
+
       return response.data;
     } catch (error) {
       console.error('Error fetching functions:', error);
+
       return null;
     } finally {
       setIsLoadingModules(false);
@@ -129,12 +156,14 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   };
 
   const handleFetchModuleData = async () => {
-    const accountAddress = form.getValues('address');
-    if (accountAddress) {
-      const moduleData = await fetchModuleData(accountAddress);
-      const functionsData = await fetchFunctions(accountAddress);
-      if (moduleData) {
-        setModuleData(moduleData);
+    const address = form.getValues('address');
+
+    if (address) {
+      const moduleDataRes = await fetchModuleData(address);
+      const functionsData = await fetchFunctions(address);
+
+      if (moduleDataRes) {
+        setModuleData(moduleDataRes);
       }
       if (functionsData) {
         setFunctions(functionsData);
@@ -159,10 +188,12 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     const newValues = currentValues.includes(value as never)
       ? currentValues.filter((v: string) => v !== value)
       : [...currentValues, value];
+
     setValue(name, newValues as never[], { shouldValidate: true });
 
     if (name === 'functions') {
       const { address, packages, modules } = form.getValues();
+
       loadSourceData(address, packages, modules, [value]); // Load data only for the newly selected function
     }
   };
@@ -170,6 +201,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   const uploadDataToApi = async (data: any) => {
     try {
       const response = await axios.post('/api/tools', data);
+
       console.log('Data uploaded successfully:', response.data);
     } catch (error) {
       console.error('Error uploading data:', error);
@@ -181,6 +213,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     setSourceData((prevData: any) => {
       const funcData = prevData[funcName] || {};
       const params = funcData.params || {};
+
       return {
         ...prevData,
         [funcName]: {
@@ -202,6 +235,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     setSourceData((prevData: any) => {
       const funcData = prevData[funcName] || {};
       const params = funcData.params || {};
+
       return {
         ...prevData,
         [funcName]: {
@@ -256,6 +290,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
               type: value.type,
               description: value.description
             };
+
             return acc;
           }, {}),
           generic_type_params: sourceData[funcName].generic_type_params || [],
@@ -266,6 +301,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
         },
         user_id: accountAddress
       };
+
       console.log('Tool data:', toolData);
       await uploadDataToApi(toolData);
     }
@@ -295,6 +331,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
       const userId = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
+
       setTools(contractTools);
       console.log('contractTools', contractTools);
     } catch (error) {
@@ -308,9 +345,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     fetchTools();
   }, [fetchTools]);
 
-  const handleToolSelection = (toolId: string) => {
-    setSelectedTools(prev => (prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]));
-  };
+  // const handleToolSelection = (toolId: string) => {
+  //   setSelectedTools(prev => (prev.includes(toolId) ? prev.filter(id => id !== toolId) : [...prev, toolId]));
+  // };
 
   const fetchCoinList = useCallback(async () => {
     try {
@@ -351,8 +388,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   };
 
   const isFormValid = useCallback(() => {
-    const { address, packages, modules, functions } = form.getValues();
-    return isValid && address && packages.length > 0 && modules.length > 0 && functions.length > 0;
+    const { address, packages, modules, functions: formFunctions } = form.getValues();
+
+    return isValid && address && packages.length > 0 && modules.length > 0 && formFunctions.length > 0;
   }, [form, isValid]);
 
   console.log('sourceData', sourceData);
@@ -385,7 +423,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
             ))}
           </div>
         )}
-        <AugmentedPopup visible={isOpenCreateTool} onClose={handleClose} textHeading={'Create Tool from contact'}>
+        <AugmentedPopup visible={isOpenCreateTool} textHeading={'Create Tool from contact'} onClose={handleClose}>
           <form className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
             <FormTextField
               error={errors.address}
@@ -470,15 +508,15 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
                                         <textarea
                                           className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
                                           value={paramData.description}
-                                          onChange={e => handleDescriptionChange(func.name, paramName, e.target.value)}
                                           rows={2}
+                                          onChange={e => handleDescriptionChange(func.name, paramName, e.target.value)}
                                         />
                                         <input
                                           type="text"
                                           className="w-full rounded border border-gray-600 bg-gray-700 p-2 text-white placeholder:lowercase"
                                           value={paramData.default || ''}
-                                          onChange={e => handleDefaultValueChange(func.name, paramName, e.target.value)}
                                           placeholder={`Default value`}
+                                          onChange={e => handleDefaultValueChange(func.name, paramName, e.target.value)}
                                         />
                                         {func.generic_type_params && func.generic_type_params.length > 0 && (
                                           <div className="mt-2">
@@ -511,7 +549,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
                 </div>
               </div>
             )}
-            <CustomButton className="w-full md:w-auto" onClick={handleSubmit(onSubmit)} disabled={!isFormValid()}>
+            <CustomButton className="w-full md:w-auto" disabled={!isFormValid()} onClick={handleSubmit(onSubmit)}>
               <span className="font-semibold">Create</span>
             </CustomButton>
           </form>

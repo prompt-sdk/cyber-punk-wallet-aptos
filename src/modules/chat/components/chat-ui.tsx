@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Session } from 'next-auth/types';
 import { useAIState, useUIState } from 'ai/rsc';
 import { toast } from 'sonner';
-import { Message, Session } from 'types/chat';
+import { Message } from 'types/chat';
 
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useScrollAnchor } from '@/hooks/use-scroll-anchor';
@@ -15,14 +16,14 @@ import { EmptyScreen } from '@/modules/chat/components/empty-screen';
 
 import { cn } from '../utils/utils';
 
-export interface ChatProps extends React.ComponentProps<'div'> {
+export interface IChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[];
   id?: string;
-  session?: Session;
+  session: Session | null;
   missingKeys: string[];
 }
 
-export function Chat({ id, className, session, missingKeys }: ChatProps) {
+export function Chat({ id, className, session, missingKeys }: IChatProps) {
   const router = useRouter();
   const path = usePathname();
   const [input, setInput] = useState('');
@@ -30,6 +31,8 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
   const [aiState] = useAIState();
 
   const [_, setNewChatId] = useLocalStorage('newChatId', id);
+
+  console.log('🚀 ~ Chat ~ _:', _);
 
   useEffect(() => {
     if (session?.user) {

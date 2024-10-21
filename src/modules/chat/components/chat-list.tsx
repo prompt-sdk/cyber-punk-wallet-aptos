@@ -1,16 +1,17 @@
-import { Separator } from '@/components/ui/separator';
-import { UIState } from '@/libs/chat/ai.actions';
-import { Session } from 'types/chat';
 import Link from 'next/link';
+import { Session } from 'next-auth/types';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { UIState } from '@/libs/chat/ai.actions';
 
-export interface ChatList {
+import { Separator } from '@/components/ui/separator';
+
+export interface IChatList {
   messages: UIState;
-  session?: Session;
+  session: Session | null;
   isShared: boolean;
 }
 
-export function ChatList({ messages, session, isShared }: ChatList) {
+export function ChatList({ messages, session, isShared }: IChatList) {
   if (!messages.length) {
     return null;
   }
@@ -42,7 +43,7 @@ export function ChatList({ messages, session, isShared }: ChatList) {
           </>
         ) : null}
 
-        {messages.map((message, index) => message.display && <div key={message.id}>{message.display}</div>)}
+        {messages.map(message => message.display && <div key={message.id}>{message.display}</div>)}
       </div>
     </div>
   );

@@ -1,19 +1,20 @@
-import { PageBaseProps } from '@/common/interfaces';
 import { type Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { auth } from '@/modules/auth/constants/auth.config';
-import { getChat, getMissingKeys } from '@/libs/chat/chat.actions';
-import { Chat } from '@/modules/chat/components/chat-ui';
+import { Message, Session } from 'types/chat';
+import { PageBaseProps } from '@/common/interfaces';
 import { AI } from '@/libs/chat/ai.actions';
-import { Session } from 'types/chat';
+import { getChat, getMissingKeys } from '@/libs/chat/chat.actions';
+import { creatAgentWithTool, getAgentById, getWidgetByID } from '@/libs/db/store-mongodb';
+
+import { auth } from '@/modules/auth/constants/auth.config';
+import { Chat } from '@/modules/chat/components/chat-ui';
 import { nanoid } from '@/modules/chat/utils/utils';
-import { getWidgetByID, creatAgentWithTool, getAgentById } from '@/libs/db/store-mongodb';
 
 export const metadata = {
   title: 'Prompt Wallet'
 };
 
-export interface ChatPageProps {
+export interface IChatPageProps {
   params: {};
   searchParams: {
     agentId: string;
@@ -22,19 +23,20 @@ export interface ChatPageProps {
   };
 }
 
-export default async function ChatPage({ searchParams }: ChatPageProps) {
-  const session: any = (await auth()) as Session;
+export default async function ChatPage({ searchParams }: IChatPageProps) {
+  const session = await auth();
+
   if (searchParams.agentId) {
     const id = nanoid();
-    const session: any = (await auth()) as Session;
     const missingKeys = await getMissingKeys();
     const agent = await getAgentById(searchParams.agentId);
 
-    const introMessenge = {
+    const introMessenge: Message = {
       id: nanoid(),
       role: 'assistant',
       content: agent?.introMessage || 'Hello! How can I assist you today?'
-    } as any;
+    };
+
     return (
       <AI initialAIState={{ chatId: id, messages: [introMessenge], agentId: searchParams.agentId }}>
         <Chat id={id} session={session} missingKeys={missingKeys} />
@@ -43,7 +45,7 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
   }
   if (searchParams.widgetId) {
     const missingKeys = await getMissingKeys();
-    const widget: any = await getWidgetByID(searchParams.widgetId);
+    const widget = await getWidgetByID(searchParams.widgetId);
     const id = nanoid();
     // create agent with tool
     const data: any = {
@@ -54,11 +56,12 @@ export default async function ChatPage({ searchParams }: ChatPageProps) {
             Provide a response clearly and concisely. Always be polite, informative, and efficient.`,
       introMessage: 'Im Aptos Bot',
       widget: [],
-      user_id: session.user.username,
-      tool_ids: widget.tool.tool_ids,
+      user_id: session?.user.username || '',
+      tool_ids: widget?.tool.tool_ids,
       description: 'This bot will excute transaction'
     };
     const agentId = await creatAgentWithTool(data);
+
     return (
       <AI initialAIState={{ chatId: id, messages: [], agentId: agentId?.toString() }}>
         <Chat id={id} session={session} missingKeys={missingKeys} />

@@ -1,41 +1,52 @@
 'use client';
 
 import { FC, useCallback, useEffect, useState } from 'react';
+import { Session } from 'next-auth/types';
+import axios from 'axios';
 import classNames from 'classnames';
 import { useForm } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
-import { Button } from '@/components/ui/button';
-import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
-import MultiSelectTools from '@/components/common/multi-select';
-import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
-import FormTextField from '@/modules/form/components/form-text-field';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
-import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+
+import { Widget } from '../interfaces/widget.interface';
+
+import { useToast } from '@/hooks/use-toast';
+
 import BoderImage from '@/components/common/border-image';
+import MultiSelectTools from '@/components/common/multi-select';
+import { Textarea } from '@/components/ui/textarea';
 
-type WidgetRootProps = ComponentBaseProps;
+import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
+import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
+import FormTextField from '@/modules/form/components/form-text-field';
 
-const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+
+type WidgetRootProps = ComponentBaseProps & {
+  session: Session | null;
+};
+
+const WidgetRoot: FC<WidgetRootProps> = ({ className, session }) => {
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateWidget, setIsOpenCreateWidget] = useState<boolean>(false);
   const [widgetPrompt, setWidgetPrompt] = useState<string>('');
   const [widgetCode, setWidgetCode] = useState<string>('');
   const [selectedWidgetTools, setSelectedWidgetTools] = useState<string[]>([]);
-  const [widgets, setWidgets] = useState<any[]>([]);
+  const [widgets, setWidgets] = useState<Widget[]>([]);
   const [previewWidgetCode, setPreviewWidgetCode] = useState<string>('');
   const [tools, setTools] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const accountAddress = session?.user.username;
 
   const fetchTools = useCallback(async () => {
     try {
       const userId = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
+
       setTools(contractTools);
       //console.log('contractTools', contractTools);
     } catch (error) {
@@ -52,11 +63,13 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
     try {
       const userId = accountAddress;
       const response = await fetch(`/api/tools?userId=${userId}`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
+
       //console.log('filteredTools', filteredTools);
       setWidgets(filteredTools);
     } catch (error) {
@@ -108,8 +121,10 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
         },
         user_id: accountAddress
       };
+
       console.log('widgetData', widgetData);
       const response = await axios.post('/api/tools', widgetData);
+
       console.log('Widget saved successfully:', response.data);
 
       // Use the new resetForm function
@@ -148,6 +163,7 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
         }
       });
       const code = response.data.code;
+
       setPreviewWidgetCode(code);
       setWidgetCode(code);
       toast({
@@ -177,15 +193,15 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
           <div className="text-center">Loading widgets...</div>
         ) : widgets.length > 0 ? (
           <div className="grid w-full grid-cols-3 gap-4">
-            {widgets.map((widget: any) => (
+            {widgets.map(widget => (
               <BoderImage
                 key={widget._id}
                 imageBoder={WidgetFrame2.src} // Use your desired border image URL
                 className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
               >
                 <h2 className="text-lg font-semibold">{widget.name}</h2>
-                <span className="rounded text-xs text-gray-500">{widget.tool.type || 'Widget'}</span>
-                <p className="text-sm text-white">{widget.tool.description.slice(0, 70) + '...'}</p>
+                <span className="rounded text-xs text-gray-500">{widget?.tool?.type || 'Widget'}</span>
+                <p className="text-sm text-white">{widget?.tool?.description?.slice(0, 70) + '...'}</p>
               </BoderImage>
             ))}
           </div>
@@ -194,11 +210,11 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
         )}
         <AugmentedPopup
           visible={isOpenCreateWidget}
+          textHeading={'Create Widget'}
           onClose={() => {
             setIsOpenCreateWidget(false);
             resetForm(); // Add this line to reset the form when closing the modal
           }}
-          textHeading={'Create Widget'}
         >
           <form className="flex max-h-[80vh] flex-col gap-4 overflow-y-auto p-8">
             <FormTextField form={widgetForm} name="name" label="Name" />
@@ -213,11 +229,11 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-white">Prompt</label>
-              <Textarea value={widgetPrompt} onChange={onchangeWidgetPrompt} className="min-h-[100px]" />
+              <Textarea value={widgetPrompt} className="min-h-[100px]" onChange={onchangeWidgetPrompt} />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-white">Code</label>
-              <Textarea value={widgetCode} onChange={onchangeWidgetCode} className="font-mono min-h-[150px]" />
+              <Textarea value={widgetCode} className="font-mono min-h-[150px]" onChange={onchangeWidgetCode} />
             </div>
             {previewWidgetCode && (
               <div className="mt-4">
