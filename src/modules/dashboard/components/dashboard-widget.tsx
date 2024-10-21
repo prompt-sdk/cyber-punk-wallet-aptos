@@ -177,7 +177,7 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
             name: 'Widget Stake',
             description: `create button action stake 0.1 aptos to ${session.user.username}`,
             prompt: 'create button action stake 0.1 aptos to 0x123123',
-            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${session.user.username} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to ${session.user.username}\n        </a>\n    )\n}`,
+            code: `(props) => {\n    return (\n        <a href={\'/chat?prompt=stake 0.1 aptos to ${session.user.username} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to ${session.user.username}\n        </a>\n    )\n}`,
             tool_ids: [toolIds]
           },
           user_id: session.user.username,
