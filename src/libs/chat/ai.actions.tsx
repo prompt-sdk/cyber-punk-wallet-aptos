@@ -247,7 +247,6 @@ export const AI = createAI<AIState, UIState>({
     if (session && session.user) {
       const aiState = getAIState() as Chat
       const agentBot = await getAgentById(aiState.agentId)
-      console.log(agentBot);
       if (aiState) {
         const uiState = getUIStateFromAIState(aiState, agentBot)
         return uiState
@@ -284,6 +283,7 @@ export const AI = createAI<AIState, UIState>({
 })
 
 export const getUIStateFromAIState = (aiState: Chat, agentBot: any) => {
+  console.log(aiState.messages)
   return aiState.messages
     .filter(message => message.role !== 'system')
     .map((message, index) => ({
