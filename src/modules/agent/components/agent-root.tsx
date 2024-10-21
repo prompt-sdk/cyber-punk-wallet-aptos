@@ -228,7 +228,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   //console.log('chatTemplates', chatTemplateForm.getValues());
 
   return (
-    <div className={classNames('flex w-full grow py-4 scrollbar overflow-hidden', className)}>
+    <div className={classNames('scrollbar flex w-full grow overflow-hidden py-4', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Agents</h1>
         <div className="flex w-full justify-end">

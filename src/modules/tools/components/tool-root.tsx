@@ -358,7 +358,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   console.log('sourceData', sourceData);
 
   return (
-    <div className={classNames('flex w-full grow py-4 scrollbar overflow-hidden', className)}>
+    <div className={classNames('scrollbar flex w-full grow overflow-hidden py-4', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Tools</h1>
         <div className="flex w-full justify-end">
@@ -405,9 +405,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
                     ? [{ value: '', label: 'Loading packages...' }]
                     : moduleData && moduleData.length > 0
                       ? [
-                        { value: '', label: 'Choose package' },
-                        ...moduleData.map((item: any) => ({ value: item.name, label: item.name }))
-                      ]
+                          { value: '', label: 'Choose package' },
+                          ...moduleData.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
                       : [{ value: '', label: 'No packages available' }]
                 }
                 onSelect={selectedOption => {
@@ -426,9 +426,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
                     ? [{ value: '', label: 'Loading modules...' }]
                     : functions && functions.length > 0
                       ? [
-                        { value: '', label: 'Choose module' },
-                        ...functions.map((item: any) => ({ value: item.name, label: item.name }))
-                      ]
+                          { value: '', label: 'Choose module' },
+                          ...functions.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
                       : [{ value: '', label: 'No modules available' }]
                 }
                 onSelect={selectedOption => {
