@@ -9,16 +9,31 @@ import ChatPopupDecor2 from '@/assets/svgs/chat-popup/decor-2.svg';
 import classNames from 'classnames';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { insertNewParagraph } from '../utils/chat-promt-bot.util';
+import DashboardAvatar from '@/modules/dashboard/components/dashboard-avatar';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type ChatPopupProps = ComponentBaseProps & {
   onClose?: () => void;
+  inforAgent?: {
+    name: string;
+    description: string;
+    introMessage: string;
+    avatar: string;
+    messenge_template: {
+      title: string;
+      description: string;
+      content: string;
+    }[];
+  };
 };
 
-const RecentChatItem: FC<{ item: { id: string; title: string; description: string } }> = ({
+const RecentChatItem: FC<{ item: { id?: string; title: string; description: string } }> = ({
   item: { id, title, description }
 }) => {
   return (
-    <div
+    <Link
+      href={`/chat?prompt=${description}`}
       data-augmented-ui
       className={classNames(
         'border-none outline-none',
@@ -29,8 +44,8 @@ const RecentChatItem: FC<{ item: { id: string; title: string; description: strin
       )}
     >
       <p className="text=[#6B7280]">{title}</p>
-      <p className="text-[#9CA3AF]">{description}</p>
-    </div>
+      <p className="text-[#9CA3AF]">{description.length > 15 ? description.slice(0, 15) + '...' : description}</p>
+    </Link>
   );
 };
 
@@ -57,9 +72,9 @@ const RECENT_CHATS = [
   }
 ];
 
-const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose }) => {
+const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent }) => {
   const contentEditableRef = useRef<HTMLDivElement | null>(null);
-
+  const router = useRouter();
   const [isEmpty, setIsEmpty] = useState(true);
 
   const clearContent = () => {
@@ -89,13 +104,14 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose }) => {
     const content = contentEditableRef.current?.innerHTML || '';
 
     if (content) {
+      router.push(`/chat?prompt=${content}`);
       clearContent();
     }
   };
 
   return (
     <AugmentedPopup
-      className="max-w-2xl"
+      className="max-w-3xl"
       visible={visible}
       onClose={onClose}
       textHeading={'Execute Transactions with AI'}
@@ -115,13 +131,20 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose }) => {
           height={ChatPopupDecor2.height}
           className="absolute bottom-4 left-3"
         />
+        <div className="absolute left-6 top-2 flex flex-row items-center gap-2">
+          <DashboardAvatar imageUrl={inforAgent?.avatar} />
+          <div className="flex flex-col gap-1">
+            <p className="text-lg font-semibold text-white">{inforAgent?.name}</p>
+            <p className="text-[#9CA3AF]">{inforAgent?.description}</p>
+          </div>
+        </div>
         <div className="flex w-full flex-col gap-6 p-8 pt-28">
           <div className="flex flex-col gap-3">
-            <p>Recent chats</p>
+            <p>Chat Templates</p>
 
             <Carousel opts={{ align: 'start', loop: true }} className={classNames('w-full')}>
               <CarouselContent>
-                {RECENT_CHATS.map((item, index) => (
+                {inforAgent?.messenge_template.map((item, index) => (
                   <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
                     <RecentChatItem item={item} />
                   </CarouselItem>
@@ -148,6 +171,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose }) => {
           </div>
           <button
             data-augmented-ui
+            onClick={handleSend}
             className={classNames(
               'border-none outline-none',
               'aug-tl1-12 aug-clip-tl1 aug-clip-br1 aug-br1-12',
@@ -156,6 +180,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose }) => {
               'ml-auto flex w-fit flex-col gap-2 px-5 py-3 font-bold',
               'transition-all duration-200 ease-in-out hover:bg-white hover:text-slate-600'
             )}
+            disabled={isEmpty} // {{ edit_1 }} Disable button if content is empty
           >
             Send Message
           </button>

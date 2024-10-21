@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import { AnimatePresence, motion } from 'framer-motion';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
 interface Tool {
   _id: string;
   name: string;
@@ -43,54 +44,65 @@ const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({
 
   return (
     <div className="relative">
-      <div
-        className="flex min-h-[40px] cursor-pointer items-center justify-between rounded-md border border-gray-600 bg-gray-700 p-2 text-white"
+      <CustomButton
+        className="flex max-h-[52px] cursor-pointer items-center justify-between rounded-md p-2 text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex flex-wrap gap-1">
           {selectedTools.length > 0 ? (
             selectedTools.map(toolId => (
-              <span key={toolId} className="rounded bg-gray-600 px-2 py-1 text-sm">
+              <span key={toolId} className="rounded bg-[#383C41] px-2 py-1 text-sm">
                 {getToolNameById(toolId)}
               </span>
             ))
           ) : (
-            <span className="text-gray-400">Select tools...</span>
+            <span className="text-sm font-semibold text-white">Select tools...</span>
           )}
         </div>
-        <svg
+        <motion.svg
           className={`h-5 w-5 transform transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.3 }}
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </div>
-      {isOpen && (
-        <div className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-600 bg-gray-700 shadow-lg">
-          {isLoading ? (
-            <div className="flex items-center justify-center p-4">
-              <span className="text-gray-400">Loading tools...</span>
-            </div>
-          ) : (
-            tools.map(tool => (
-              <div
-                key={tool._id}
-                className={`cursor-pointer p-2 hover:bg-gray-600 ${
-                  selectedTools.includes(tool._id) ? 'bg-gray-600' : ''
-                }`}
-                onClick={() => toggleTool(tool._id)}
-              >
-                <div className="flex flex-col">
-                  <span className="text-sm text-white">{tool.name}</span>
-                </div>
+        </motion.svg>
+      </CustomButton>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border-[#5F5C64] bg-[#2C3035] shadow-lg"
+            initial={{ opacity: 0, scale: 0.4, scaleY: 0.4 }}
+            animate={{ opacity: 1, scale: 1, scaleY: 1 }}
+            exit={{ opacity: 0, scale: 0.4, scaleY: 0.4 }}
+            transition={{ duration: 0.3 }}
+            style={{ transformOrigin: 'top' }}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center p-4">
+                <span className="text-gray-400">Loading tools...</span>
               </div>
-            ))
-          )}
-        </div>
-      )}
+            ) : (
+              tools.map(tool => (
+                <div
+                  key={tool._id}
+                  className={`cursor-pointer p-2 py-3 hover:bg-[#383C41] ${
+                    selectedTools.includes(tool._id) ? 'bg-[#383C41]' : ''
+                  }`}
+                  onClick={() => toggleTool(tool._id)}
+                >
+                  <div className="flex flex-col">
+                    <span className="text-white">{tool.name}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { LayoutProps } from '@/common/interfaces';
 import { SidebarDesktop } from '@/modules/chat/components/sidebar-desktop';
 import BoderImage from '@/components/common/border-image';
@@ -8,12 +7,14 @@ import Image from 'next/image';
 import BackIcon from '@/assets/svgs/back-icon.svg';
 import EditIcon from '@/assets/svgs/edit-icon.svg';
 import Link from 'next/link';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+
 export default async function PublicLayout({ children }: LayoutProps) {
   return (
     <div className="container flex grow flex-col items-center justify-center gap-6 overflow-hidden">
       <BoderImage imageBoder={ChatBorderFrame.src} className="flex w-full grow flex-col overflow-hidden border-0">
         <div className="flex h-14 w-full shrink-0 items-center justify-between border-b-2 border-[#292F36] px-7">
-          <Link href="/" >
+          <Link href="/">
             <button className="h-10 w-10">
               <Image
                 src={BackIcon.src}
@@ -25,16 +26,16 @@ export default async function PublicLayout({ children }: LayoutProps) {
             </button>
           </Link>
 
-          <button className="flex h-8 items-center justify-center gap-2">
+          <CustomButton className="flex h-10 items-center justify-center gap-2">
             <Image
               src={EditIcon.src}
-              alt="Back Icon"
+              alt="Edit Icon"
               className="h-full w-full object-contain"
               width={EditIcon.width}
               height={EditIcon.height}
             />
             <span className="text-nowrap">New Chat</span>
-          </button>
+          </CustomButton>
         </div>
         <div className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden rounded-b-3xl">
           <div className="relative lg:w-[300px] xl:w-[380px]">
@@ -45,7 +46,5 @@ export default async function PublicLayout({ children }: LayoutProps) {
       </BoderImage>
       <Toaster />
     </div>
-
-
   );
 }

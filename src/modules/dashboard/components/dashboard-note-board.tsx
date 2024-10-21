@@ -13,6 +13,7 @@ import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { Button } from '@/components/ui/button';
 import { ComponentBaseProps } from '@/common/interfaces';
 import InputWidget from './input-widget';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
 
 type DashboardNotesBoardProps = ComponentBaseProps & {
   address?: string;
@@ -116,8 +117,11 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
         <div className="flex flex-col gap-5 p-8">
           <p>{`Are you sure you want to remove this widget?`}</p>
           <div className="mt-4 flex justify-end gap-2">
-            <Button onClick={() => setShowPopup(false)}>{`Cancel`}</Button>
-            <Button onClick={handleConfirmRemove}>{`Remove`}</Button>
+            <CustomButton
+              className="text-sm font-semibold"
+              onClick={() => setShowPopup(false)}
+            >{`Cancel`}</CustomButton>
+            <CustomButton className="text-sm font-semibold" onClick={handleConfirmRemove}>{`Remove`}</CustomButton>
           </div>
         </div>
       </AugmentedPopup>

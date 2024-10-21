@@ -54,7 +54,6 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const searchParams = useSearchParams();
   const address = searchParams.get('address');
 
-
   const { account, signAndSubmitTransaction, wallet, disconnect } = useWallet();
   const aptosClient = getAptosClient();
 
@@ -88,7 +87,6 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   useEffect(() => {
     loadBalance();
   }, [loadBalance]);
-
 
   const toggleOpenSend = () => {
     setIsOpenSend(!isOpenSend);
@@ -213,7 +211,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
             <DashboardAvatar className="shrink-0" imageUrl={'/avatar1.png'} altText="Avatar" />
             <div className="flex w-full flex-col items-start gap-3">
               <p className="text-wrap break-words text-xl font-bold">
-                {collapseAddress(account?.address.toString() || "")}
+                {collapseAddress(account?.address.toString() || '')}
               </p>
               <p className="text-sm">Welcome back</p>
             </div>
@@ -291,18 +289,18 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
               placeholder="Receiver Address"
               value={address || receive || ''}
               onChange={e => setReceive(e.target.value)}
-              className="w-full rounded border p-2 text-black"
+              className="w-full rounded border border-gray-700 bg-transparent p-2 text-white focus:border-gray-500 focus:outline-none"
             />
             <input
               type="number"
               placeholder="Amount"
               value={amount || ''}
               onChange={e => setAmount(e.target.value)}
-              className="w-full rounded border p-2 text-black"
+              className="w-full rounded border border-gray-700 bg-transparent p-2 text-white focus:border-gray-500 focus:outline-none"
             />
-            <Button onClick={onTransfer} disabled={pending || !amount || !receive}>
-              {pending ? 'Sending...' : 'Send'}
-            </Button>
+            <CustomButton className="w-full md:w-auto" onClick={onTransfer} disabled={pending || !amount || !receive}>
+              <i className="ico-send-right-icon" /> {pending ? 'Sending...' : 'Send'}
+            </CustomButton>
           </div>
         </AugmentedPopup>
         <AptosReceiveModal

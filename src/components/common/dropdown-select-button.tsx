@@ -39,7 +39,11 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({ options, onSelect, ini
 
   const handleOptionSelect = (value: string) => {
     const selectedOption = options.find(option => option.value === value);
-    router.push(value);
+    if (selectedOption) {
+      setSelectedValue(selectedOption.label); // Update selected value
+      onSelect(value); // Call onSelect prop
+      setIsOpen(false);
+    }
   };
 
   // Close dropdown when clicking outside
@@ -86,7 +90,7 @@ const DropdownSelect: React.FC<IDropdownSelectProps> = ({ options, onSelect, ini
                 className="cursor-pointer p-2 transition-all duration-300 hover:bg-gray-200 hover:text-[#2C3035]"
                 onClick={() => handleOptionSelect(option.value)}
               >
-                <Link href={option.value}>{option.label}</Link>
+                {option.label}
               </div>
             ))}
           </motion.div>
