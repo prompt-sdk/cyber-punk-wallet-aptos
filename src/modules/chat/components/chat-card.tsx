@@ -125,16 +125,24 @@ export function BotCard({
     showAvatar?: boolean
 }) {
     return (
-        <div className="group relative flex items-start md:-ml-12">
-            <div
-                className={cn(
-                    'flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm',
-                    !showAvatar && 'invisible'
-                )}
-            >
-                <IconOpenAI />
+        <div
+            className={'flex gap-4 flex-row'}
+        >
+            <Image
+                src={BotIcon.src}
+                alt="Bot Icon"
+                width={BotIcon.width}
+                height={BotIcon.height}
+                className="h-10 w-10 shrink-0"
+            />
+            <div className="grow">
+                {/* get chat id */}
+                <ChatMessageItem creator={'test'} isUser={false} >
+                    {children}
+                </ChatMessageItem>
+
             </div>
-            <div className="ml-4 flex-1 pl-2">{children}</div>
+            <div className="h-10 w-10 shrink-0" />
         </div>
     )
 }

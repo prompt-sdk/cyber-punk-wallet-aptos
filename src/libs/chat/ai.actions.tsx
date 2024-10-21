@@ -117,9 +117,7 @@ async function submitUserMessage(content: string) {
 
             return (
               <BotCard>
-                <BotCard>
-                  <SmartAction props={data} />
-                </BotCard>
+                <SmartAction props={data} />
               </BotCard>
             )
           }
@@ -167,11 +165,7 @@ async function submitUserMessage(content: string) {
               ]
             })
 
-            return <BotCard>
-              <BotCard>
-                <SmartView props={data} />
-              </BotCard>
-            </BotCard>
+            return
           }
         }
       };

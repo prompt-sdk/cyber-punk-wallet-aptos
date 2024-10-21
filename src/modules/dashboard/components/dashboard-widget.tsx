@@ -183,9 +183,7 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
           user_id: session.user.username,
           name: 'Widget Stake'
         };
-        //console.log('Widget data:', widgetData);
         const response = await axios.post('/api/tools', widgetData);
-        //console.log('Widget saved successfully:', response.data);
         setWidgetIds(response.data.upsertedId);
       } catch (error) {
         console.error('Error saving widget:', error);
