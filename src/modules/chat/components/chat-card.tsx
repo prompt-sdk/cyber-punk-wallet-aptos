@@ -44,10 +44,12 @@ export function UserMessage({ children }: { children: React.ReactNode }) {
 
 export function BotMessage({
     content,
-    className
+    className,
+    name
 }: {
     content: string | StreamableValue<string>
-    className?: string
+    className?: string,
+    name: string
 }) {
     const text = useStreamableText(content)
     return (
@@ -63,7 +65,7 @@ export function BotMessage({
             />
             <div className="grow">
                 {/* get chat id */}
-                <ChatMessageItem creator={'Smart Action'} isUser={false} >
+                <ChatMessageItem creator={name} isUser={false} >
                     <ErrorBoundary fallback={<div className='whitespace-pre-wrap'>...</div>}>
                         <MemoizedReactMarkdown
                             className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
@@ -123,16 +125,24 @@ export function BotCard({
     showAvatar?: boolean
 }) {
     return (
-        <div className="group relative flex items-start md:-ml-12">
-            <div
-                className={cn(
-                    'flex size-[24px] shrink-0 select-none items-center justify-center rounded-md border bg-primary text-primary-foreground shadow-sm',
-                    !showAvatar && 'invisible'
-                )}
-            >
-                <IconOpenAI />
+        <div
+            className={'flex gap-4 flex-row'}
+        >
+            <Image
+                src={BotIcon.src}
+                alt="Bot Icon"
+                width={BotIcon.width}
+                height={BotIcon.height}
+                className="h-10 w-10 shrink-0"
+            />
+            <div className="grow">
+                {/* get chat id */}
+                <ChatMessageItem creator={'test'} isUser={false} >
+                    {children}
+                </ChatMessageItem>
+
             </div>
-            <div className="ml-4 flex-1 pl-2">{children}</div>
+            <div className="h-10 w-10 shrink-0" />
         </div>
     )
 }
