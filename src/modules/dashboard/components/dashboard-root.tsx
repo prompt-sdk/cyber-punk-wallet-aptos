@@ -8,26 +8,36 @@ import DashboardProfile from './dashboard-profile';
 import DashboardWidget from './dashboard-widget';
 import { WidgetSelectionModal } from './widget-selection-modal';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { signOut } from 'next-auth/react';
 
 
 type DashboardRootProps = ComponentBaseProps;
 
-const DashboardRoot: FC<DashboardRootProps> = ({ className }) => {
-  const { connected } = useWallet();
+const DashboardRoot: FC<any> = ({ className, session }) => {
+  const { connected, account } = useWallet();
   const [isConnected, setIsConnected] = useState(false);
 
+  const handle = async (account: any) => {
+    if (account?.address == session?.user.username) {
+      setIsConnected(true);
+    } else {
+      await signOut()
+    }
+
+  }
   useEffect(() => {
     if (connected) {
-      setIsConnected(true);
+      handle(account);
     }
-  }, [connected])
+
+  }, [account, connected])
   return (
     <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
       {isConnected ? (
         <div className="container flex flex-col items-center justify-center gap-6">
           <DashboardProfile />
-          <DashboardWidget />
-          <WidgetSelectionModal />
+          <DashboardWidget session={session} />
+          <WidgetSelectionModal session={session} />
         </div>
       ) : (
         <div className="text-center">

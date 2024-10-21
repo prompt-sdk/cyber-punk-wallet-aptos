@@ -3,7 +3,6 @@ import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
 import { Button } from '@/components/ui/button';
 import { ComponentBaseProps } from '@/common/interfaces';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 interface WidgetOption {
   _id: string;
@@ -13,12 +12,11 @@ interface WidgetOption {
 }
 
 export const
-  WidgetSelectionModal: FC<ComponentBaseProps> = ({ className }) => {
+  WidgetSelectionModal: FC<any> = ({ className, session }) => {
     const { isOpen, closeWidgetModal, addWidget } = useWidgetModal();
     const [widgetOptions, setWidgetOptions] = useState<WidgetOption[]>([]);
     const [selectedWidget, setSelectedWidget] = useState<string | null>(null);
-    const { account } = useWallet();
-    const userId = account?.address?.toString();
+    const userId = session.user.username;
     const [isLoading, setIsLoading] = useState(false);
 
     const fetchWidgetTools = useCallback(async () => {

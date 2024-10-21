@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { authenticate, signup, getUser } from '@/modules/auth/constants/auth.actions';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Toaster } from '@/components/ui/toaster';
 
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -64,12 +65,14 @@ export function WalletSelector() {
       if (user) {
         // If registration is successful, sign in
         await authenticate({ username: account.address, password: account.address });
-        await window.location.reload()
+        router.push(window.location.href);
+        router.refresh();
 
       } else {
         // If registration fails (user already exists), just try to sign in
         await signup({ username: account.address, password: account.address });
-        await window.location.reload()
+        router.push(window.location.href);
+        router.refresh();
       }
     }
   };
@@ -165,6 +168,7 @@ function ConnectWalletDialog({ close }: ConnectWalletDialogProps) {
           )}
         </div>
       </AboutAptosConnect>
+      <Toaster />
     </DialogContent>
   );
 }

@@ -53,9 +53,7 @@ const DashboardProfile: FC<DashboardProfileProps> = ({ className }) => {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const address = searchParams.get('address');
-  // console.log('address', address);
 
-  // console.log('session', session);
 
   const { account, signAndSubmitTransaction, wallet, disconnect } = useWallet();
   const aptosClient = getAptosClient();

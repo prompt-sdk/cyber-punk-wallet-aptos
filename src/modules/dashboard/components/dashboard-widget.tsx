@@ -20,11 +20,10 @@ import DashboardAvatar from './dashboard-avatar';
 import axios from 'axios';
 type DashboardWidgetProps = ComponentBaseProps;
 
-const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
+const DashboardWidget: FC<any> = ({ className, session }) => {
   const [agents, setAgents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const { account } = useWallet();
   const [selectedAgent, setSelectedAgent] = useState(null) as any;
   const router = useRouter();
   const [toolIds, setToolIds] = useState('');
@@ -35,7 +34,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
 
   const createDefaultAgent = useCallback(async () => {
     //@ts-ignore
-    const userId = account?.address.toString() as string;
+    const userId = session.user.username;
     const avatars = ['/avatar1.png', '/avatar2.png', '/avatar3.png'];
     const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
 
@@ -45,19 +44,19 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
       introMessage: 'Hello! I am your staking agent.',
       tool_ids: [toolIds],
       widget_ids: [widgetIds],
-      prompt: `create button action stake 0.1 aptos to ${account?.address.toString()}`,
+      prompt: `create button action stake 0.1 aptos to ${userId}`,
       user_id: userId,
       avatar: '/logo_aptos.png' // Assign a random avatar
     };
     //@ts-ignore
     await createAgentAPI(defaultAgent);
     fetchAgents();
-  }, [account?.address.toString(), toolIds, widgetIds]);
+  }, [toolIds, widgetIds]);
 
   const fetchTools = useCallback(async () => {
     setIsLoadingTools(true);
     try {
-      const userId = account?.address.toString();
+      const userId = session.user.username;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
@@ -67,7 +66,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     } finally {
       setIsLoadingTools(false);
     }
-  }, [account?.address.toString()]);
+  }, []);
 
   useEffect(() => {
     fetchTools();
@@ -94,7 +93,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   const fetchAgents = useCallback(async () => {
     setIsLoading(true);
     //@ts-ignore
-    const userId = account?.address.toString();
+    const userId = session.user.username;
     try {
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
@@ -106,7 +105,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [account?.address.toString(), createDefaultAgent]);
+  }, [createDefaultAgent]);
 
   useEffect(() => {
     fetchAgents();
@@ -123,45 +122,44 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
   };
 
   const createToolAPI = useCallback(async () => {
-    if (account?.address.toString()) {
-      const toolData = {
-        type: 'contractTool',
+    const toolData = {
+      type: 'contractTool',
+      name: `0x1::delegation_pool::add_stake`,
+      tool: {
         name: `0x1::delegation_pool::add_stake`,
-        tool: {
-          name: `0x1::delegation_pool::add_stake`,
-          description:
-            "The `add_stake` function allows a delegator to add a specified amount of coins to the delegation pool. This amount is converted into shares, which represent the delegator's stake in the pool. The function ensures that the delegator is allowlisted and synchronizes the delegation pool with the underlying stake pool before executing the addition. The function also calculates and deducts any applicable fees from the added stake, ensuring that the delegator's balance is updated accordingly.",
-          params: {
-            user: {
-              type: 'address',
-              description: 'The address of the delegator.'
-            },
-            amount: {
-              type: 'u64',
-              description: 'The amount of coins to be added to the delegation pool.'
-            }
+        description:
+          "The `add_stake` function allows a delegator to add a specified amount of coins to the delegation pool. This amount is converted into shares, which represent the delegator's stake in the pool. The function ensures that the delegator is allowlisted and synchronizes the delegation pool with the underlying stake pool before executing the addition. The function also calculates and deducts any applicable fees from the added stake, ensuring that the delegator's balance is updated accordingly.",
+        params: {
+          user: {
+            type: 'address',
+            description: 'The address of the delegator.'
           },
-          generic_type_params: [],
-          return: [],
-          type: 'entry',
-          functions: 'add_stake',
-          address: '0x1'
+          amount: {
+            type: 'u64',
+            description: 'The amount of coins to be added to the delegation pool.'
+          }
         },
-        user_id: account.address.toString()
-      };
-      //console.log('Tool data:', toolData);
-      try {
-        const toolId = await uploadDataToApi(toolData);
-        if (toolId) {
-          setToolIds(toolId); // Ensure toolIds is set only if toolId is valid
-        } else {
-          console.error('Failed to create tool, toolId is null');
-        }
-      } catch (error) {
-        console.error('Error creating tool:', error);
+        generic_type_params: [],
+        return: [],
+        type: 'entry',
+        functions: 'add_stake',
+        address: '0x1'
+      },
+      user_id: session.user.username
+    };
+    //console.log('Tool data:', toolData);
+    try {
+      const toolId = await uploadDataToApi(toolData);
+      if (toolId) {
+        setToolIds(toolId); // Ensure toolIds is set only if toolId is valid
+      } else {
+        console.error('Failed to create tool, toolId is null');
       }
+    } catch (error) {
+      console.error('Error creating tool:', error);
     }
-  }, [account?.address.toString()]);
+
+  }, []);
 
   useEffect(() => {
     if (!isLoadingTools && tools.length === 0) {
@@ -171,18 +169,18 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
 
   const saveWidget = useCallback(async () => {
     setIsLoadingWidget(true);
-    if (account?.address.toString()) {
+    if (session.user.username) {
       try {
         const widgetData = {
           type: 'widgetTool',
           tool: {
             name: 'Widget Stake',
-            description: `create button action stake 0.1 aptos to ${account.address.toString()}`,
+            description: `create button action stake 0.1 aptos to ${session.user.username}`,
             prompt: 'create button action stake 0.1 aptos to 0x123123',
-            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${account.address.toString()} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to ${account.address.toString()}\n        </a>\n    )\n}`,
+            code: `(props) => {\n    return (\n        <a href={\'/widget-chat?prompt=stake 0.1 aptos to ${session.user.username} widgetId=\' + props.widgetId} className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">\n            stake 0.1 aptos to ${session.user.username}\n        </a>\n    )\n}`,
             tool_ids: [toolIds]
           },
-          user_id: account.address.toString(),
+          user_id: session.user.username,
           name: 'Widget Stake'
         };
         //console.log('Widget data:', widgetData);
@@ -195,7 +193,7 @@ const DashboardWidget: FC<DashboardWidgetProps> = ({ className }) => {
         setIsLoadingWidget(false);
       }
     }
-  }, [account?.address.toString(), toolIds]);
+  }, [toolIds]);
 
   useEffect(() => {
     if (toolIds?.length > 0) {

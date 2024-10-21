@@ -22,14 +22,12 @@ import { loginFormSchema } from '../validations/login-form';
 import ChatPopup from '@/modules/chat/components/chat-popup';
 import OAuthGoogleSignInButton from '@/modules/auth/components/oauth-google-sign-in-button';
 import { WalletSelector } from '@/components/context/WalletSelector';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { Toaster } from '@/components/ui/toaster';
 
 type LoginRootProps = ComponentBaseProps;
 
 const LoginRoot: FC<LoginRootProps> = ({ className }) => {
-  const router = useRouter();
-  const { connected } = useWallet();
+
   const { toast } = useToast();
   const [openPopup, setOpenPopup] = useState(false);
 
@@ -101,8 +99,9 @@ const LoginRoot: FC<LoginRootProps> = ({ className }) => {
         {/* <OAuthGoogleSignInButton /> */}
         {/* <button onClick={() => setOpenPopup(true)}>chat popup</button> */}
       </div>
-      <Toaster />
+
       <ChatPopup visible={openPopup} onClose={() => setOpenPopup(false)} />
+      <Toaster />
     </div>
   );
 };

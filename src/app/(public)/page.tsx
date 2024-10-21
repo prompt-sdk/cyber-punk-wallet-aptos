@@ -11,8 +11,8 @@ type PageProps = PageBaseProps;
 export default async function HomePage(_pageProps: PageProps) {
 
   const session: any = (await auth());
-  console.log(session);
-  if (session) return <DashboardRoot />
+
+  if (session) return <DashboardRoot session={session} />
   return (
     <ClientOnly>
       <LoginRoot />
