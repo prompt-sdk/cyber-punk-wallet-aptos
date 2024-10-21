@@ -216,7 +216,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   //console.log('chatTemplates', chatTemplateForm.getValues());
 
   return (
-    <div className={classNames('flex w-full grow py-4', className)}>
+    <div className={classNames('flex w-full grow py-4 scrollbar overflow-hidden', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Agents</h1>
         <div className="flex w-full justify-end">
@@ -227,7 +227,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         {isLoadingAgents ? (
           <div className="text-center">Loading agents...</div>
         ) : agents.length > 0 ? (
-          <div className="grid w-full grid-cols-3 gap-4">
+          <div className="grid w-full grid-cols-3 gap-4 ">
             {agents.map((agent: any) => (
               <Link href={`/chat?agentId=${agent._id.toString()}`} key={agent._id}>
                 <BoderImage

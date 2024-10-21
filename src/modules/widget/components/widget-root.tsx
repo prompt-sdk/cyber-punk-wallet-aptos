@@ -165,7 +165,7 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
   };
 
   return (
-    <div className={classNames('flex w-full grow py-4', className)}>
+    <div className={classNames('flex w-full grow py-4 scrollbar overflow-hidden', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Widgets</h1>
         <div className="flex w-full justify-end">
