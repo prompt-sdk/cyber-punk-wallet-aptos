@@ -18,6 +18,10 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import DashboardAvatar from './dashboard-avatar';
 import axios from 'axios';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+import ChatPopup from '@/modules/chat/components/chat-popup';
+import Link from 'next/link';
+
 type DashboardWidgetProps = ComponentBaseProps;
 
 const DashboardWidget: FC<any> = ({ className, session }) => {
@@ -46,7 +50,29 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
       widget_ids: [widgetIds],
       prompt: `create button action stake 0.1 aptos to ${userId}`,
       user_id: userId,
-      avatar: '/logo_aptos.png' // Assign a random avatar
+      avatar: '/logo_aptos.png',
+      messenge_template: [
+        {
+          title: 'Stake APT',
+          description: 'Stake 0.1 APT',
+          content: `create button action stake 0.1 aptos to ${userId}`
+        },
+        {
+          title: 'Transfer APT',
+          description: 'Send 0.1 APT to 0x1',
+          content: `create button action transfer 0.1 aptos to 0x1`
+        },
+        {
+          title: 'View Balance',
+          description: 'View my balance.',
+          content: `create label view balance for ${userId}`
+        },
+        {
+          title: 'View Transactions',
+          description: 'View my transaction history.',
+          content: `create label view total transactions for ${userId}`
+        }
+      ]
     };
     //@ts-ignore
     await createAgentAPI(defaultAgent);
@@ -158,7 +184,6 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
     } catch (error) {
       console.error('Error creating tool:', error);
     }
-
   }, []);
 
   useEffect(() => {
@@ -227,9 +252,9 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
     >
       <DashboardBottomProfileDecor />
       <div className="w-full">
-        <a href='/agent'>
+        <Link href="/agent">
           <p className="px-8 py-4">Agent Creator ({agents.length})</p>
-        </a>
+        </Link>
         <div className="flex flex-col gap-6 px-8 py-6">
           {isLoading ? (
             <div className="flex h-20 items-center justify-center">
@@ -245,31 +270,9 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
           <DashboardWidgetTools />
         </div>
       </div>
-      <AugmentedPopup
-        visible={isOpenModal}
-        onClose={() => {
-          setIsOpenModal(false);
-          setSelectedAgent(null);
-        }}
-        textHeading={'Profile Agent'}
-      >
-        {selectedAgent && (
-          <div className="flex max-h-[80vh] flex-col items-center gap-4 overflow-y-auto p-8">
-            <DashboardAvatar imageUrl={selectedAgent.avatar} altText={selectedAgent.name} />
-            <h2 className="text-xl font-bold">{selectedAgent.name}</h2>
-            <p className="text-center">Description: {selectedAgent.description}</p>
-            <p className="italic">Intro Message: "{selectedAgent.introMessage}"</p>
-            <div className="mt-4 flex w-full justify-end">
-              <button
-                onClick={() => startChat(selectedAgent._id)}
-                className="rounded bg-black px-4 py-2 text-white hover:bg-gray-800"
-              >
-                Start Chat
-              </button>
-            </div>
-          </div>
-        )}
-      </AugmentedPopup>
+      {selectedAgent && (
+        <ChatPopup visible={isOpenModal} onClose={() => setIsOpenModal(false)} inforAgent={selectedAgent} />
+      )}
     </BoderImage>
   );
 };

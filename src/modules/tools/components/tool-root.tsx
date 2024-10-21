@@ -14,13 +14,16 @@ import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { SidebarDesktop } from '@/modules/chat/components/sidebar-desktop';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+import DropdownSelect from '@/components/common/dropdown-select-button';
+import BoderImage from '@/components/common/border-image';
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 
 type ToolRootProps = ComponentBaseProps;
 
 const COIN_LIST_URL = 'https://raw.githubusercontent.com/AnimeSwap/coin-list/main/aptos/mainnet.js';
 
 const ToolRoot: FC<any> = ({ className, accountAddress }) => {
-
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateTool, setIsOpenCreateTool] = useState<boolean>(false);
@@ -47,6 +50,7 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
   });
 
   const { control, setValue } = form;
+  //console.log('form', form.getValues());
   const selectedModules = useWatch({ control, name: 'modules' });
 
   const {
@@ -105,14 +109,14 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
     setIsLoadingModules(true);
     try {
       const response = await axios.get(`/api/abis?account=${account}`);
-      console.log('API Response:', response.data);
+      //console.log('API Response:', response.data);
 
       // Check if is_entry is present in the response
       const hasIsEntry = response.data.some((module: any) =>
         module.exposed_functions.some((func: any) => 'is_entry' in func)
       );
 
-      console.log('Has is_entry property:', hasIsEntry);
+      //console.log('Has is_entry property:', hasIsEntry);
 
       setFunctions(response.data);
       return response.data;
@@ -137,7 +141,6 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
       }
     }
   };
-
 
   useEffect(() => {
     const subscription = watch((value, { name }) => {
@@ -359,7 +362,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Tools</h1>
         <div className="flex w-full justify-end">
-          <Button onClick={() => setIsOpenCreateTool(true)}>Create tool</Button>
+          <CustomButton className="w-full md:w-auto" onClick={() => setIsOpenCreateTool(true)}>
+            <span className="font-semibold">Create Tool</span>
+          </CustomButton>
         </div>
         {isLoading ? (
           <div className="text-center">Loading tools...</div>
@@ -368,14 +373,15 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
         ) : (
           <div className="grid w-full grid-cols-3 gap-4">
             {tools.map((tool: any) => (
-              <div
+              <BoderImage
                 key={tool._id}
+                imageBoder={WidgetFrame2.src} // Use your desired border image URL
                 className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
               >
-                <h2 className="break-words text-lg font-semibold">{tool.name}</h2>
-                <span className="rounded text-xs text-gray-500">{tool.tool.type || 'Tool'}</span>
-                <p className="line-clamp-2 text-sm text-white">{tool.tool.description || 'No description'}</p>
-              </div>
+                <h2 className="text-lg font-semibold">{tool.name}</h2>
+                <span className="rounded text-xs text-gray-500">{tool.tool.type || 'Widget'}</span>
+                <p className="text-sm text-white">{tool.tool.description.slice(0, 70) + '...'}</p>
+              </BoderImage>
             ))}
           </div>
         )}
@@ -391,68 +397,44 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
 
             <div className="mb-4">
               <p className="mb-2 text-xl text-white">Packages</p>
-              <select
-                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={form.getValues('packages')}
-                onChange={e => {
-                  const selectedOption = e.target.value;
+              <DropdownSelect
+                className="w-full"
+                initialValue={form.getValues('packages')[0] || ''}
+                options={
+                  isLoadingPackages
+                    ? [{ value: '', label: 'Loading packages...' }]
+                    : moduleData && moduleData.length > 0
+                      ? [
+                          { value: '', label: 'Choose package' },
+                          ...moduleData.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
+                      : [{ value: '', label: 'No packages available' }]
+                }
+                onSelect={selectedOption => {
                   setValue('packages', [selectedOption] as never[], { shouldValidate: true });
                 }}
-              >
-                {isLoadingPackages ? (
-                  <option value="" disabled className="text-[#6B7280]">
-                    Loading packages...
-                  </option>
-                ) : moduleData && moduleData.length > 0 ? (
-                  <>
-                    <option value="" disabled className="text-[#6B7280]">
-                      Choose package
-                    </option>
-                    {moduleData.map((item: any, idx: number) => (
-                      <option key={idx} value={item.name} className="text-[#6B7280]">
-                        {item.name}
-                      </option>
-                    ))}
-                  </>
-                ) : (
-                  <option value="" disabled className="text-[#6B7280]">
-                    No packages available
-                  </option>
-                )}
-              </select>
+              />
             </div>
 
             <div className="mb-4">
               <p className="mb-2 text-xl text-white">Modules</p>
-              <select
-                className="max-h-40 w-full overflow-y-auto rounded border border-gray-700 bg-transparent p-2 text-white"
-                value={form.getValues('modules')}
-                onChange={e => {
-                  const selectedOption = e.target.value;
+              <DropdownSelect
+                className="w-full"
+                initialValue={form.getValues('modules')[0] || ''}
+                options={
+                  isLoadingModules
+                    ? [{ value: '', label: 'Loading modules...' }]
+                    : functions && functions.length > 0
+                      ? [
+                          { value: '', label: 'Choose module' },
+                          ...functions.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
+                      : [{ value: '', label: 'No modules available' }]
+                }
+                onSelect={selectedOption => {
                   setValue('modules', [selectedOption] as never[], { shouldValidate: true });
                 }}
-              >
-                {isLoadingModules ? (
-                  <option value="" disabled className="text-[#6B7280]">
-                    Loading modules...
-                  </option>
-                ) : functions && functions.length > 0 ? (
-                  <>
-                    <option value="" disabled className="text-[#6B7280]">
-                      Choose module
-                    </option>
-                    {functions.map((item: any, idx: number) => (
-                      <option key={idx} value={item.name} className="text-[#6B7280]">
-                        {item.name}
-                      </option>
-                    ))}
-                  </>
-                ) : (
-                  <option value="" disabled className="text-[#6B7280]">
-                    No modules available
-                  </option>
-                )}
-              </select>
+              />
             </div>
 
             {functions && selectedModules && selectedModules?.length > 0 && (
@@ -529,14 +511,9 @@ const ToolRoot: FC<any> = ({ className, accountAddress }) => {
                 </div>
               </div>
             )}
-            <Button
-              onClick={handleSubmit(onSubmit)}
-              type="submit"
-              disabled={!isFormValid()}
-              className={`${!isFormValid() ? 'cursor-not-allowed opacity-50' : ''}`}
-            >
-              Create
-            </Button>
+            <CustomButton className="w-full md:w-auto" onClick={handleSubmit(onSubmit)} disabled={!isFormValid()}>
+              <span className="font-semibold">Create</span>
+            </CustomButton>
           </form>
         </AugmentedPopup>
       </div>

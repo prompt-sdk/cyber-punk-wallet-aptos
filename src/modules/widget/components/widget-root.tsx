@@ -13,11 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import axios from 'axios';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+import BoderImage from '@/components/common/border-image';
 
 type WidgetRootProps = ComponentBaseProps;
 
 const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
-
   const { account } = useWallet();
   const { toast } = useToast();
   const [isOpenCreateWidget, setIsOpenCreateWidget] = useState<boolean>(false);
@@ -31,7 +33,7 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
 
   const fetchTools = useCallback(async () => {
     try {
-      const userId = accountAddress
+      const userId = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
       setTools(contractTools);
@@ -48,7 +50,7 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
   const fetchWidgetTools = useCallback(async () => {
     setIsLoading(true);
     try {
-      const userId = accountAddress
+      const userId = accountAddress;
       const response = await fetch(`/api/tools?userId=${userId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
@@ -129,8 +131,7 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
     }
   };
 
-  const handlePreviewWidget = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handlePreviewWidget = async () => {
     try {
       toast({
         title: 'Previewing widget...',
@@ -168,21 +169,24 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Widgets</h1>
         <div className="flex w-full justify-end">
-          <Button onClick={() => setIsOpenCreateWidget(true)}>Create widget</Button>
+          <CustomButton className="w-full md:w-auto" onClick={() => setIsOpenCreateWidget(true)}>
+            <span className="font-semibold">Create Widget</span>
+          </CustomButton>
         </div>
         {isLoading ? (
           <div className="text-center">Loading widgets...</div>
         ) : widgets.length > 0 ? (
           <div className="grid w-full grid-cols-3 gap-4">
             {widgets.map((widget: any) => (
-              <div
+              <BoderImage
                 key={widget._id}
+                imageBoder={WidgetFrame2.src} // Use your desired border image URL
                 className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
               >
                 <h2 className="text-lg font-semibold">{widget.name}</h2>
                 <span className="rounded text-xs text-gray-500">{widget.tool.type || 'Widget'}</span>
-                <p className="text-sm text-white">{widget.tool.description.slice(0, 30) + '...'}</p>
-              </div>
+                <p className="text-sm text-white">{widget.tool.description.slice(0, 70) + '...'}</p>
+              </BoderImage>
             ))}
           </div>
         ) : (
@@ -222,12 +226,12 @@ const WidgetRoot: FC<any> = ({ className, accountAddress }) => {
               </div>
             )}
             <div className="flex justify-end gap-4">
-              <Button onClick={handlePreviewWidget} type="button">
-                Preview
-              </Button>
-              <Button onClick={handleSaveWidget} type="button">
-                Save
-              </Button>
+              <CustomButton className="w-full md:w-auto" onClick={handlePreviewWidget}>
+                <span className="text-sm font-semibold">Preview</span>
+              </CustomButton>
+              <CustomButton className="w-full md:w-auto" onClick={handleSaveWidget}>
+                <span className="text-sm font-semibold">Save</span>
+              </CustomButton>
             </div>
           </form>
         </AugmentedPopup>

@@ -13,6 +13,16 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import MultiSelectWidgets from '@/components/common/multi-select-widget';
 import axios from 'axios';
 import MultiSelectTools from '@/components/common/multi-select';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+import Link from 'next/link';
+import BoderImage from '@/components/common/border-image';
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+
+type ChatTemplate = {
+  title: string;
+  description: string;
+  content: string;
+};
 
 const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const [agents, setAgents] = useState<any[]>([]);
@@ -33,7 +43,14 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
       introMessage: '',
       tools: [],
       widget: [],
-      prompt: ''
+      prompt: '',
+      messenge_template: [] as ChatTemplate[]
+    }
+  });
+
+  const chatTemplateForm = useForm({
+    defaultValues: {
+      templates: [{ title: '', description: '', content: '' }] // Initialize with one template
     }
   });
 
@@ -82,6 +99,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     tools: string[];
     widget: string[];
     prompt: string;
+    messenge_template: any[]; // Change this to any[]
   }) => {
     try {
       const response = await axios.post('/api/agent', agentData);
@@ -99,9 +117,10 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     tools: string[];
     widget: string[];
     prompt: string;
+    messenge_template: any[];
   }) => {
     try {
-      const userId = accountAddress
+      const userId = accountAddress;
       const agentData = {
         name: data.name,
         description: data.description,
@@ -109,6 +128,8 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         tool_ids: data.tools,
         widget_ids: data.widget,
         prompt: data.prompt,
+        avatar: '/logo_aptos.png',
+        messenge_template: chatTemplateForm.getValues('templates'),
         user_id: userId
       };
       //@ts-ignore
@@ -116,6 +137,8 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
       setAgents([...agents, createdAgent]);
       setIsOpenCreateAgent(false);
       agentForm.reset();
+      chatTemplateForm.reset();
+      setChatTemplates([]);
       fetchAgents();
       toast({
         title: 'Agent created successfully!',
@@ -132,12 +155,14 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
 
   const handleCloseCreateAgent = useCallback(() => {
     setIsOpenCreateAgent(false);
-    agentForm.reset();
+    agentForm.reset(); // Reset agent form
+    chatTemplateForm.reset(); // Reset chat template form
     setWidgetPrompt('');
-  }, [agentForm]);
+    setChatTemplates([]); // Clear chat templates state
+  }, [agentForm, chatTemplateForm]);
 
   const isValid = useCallback(() => {
-    const { name, description, introMessage, tools, widget, prompt } = agentForm.getValues();
+    const { name, description, introMessage } = agentForm.getValues();
     return name.trim() !== '' && description.trim() !== '' && introMessage.trim() !== '';
   }, [agentForm]);
 
@@ -146,7 +171,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const fetchAgents = useCallback(async () => {
     setIsLoadingAgents(true);
     try {
-      const userId = accountAddress
+      const userId = accountAddress;
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
         setAgents(response.data);
@@ -162,27 +187,57 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     fetchAgents();
   }, [fetchAgents]);
 
+  //console.log('chatTemplates', chatTemplates);
+
+  const [chatTemplates, setChatTemplates] = useState<ChatTemplate[]>([]); // State to manage chat templates
+
+  // Function to add a new chat template
+  const handleAddChatTemplate = () => {
+    if (chatTemplates.length < 4) {
+      // Check if the current count is less than 4
+      const newTemplate = { title: '', description: '', content: '' };
+      setChatTemplates([...chatTemplates, newTemplate]);
+    } else {
+      toast({
+        title: 'Limit reached',
+        description: 'You can only add up to 4 chat templates.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // Function to remove a chat template
+  const handleRemoveChatTemplate = (index: number) => {
+    const updatedTemplates = chatTemplates.filter((_, i) => i !== index);
+    setChatTemplates(updatedTemplates);
+    chatTemplateForm.setValue('templates', updatedTemplates);
+  };
+
+  //console.log('chatTemplates', chatTemplateForm.getValues());
+
   return (
     <div className={classNames('flex w-full grow py-4', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Agents</h1>
         <div className="flex w-full justify-end">
-          <Button onClick={() => setIsOpenCreateAgent(true)}>Create Agent</Button>
+          <CustomButton className="text-sm font-semibold" onClick={() => setIsOpenCreateAgent(true)}>
+            Create Agent
+          </CustomButton>
         </div>
         {isLoadingAgents ? (
           <div className="text-center">Loading agents...</div>
         ) : agents.length > 0 ? (
           <div className="grid w-full grid-cols-3 gap-4">
             {agents.map((agent: any) => (
-              <a href={`/chat?agentId=${agent._id.toString()}`}>
-                <div
-                  key={agent._id}
+              <Link href={`/chat?agentId=${agent._id.toString()}`} key={agent._id}>
+                <BoderImage
+                  imageBoder={WidgetFrame2.src} // Use your desired border image URL
                   className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <h2 className="text-lg font-semibold">{agent.name}</h2>
                   <p className="text-sm text-white">{agent.description}</p>
-                </div>
-              </a>
+                </BoderImage>
+              </Link>
             ))}
           </div>
         ) : (
@@ -231,9 +286,48 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
                 className="min-h-[120px]"
               />
             </div>
-            <Button onClick={agentForm.handleSubmit(handleCreateAgent)} type="submit" disabled={!isValid()}>
-              Create Agent
-            </Button>
+            <div className="mb-5 flex flex-col">
+              <div className="flex flex-row items-center justify-between">
+                <p className="text-lg font-semibold">Chat Templates</p>
+                <CustomButton onClick={handleAddChatTemplate}>
+                  <span className="text-sm font-semibold">Add</span>
+                </CustomButton>
+              </div>
+              {chatTemplates.map((template: ChatTemplate, index: number) => (
+                <form key={index} className="mt-5 flex flex-col gap-3 text-sm">
+                  <FormTextField
+                    form={chatTemplateForm}
+                    name={`templates.${index}.title`} // Updated to use dynamic field names
+                    label="Title chat template"
+                    value={chatTemplateForm.getValues(`templates.${index}.title`)} // Get value from form state
+                    //@ts-ignore
+                    onChange={e => chatTemplateForm.setValue(`templates.${index}.title`, e.target.value)} // Update value on change
+                  />
+                  <FormTextField
+                    form={chatTemplateForm}
+                    name={`templates.${index}.description`} // Updated to use dynamic field names
+                    label="Description chat template"
+                    value={chatTemplateForm.getValues(`templates.${index}.description`)} // Get value from form state
+                    //@ts-ignore
+                    onChange={e => chatTemplateForm.setValue(`templates.${index}.description`, e.target.value)} // Update value on change
+                  />
+                  <FormTextField
+                    form={chatTemplateForm}
+                    name={`templates.${index}.content`} // Updated to use dynamic field names
+                    label="Content chat template"
+                    value={chatTemplateForm.getValues(`templates.${index}.content`)} // Get value from form state
+                    //@ts-ignore
+                    onChange={e => chatTemplateForm.setValue(`templates.${index}.content`, e.target.value)} // Update value on change
+                  />
+                  <CustomButton onClick={() => handleRemoveChatTemplate(index)} className="text-red-500">
+                    Remove
+                  </CustomButton>
+                </form>
+              ))}
+            </div>
+            <CustomButton onClick={agentForm.handleSubmit(handleCreateAgent)} disabled={!isValid()}>
+              <span className="text-sm font-semibold">Create Agent</span>
+            </CustomButton>
           </form>
         </AugmentedPopup>
       </div>
