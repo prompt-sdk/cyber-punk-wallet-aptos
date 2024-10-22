@@ -12,7 +12,6 @@ type AuthenticatedProps = ComponentBaseProps & {
 };
 
 const Authenticated: FC<AuthenticatedProps> = ({ userSession, ...rest }) => {
-
   const authState = useAuthState();
 
   if (!userSession) return null;

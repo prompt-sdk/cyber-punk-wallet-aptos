@@ -1,28 +1,17 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
-interface Tool {
-  _id: string;
-  name: string;
-  tool: {
-    name: string;
-    description: string;
-    params: Record<string, { type: string; description: string }>;
-    functions: string;
-    address: string;
-  };
-  user_id: string;
-  type: string;
-}
 
-interface MultiSelectToolsProps {
+import { Tool } from '@/modules/tools/interfaces/tool.interface';
+
+interface IMultiSelectToolsProps {
   tools: Tool[];
   selectedTools: string[];
   onChangeSelectedTools: (selectedTools: string[]) => void;
   isLoading?: boolean;
 }
 
-const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({
+const MultiSelectTools: React.FC<IMultiSelectToolsProps> = ({
   tools,
   selectedTools,
   onChangeSelectedTools,
@@ -34,11 +23,13 @@ const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({
     const updatedSelection = selectedTools.includes(toolId)
       ? selectedTools.filter(id => id !== toolId)
       : [...selectedTools, toolId];
+
     onChangeSelectedTools(updatedSelection);
   };
 
   const getToolNameById = (toolId: string) => {
     const tool = tools.find(t => t._id === toolId);
+
     return tool ? tool.name : '';
   };
 

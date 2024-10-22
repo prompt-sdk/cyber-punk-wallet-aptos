@@ -1,5 +1,7 @@
-import { PreferenceEntity } from '@/modules/auth/interfaces/auth.interface';
+/* eslint-disable @typescript-eslint/naming-convention */
 import { DefaultSession } from 'next-auth';
+
+import { PreferenceEntity } from '@/modules/auth/interfaces/auth.interface';
 
 declare module 'next-auth' {
   interface User {
@@ -7,6 +9,8 @@ declare module 'next-auth' {
     name: string;
     email: string;
     image: string;
+    username: string;
+    password: string;
     preference: PreferenceEntity;
     accessToken: string;
     refreshToken: string;
@@ -49,5 +53,7 @@ declare module 'next-auth/jwt' {
     preference: PreferenceEntity;
     accessToken: string;
     refreshToken: string;
+    id: string;
+    username: string;
   }
 }

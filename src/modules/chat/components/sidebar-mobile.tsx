@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
-import { Sidebar } from './sidebar'
-import { Button } from '@/components/ui/button'
+import { Sidebar } from './sidebar';
+import { Button } from '@/components/ui/button';
 
-import { IconSidebar } from '@/components/ui/icons'
+import { IconSidebar } from '@/components/ui/icons';
 
 interface SidebarMobileProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 export function SidebarMobile({ children }: SidebarMobileProps) {
@@ -20,12 +20,9 @@ export function SidebarMobile({ children }: SidebarMobileProps) {
           <span className="sr-only">Toggle Sidebar</span>
         </Button>
       </SheetTrigger>
-      <SheetContent
-        side="left"
-        className="inset-y-0 flex h-auto w-[300px] flex-col p-0"
-      >
+      <SheetContent side="left" className="inset-y-0 flex h-auto w-[300px] flex-col p-0">
         <Sidebar className="flex">{children}</Sidebar>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

@@ -2,6 +2,8 @@ import { CoreMessage } from 'ai';
 
 export type Message = CoreMessage & {
   id: string;
+  role: string;
+  content: string;
 };
 
 export interface Chat extends Record<string, any> {

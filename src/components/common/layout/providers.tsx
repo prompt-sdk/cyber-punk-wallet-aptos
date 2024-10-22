@@ -6,10 +6,10 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { MediaContextProvider } from '@/components/common/media';
 import ServiceWorker from '@/components/common/service-worker';
-import { SidebarProvider } from '@/hooks/use-sidebar'
+import { SidebarProvider } from '@/hooks/use-sidebar';
 
 import ErrorBoundary from '../error-boundary';
 

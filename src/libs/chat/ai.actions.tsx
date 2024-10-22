@@ -64,6 +64,7 @@ async function submitUserMessage(content: string) {
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
+
     if (item.type == 'contractTool') {
       const ParametersSchema = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
@@ -76,22 +77,30 @@ async function submitUserMessage(content: string) {
         generate: async function* (ParametersData: ParametersData) {
           if (item.tool.type == 'entry') {
             yield (
-              <BotCard>
+              <BotCard name={agent.name}>
                 <SmartActionSkeleton />
               </BotCard>
             )
 
             await sleep(1000)
-            const data = { functionArguments: Object.values(ParametersData), function: item.name, typeArguments: item.tool.generic_type_params }
+            const data = {
+              functionArguments: Object.values(ParametersData).map((item: any) =>
+                typeof item === 'number' ? BigInt(item * 10 ** 18) : item
+              ),
+              function: item.name,
+              typeArguments: item.tool.generic_type_params
+            }
             const toolCallId = nanoid()
             aiState.done({
               ...aiState.get(),
               messages: [
+                //@ts-ignore
                 ...aiState.get().messages,
                 {
                   id: nanoid(),
                   role: 'assistant',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
@@ -104,6 +113,7 @@ async function submitUserMessage(content: string) {
                   id: nanoid(),
                   role: 'tool',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-result',
                       toolName: item.type + '_' + item.tool.type,
@@ -116,14 +126,14 @@ async function submitUserMessage(content: string) {
             })
 
             return (
-              <BotCard>
+              <BotCard name={agent.name}>
                 <SmartAction props={data} />
               </BotCard>
             )
           }
           if (item.tool.type == 'view') {
             yield (
-              <BotCard>
+              <BotCard name={agent.name}>
                 <SmartActionSkeleton />
               </BotCard>
             )
@@ -131,17 +141,25 @@ async function submitUserMessage(content: string) {
             await sleep(1000)
 
             const toolCallId = nanoid()
-            const data = { functionArguments: Object.values(ParametersData), function: item.name, typeArguments: item.tool.generic_type_params }
+            const data = {
+              functionArguments: Object.values(ParametersData).map((item: any) =>
+                typeof item === 'number' ? BigInt(item * 10 ** 18) : item
+              ),
+              function: item.name,
+              typeArguments: item.tool.generic_type_params
+            }
 
 
             aiState.done({
               ...aiState.get(),
               messages: [
+                //@ts-ignore
                 ...aiState.get().messages,
                 {
                   id: nanoid(),
                   role: 'assistant',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
@@ -154,6 +172,7 @@ async function submitUserMessage(content: string) {
                   id: nanoid(),
                   role: 'tool',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-result',
                       toolName: item.type + item.tool.type,
@@ -172,11 +191,11 @@ async function submitUserMessage(content: string) {
     }
     return tool;
   }, {});
-  const agentBot = await getAgentById(aiState.get().agentId)
+
   const result = await streamUI({
     model: openai('gpt-4o'),
-    initial: <SpinnerMessage />,
-    system: `You are  ${agentBot?.name || 'Helpful assistant '}` + '\n\n' + agentBot?.prompt || '',
+    initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
+    system: `You are  ${agent?.name || 'Helpful assistant '}` + '\n\n' + agent?.prompt || '',
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,
@@ -188,7 +207,7 @@ async function submitUserMessage(content: string) {
 
       if (!textStream) {
         textStream = createStreamableValue('')
-        textNode = <BotMessage name={agentBot?.name} content={textStream.value} />
+        textNode = <BotMessage name={agent?.name} content={textStream.value} />
       }
       if (done) {
         textStream.done()
@@ -276,8 +295,7 @@ export const AI = createAI<AIState, UIState>({
   }
 })
 
-export const getUIStateFromAIState = (aiState: Chat, agentBot: any) => {
-  console.log(aiState.messages)
+export const getUIStateFromAIState = (aiState: Chat, agent: any) => {
   return aiState.messages
     .filter(message => message.role !== 'system')
     .map((message, index) => ({
@@ -286,12 +304,12 @@ export const getUIStateFromAIState = (aiState: Chat, agentBot: any) => {
         message.role === 'tool' ? (
           message.content.map(tool => {
             return tool.toolName === 'contractToolentry' ? (
-              <BotCard>
+              <BotCard name={agent.name}>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartAction props={tool.result} />
               </BotCard>
             ) : tool.toolName === 'contractToolview' ? (
-              <BotCard>
+              <BotCard name={agent.name}>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartView props={tool.result} />
               </BotCard>
@@ -301,7 +319,7 @@ export const getUIStateFromAIState = (aiState: Chat, agentBot: any) => {
           <UserMessage>{message.content as string}</UserMessage>
         ) : message.role === 'assistant' &&
           typeof message.content === 'string' ? (
-          <BotMessage name={agentBot?.name} content={message.content} />
+          <BotMessage name={agent?.name} content={message.content} />
         ) : null
     }))
 }

@@ -1,19 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-interface Widget {
-  _id: string;
-  type: string;
-  name: string;
-  icon: string;
-  tool?: {
-    code: string;
-  };
-  size?: string;
-  index?: number;
-}
+import { WIDGET_SIZE, WIDGET_TYPES } from '@/modules/widget/constants/widget.constant';
+import { Widget } from '@/modules/widget/interfaces/widget.interface';
 
-interface WidgetModalStore {
+interface IWidgetModalStore {
   isOpen: boolean;
   widgets: Widget[];
   openWidgetModal: () => void;
@@ -25,7 +16,7 @@ interface WidgetModalStore {
 }
 
 export const useWidgetModal = create(
-  persist<WidgetModalStore>(
+  persist<IWidgetModalStore>(
     (set, get) => ({
       isOpen: false,
       widgets: [],
@@ -36,6 +27,7 @@ export const useWidgetModal = create(
           if (!state.widgets.some((w: any) => w._id === widget._id)) {
             return { widgets: [...state.widgets, widget] };
           }
+
           return state;
         }),
       removeWidget: (widgetId: string) =>
@@ -46,24 +38,28 @@ export const useWidgetModal = create(
         set(state => {
           const widgets = [...state.widgets];
           const currentIndex = widgets.findIndex(widget => widget.index === widgetId);
+
           if (currentIndex !== -1) {
             const [movedWidget] = widgets.splice(currentIndex, 1);
+
             widgets.splice(newIndex, 0, movedWidget);
           }
+
           return { widgets };
         }),
       addImageWidget: (imageData: string) =>
         set(state => {
-          const newWidget = {
+          const newWidget: Widget = {
             _id: Date.now().toString(),
-            type: 'image',
+            type: WIDGET_TYPES.IMAGE,
             name: 'Image Widget',
             icon: 'ico-image',
             tool: {
               code: imageData
             },
-            size: 'large'
+            size: WIDGET_SIZE.LARGE
           };
+
           return { widgets: [...state.widgets, newWidget] };
         })
     }),

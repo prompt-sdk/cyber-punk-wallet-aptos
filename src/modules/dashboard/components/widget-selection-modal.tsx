@@ -1,11 +1,14 @@
-import { FC, useState, useEffect, useCallback } from 'react';
-import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
-import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
-import { Button } from '@/components/ui/button';
+import { FC, useCallback, useEffect, useState } from 'react';
 import { ComponentBaseProps } from '@/common/interfaces';
+
 import BorderImage from '@/components/common/border-image';
-import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+import { Button } from '@/components/ui/button';
+
+import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import { ViewFrameDashboard } from '@/modules/chat/validation/ViewFarm';
+import { useWidgetModal } from '@/modules/dashboard/hooks/useWidgetModal';
+
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 
 interface WidgetOption {
   _id: string;
@@ -27,11 +30,13 @@ export const WidgetSelectionModal: FC<any> = ({ className, session }) => {
 
     try {
       const response = await fetch(`/api/tools?userId=${userId}`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
+
       setWidgetOptions(filteredTools);
     } catch (error) {
       console.error('Error fetching widget tools:', error);
@@ -57,10 +62,12 @@ export const WidgetSelectionModal: FC<any> = ({ className, session }) => {
   const handleAddWidget = () => {
     if (selectedWidget) {
       const widgetToAdd = widgetOptions.find(widget => widget._id === selectedWidget);
+
       if (widgetToAdd) {
         const sizes = ['small', 'medium', 'large'];
         const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
         const widgetWithSize = { ...widgetToAdd, size: 'fit', index: widgetOptions?.length };
+
         addWidget(widgetWithSize);
         closeWidgetModal();
       }
@@ -70,7 +77,7 @@ export const WidgetSelectionModal: FC<any> = ({ className, session }) => {
   console.log('widgetOptions', widgetOptions);
 
   return (
-    <AugmentedPopup className="max-w-3xl" visible={isOpen} onClose={closeWidgetModal} textHeading="Select Widget">
+    <AugmentedPopup className="max-w-3xl" visible={isOpen} textHeading="Select Widget" onClose={closeWidgetModal}>
       <div className="flex max-h-[80vh] flex-col gap-5 overflow-y-auto p-8">
         <div className="w-full">
           {/* Replaced select with a list of clickable items */}

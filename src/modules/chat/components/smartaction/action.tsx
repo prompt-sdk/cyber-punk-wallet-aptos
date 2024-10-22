@@ -1,11 +1,14 @@
-'use client'
+'use client';
+
+import { generateText } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { Account } from '@aptos-labs/ts-sdk';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
 
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { Account } from '@aptos-labs/ts-sdk';
+
 import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
-import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai'
+
 export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
 
@@ -13,49 +16,53 @@ export const SmartAction = ({ props: data }: { props: any }) => {
     const aptosClient = getAptosClient();
 
     try {
-
       const txn = await aptosClient.transaction.build.simple({
         sender: account?.address.toString() as any,
         data: data
       });
+
       console.log(txn);
       console.log('\n=== Transfer transaction ===\n');
       const committedTxn = await aptosClient.signAndSubmitTransaction({
         signer: account as unknown as Account,
         transaction: txn
       });
+
       await aptosClient.waitForTransaction({ transactionHash: committedTxn.hash });
       console.log(`Committed transaction: ${committedTxn.hash}`);
     } catch (err) {
       console.error('Error', err);
     }
   };
-  return (
 
+  return (
     <>
-      <div className="flex flex-col gap-3 px-4 py-3">
-        <span>
-          Function :
-        </span>
+      <div className="flex flex-col gap-3 px-4 py-3 text-white">
+        <span>Function : {data.function}</span>
         <p>
-          {JSON.stringify(data)}
+          {JSON.stringify(
+            data,
+            (key, value) => (typeof value === 'bigint' ? value.toString() : value) // return everything else unchanged
+          )}
         </p>
 
         <div
-          onClick={onTransfer}
           style={{ borderImageSource: `url("${ProfileBtnFrame.src}")` }}
-          className='px-11 py-1 w-full md:w-auto uppercase [border-image-slice:13_fill] [border-image-width:15px] flex items-center gap-1 justify-center cursor-pointer '>
+          className="flex w-full cursor-pointer items-center justify-center gap-1 px-11 py-1 uppercase [border-image-slice:13_fill] [border-image-width:15px] md:w-auto "
+          onClick={onTransfer}
+        >
           <i className="ico-send-right-icon" /> Excute
         </div>
       </div>
     </>
-
-  )
-}
+  );
+};
 export const SmartView = async ({ props: data }: { props: any }) => {
   const aptosClient = getAptosClient();
+
   aptosClient.view(data);
   const res = (await aptosClient.view(data))[0];
+
   console.log(res);
   const { text } = await generateText({
     model: openai('gpt-4o'),
@@ -64,12 +71,8 @@ export const SmartView = async ({ props: data }: { props: any }) => {
   });
 
   return (
-
     <>
-      <div className="flex flex-col gap-3 px-4 py-3">
-        {text}
-      </div>
+      <div className="flex flex-col gap-3 px-4 py-3">{text}</div>
     </>
-
-  )
-}
+  );
+};

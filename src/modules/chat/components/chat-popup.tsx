@@ -17,6 +17,7 @@ import axios from 'axios';
 type ChatPopupProps = ComponentBaseProps & {
   onClose?: () => void;
   inforAgent?: {
+    _id: Object;
     name: string;
     description: string;
     introMessage: string;
@@ -30,12 +31,13 @@ type ChatPopupProps = ComponentBaseProps & {
   refetch?: () => void;
 };
 
-const RecentChatItem: FC<{ item: { id?: string; title: string; description: string } }> = ({
-  item: { id, title, description }
+const RecentChatItem: FC<{ item: { id?: string; title: string; description: string }; agentId: string }> = ({
+  item: { id, title, description },
+  agentId
 }) => {
   return (
     <Link
-      href={`/chat?prompt=${description}`}
+      href={`/chat?prompt=${description}&agentId=${agentId}`}
       data-augmented-ui
       className={classNames(
         'border-none outline-none',
@@ -84,7 +86,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent, r
     const content = contentEditableRef.current?.innerHTML || '';
 
     if (content) {
-      router.push(`/chat?prompt=${content}`);
+      router.push(`/chat?prompt=${content}&agentId=${inforAgent?._id.toString()}`);
       clearContent();
     }
   };
@@ -163,11 +165,12 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent, r
 
             <Carousel opts={{ align: 'start', loop: true }} className={classNames('w-full')}>
               <CarouselContent>
-                {inforAgent?.messenge_template.map((item, index) => (
-                  <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
-                    <RecentChatItem item={item} />
-                  </CarouselItem>
-                ))}
+                {inforAgent?.messenge_template &&
+                  inforAgent?.messenge_template.map((item, index) => (
+                    <CarouselItem key={index} className="basis-1/2 md:basis-1/3">
+                      <RecentChatItem item={item} agentId={inforAgent._id.toString()} />
+                    </CarouselItem>
+                  ))}
               </CarouselContent>
             </Carousel>
           </div>

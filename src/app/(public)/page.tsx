@@ -1,4 +1,3 @@
-
 import { PageBaseProps } from '@/common/interfaces';
 
 import ClientOnly from '@/modules/auth-aptos/components/ClientOnly';
@@ -9,15 +8,12 @@ import { auth } from '@/modules/auth/constants/auth.config';
 
 type PageProps = PageBaseProps;
 export default async function HomePage(_pageProps: PageProps) {
+  const session: any = await auth();
 
-  const session: any = (await auth());
-
-  if (session) return <DashboardRoot session={session} />
+  if (session) return <DashboardRoot session={session} />;
   return (
     <ClientOnly>
       <LoginRoot />
     </ClientOnly>
-  )
-
-
+  );
 }

@@ -1,34 +1,29 @@
 import type { NextAuthConfig } from 'next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { kv } from '@vercel/kv';
+import { User } from 'next-auth/types';
 import { z } from 'zod';
-
-interface User {
-  id: string;
-  username: string;
-  password: string;
-}
-
-// Add this function to generate a unique ID
+import { kv } from '@vercel/kv';
 
 export const authConfig = {
   pages: {
     signIn: '/login'
   },
   callbacks: {
-    async jwt({ token, user }: { token: any; user: any }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
       }
+
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
       }
+
       return session;
     }
   },
@@ -37,6 +32,7 @@ export const authConfig = {
 } satisfies NextAuthConfig;
 async function getUser(username: string): Promise<User | null> {
   const user = await kv.hgetall(`user:${username}`);
+
   return user as User | null;
 }
 
@@ -51,32 +47,38 @@ export const authOptions = {
             password: z.string().min(6)
           })
           .safeParse(credentials);
+
         if (parsedCredentials.success) {
           const { username, password } = parsedCredentials.data;
           const user = await getUser(username);
 
           if (!user) {
             console.log('User not found');
+
             return null;
           }
 
           // Decode the stored password and compare
           const decodedPassword = user.password;
           const isPasswordValid = password === decodedPassword;
+
           if (!isPasswordValid) {
             console.log('password', password);
 
             console.log('decodedPassword', decodedPassword);
             console.log('Invalid password');
+
             return null;
           }
 
           console.log('Authentication successful');
+
           return {
             id: user.id,
             username: user.username
-          } as any;
+          } as User;
         }
+
         return null;
       }
     })

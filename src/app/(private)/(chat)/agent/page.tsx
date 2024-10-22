@@ -1,4 +1,3 @@
-
 import { PageBaseProps } from '@/common/interfaces';
 
 import AgentRoot from '@/modules/agent/components/agent-root';

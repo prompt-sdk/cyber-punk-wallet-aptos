@@ -1,21 +1,23 @@
 'use client';
 
-import { FC, useState, useCallback, useEffect } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
+import axios from 'axios';
 import classNames from 'classnames';
-import { ComponentBaseProps } from '@/common/interfaces';
-import { Button } from '@/components/ui/button';
+import { useForm } from 'react-hook-form';
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+
+import { useToast } from '@/hooks/use-toast';
+
+import BoderImage from '@/components/common/border-image';
+import MultiSelectTools from '@/components/common/multi-select';
+import MultiSelectWidgets from '@/components/common/multi-select-widget';
+import { Textarea } from '@/components/ui/textarea';
+
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import FormTextField from '@/modules/form/components/form-text-field';
-import { useForm } from 'react-hook-form';
-import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea';
-import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import MultiSelectWidgets from '@/components/common/multi-select-widget';
-import axios from 'axios';
-import MultiSelectTools from '@/components/common/multi-select';
-import CustomButton from '@/libs/svg-icons/input/custom-button';
-import Link from 'next/link';
-import BoderImage from '@/components/common/border-image';
+
 import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 import DashboardAvatar from '@/modules/dashboard/components/dashboard-avatar';
 
@@ -29,7 +31,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const [agents, setAgents] = useState<any[]>([]);
   const [isOpenCreateAgent, setIsOpenCreateAgent] = useState<boolean>(false);
   const { toast } = useToast();
-  const [isLoadingWidget, setIsLoadingWidget] = useState(false);
+  const [isLoadingWidget] = useState(false);
   const [widgetPrompt, setWidgetPrompt] = useState('');
   const [avatar, setAvatar] = useState<string>('');
 
@@ -62,6 +64,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
       const userId: any = accountAddress;
       const response = await axios.get(`/api/tools?userId=${userId}`);
       const contractTools = response.data.filter((tool: any) => tool.type === 'contractTool');
+
       setTools(contractTools);
       //console.log('contractTools', contractTools);
     } catch (error) {
@@ -78,11 +81,13 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     try {
       const userId = accountAddress;
       const response = await fetch(`/api/tools?userId=${userId}`);
+
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
       }
       const data = await response.json();
       const filteredTools = data.filter((tool: any) => tool.type === 'widgetTool');
+
       setWidgets(filteredTools);
     } catch (error) {
       console.error('Error fetching widget tools:', error);
@@ -106,6 +111,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   }) => {
     try {
       const response = await axios.post('/api/agent', agentData);
+
       return response.data;
     } catch (error) {
       console.error('Error creating agent:', error);
@@ -138,6 +144,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
       };
       //@ts-ignore
       const createdAgent = await createAgentAPI(agentData);
+
       setAgents([...agents, createdAgent]);
       setIsOpenCreateAgent(false);
       agentForm.reset();
@@ -168,6 +175,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
 
   const isValid = useCallback(() => {
     const { name, description, introMessage } = agentForm.getValues();
+
     return name.trim() !== '' && description.trim() !== '' && introMessage.trim() !== '';
   }, [agentForm]);
 
@@ -177,8 +185,10 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     setIsLoadingAgents(true);
     try {
       const userId = accountAddress;
+
       if (userId) {
         const response = await axios.get(`/api/agent?userId=${userId}`);
+
         setAgents(response.data);
       }
     } catch (error) {
@@ -201,6 +211,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     if (chatTemplates.length < 4) {
       // Check if the current count is less than 4
       const newTemplate = { title: '', description: '', content: '' };
+
       setChatTemplates([...chatTemplates, newTemplate]);
     } else {
       toast({
@@ -214,6 +225,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   // Function to remove a chat template
   const handleRemoveChatTemplate = (index: number) => {
     const updatedTemplates = chatTemplates.filter((_, i) => i !== index);
+
     setChatTemplates(updatedTemplates);
     chatTemplateForm.setValue('templates', updatedTemplates);
   };
@@ -232,7 +244,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   //console.log('chatTemplates', chatTemplateForm.getValues());
 
   return (
-    <div className={classNames('flex w-full grow py-4', className)}>
+    <div className={classNames('scrollbar flex w-full grow overflow-hidden py-4', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Agents</h1>
         <div className="flex w-full justify-end">
@@ -243,9 +255,9 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         {isLoadingAgents ? (
           <div className="text-center">Loading agents...</div>
         ) : agents.length > 0 ? (
-          <div className="grid w-full grid-cols-3 gap-4">
+          <div className="grid w-full grid-cols-3 gap-4 ">
             {agents.map((agent: any) => (
-              <Link href={`/chat?agentId=${agent._id.toString()}`} key={agent._id}>
+              <Link key={agent._id} href={`/chat?agentId=${agent._id.toString()}`}>
                 <BoderImage
                   imageBoder={WidgetFrame2.src} // Use your desired border image URL
                   className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
@@ -259,7 +271,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         ) : (
           <div className="text-center">No agents found. Create your first agent!</div>
         )}
-        <AugmentedPopup visible={isOpenCreateAgent} onClose={handleCloseCreateAgent} textHeading={'Create Agent'}>
+        <AugmentedPopup visible={isOpenCreateAgent} textHeading={'Create Agent'} onClose={handleCloseCreateAgent}>
           <form className="flex max-h-[80vh] flex-col gap-2 overflow-y-auto p-8">
             <div className="mb-4 flex flex-col gap-3">
               <label className="text-xs text-white lg:text-[18px]">Upload Avatar</label>
@@ -285,10 +297,10 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
               <MultiSelectTools
                 tools={tools || []}
                 selectedTools={agentForm.watch('tools') || []}
+                isLoading={isLoading}
                 onChangeSelectedTools={(selectedTools: any) => {
                   agentForm.setValue('tools', selectedTools);
                 }}
-                isLoading={isLoading}
               />
             </div>
             <div className="mb-4 flex flex-col gap-3">
@@ -298,10 +310,10 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
               <MultiSelectWidgets
                 widgets={widgets || []}
                 selectedWidgets={agentForm.watch('widget') || []}
+                isLoading={isLoadingWidget}
                 onChangeSelectedWidgets={(selectedWidgets: any) => {
                   agentForm.setValue('widget', selectedWidgets);
                 }}
-                isLoading={isLoadingWidget}
               />
             </div>
             <div className="mb-4 flex flex-col gap-3">
@@ -310,10 +322,10 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
               </label>
               <Textarea
                 value={agentForm.watch('prompt')}
-                onChange={e => agentForm.setValue('prompt', e.target.value)}
                 placeholder={'Enter prompt'}
                 rows={4}
                 className="min-h-[120px]"
+                onChange={e => agentForm.setValue('prompt', e.target.value)}
               />
             </div>
             <div className="mb-5 flex flex-col">
@@ -338,7 +350,6 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
                     name={`templates.${index}.description`} // Updated to use dynamic field names
                     label="Description chat template"
                     value={chatTemplateForm.getValues(`templates.${index}.description`)} // Get value from form state
-                    //@ts-ignore
                     onChange={e => chatTemplateForm.setValue(`templates.${index}.description`, e.target.value)} // Update value on change
                   />
                   <FormTextField
@@ -349,13 +360,13 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
                     //@ts-ignore
                     onChange={e => chatTemplateForm.setValue(`templates.${index}.content`, e.target.value)} // Update value on change
                   />
-                  <CustomButton onClick={() => handleRemoveChatTemplate(index)} className="text-red-500">
+                  <CustomButton className="text-red-500" onClick={() => handleRemoveChatTemplate(index)}>
                     Remove
                   </CustomButton>
                 </form>
               ))}
             </div>
-            <CustomButton onClick={agentForm.handleSubmit(handleCreateAgent)} disabled={!isValid()}>
+            <CustomButton disabled={!isValid()} onClick={agentForm.handleSubmit(handleCreateAgent)}>
               <span className="text-sm font-semibold">Create Agent</span>
             </CustomButton>
           </form>
