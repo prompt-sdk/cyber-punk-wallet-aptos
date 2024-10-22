@@ -443,9 +443,9 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
                     ? [{ value: '', label: 'Loading packages...' }]
                     : moduleData && moduleData.length > 0
                       ? [
-                        { value: '', label: 'Choose package' },
-                        ...moduleData.map((item: any) => ({ value: item.name, label: item.name }))
-                      ]
+                          { value: '', label: 'Choose package' },
+                          ...moduleData.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
                       : [{ value: '', label: 'No packages available' }]
                 }
                 onSelect={selectedOption => {
@@ -464,9 +464,9 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
                     ? [{ value: '', label: 'Loading modules...' }]
                     : functions && functions.length > 0
                       ? [
-                        { value: '', label: 'Choose module' },
-                        ...functions.map((item: any) => ({ value: item.name, label: item.name }))
-                      ]
+                          { value: '', label: 'Choose module' },
+                          ...functions.map((item: any) => ({ value: item.name, label: item.name }))
+                        ]
                       : [{ value: '', label: 'No modules available' }]
                 }
                 onSelect={selectedOption => {
