@@ -12,6 +12,7 @@ import { insertNewParagraph } from '../utils/chat-promt-bot.util';
 import DashboardAvatar from '@/modules/dashboard/components/dashboard-avatar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 type ChatPopupProps = ComponentBaseProps & {
   onClose?: () => void;
@@ -26,6 +27,7 @@ type ChatPopupProps = ComponentBaseProps & {
       content: string;
     }[];
   };
+  refetch?: () => void;
 };
 
 const RecentChatItem: FC<{ item: { id?: string; title: string; description: string } }> = ({
@@ -49,32 +51,10 @@ const RecentChatItem: FC<{ item: { id?: string; title: string; description: stri
   );
 };
 
-const RECENT_CHATS = [
-  {
-    id: '1',
-    title: 'Swap USDC',
-    description: 'For APT'
-  },
-  {
-    id: '2',
-    title: 'Swap USDC',
-    description: 'For APT'
-  },
-  {
-    id: '3',
-    title: 'Swap USDC',
-    description: 'For APT'
-  },
-  {
-    id: '4',
-    title: 'Swap USDC',
-    description: 'For APT'
-  }
-];
-
-const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent }) => {
+const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent, refetch }) => {
   const contentEditableRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
+  const [avatar, setAvatar] = useState(inforAgent?.avatar);
   const [isEmpty, setIsEmpty] = useState(true);
 
   const clearContent = () => {
@@ -109,6 +89,45 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
     }
   };
 
+  // const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = async () => {
+  //       // Update the avatar URL in the inforAgent state
+  //       if (inforAgent) {
+  //         setAvatar(reader.result as string); // Update the avatar with the new image
+  //         const data = {
+  //           ...inforAgent,
+  //           avatar: reader.result as string
+  //         };
+  //         //@ts-ignore
+  //         await createAgentAPI(data);
+  //         refetch?.();
+  //       }
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // const createAgentAPI = async (agentData: {
+  //   name: string;
+  //   description: string;
+  //   introMessage: string;
+  //   tools: string[];
+  //   widget: string[];
+  //   prompt: string;
+  //   user_id: string;
+  // }) => {
+  //   try {
+  //     const response = await axios.put('/api/agent', agentData);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error creating agent:', error);
+  //     throw error;
+  //   }
+  // };
+
   return (
     <AugmentedPopup
       className="max-w-3xl"
@@ -132,7 +151,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent })
           className="absolute bottom-4 left-3"
         />
         <div className="absolute left-6 top-2 flex flex-row items-center gap-2">
-          <DashboardAvatar imageUrl={inforAgent?.avatar} />
+        <DashboardAvatar imageUrl={avatar} />
           <div className="flex flex-col gap-1">
             <p className="text-lg font-semibold text-white">{inforAgent?.name}</p>
             <p className="text-[#9CA3AF]">{inforAgent?.description}</p>

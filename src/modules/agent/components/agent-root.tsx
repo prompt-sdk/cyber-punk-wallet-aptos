@@ -17,6 +17,7 @@ import CustomButton from '@/libs/svg-icons/input/custom-button';
 import Link from 'next/link';
 import BoderImage from '@/components/common/border-image';
 import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
+import DashboardAvatar from '@/modules/dashboard/components/dashboard-avatar';
 
 type ChatTemplate = {
   title: string;
@@ -30,6 +31,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const { toast } = useToast();
   const [isLoadingWidget, setIsLoadingWidget] = useState(false);
   const [widgetPrompt, setWidgetPrompt] = useState('');
+  const [avatar, setAvatar] = useState<string>('');
 
   const [tools, setTools] = useState<any[]>([]);
   const [widgets, setWidgets] = useState<any[]>([]);
@@ -38,6 +40,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   const { account } = useWallet();
   const agentForm = useForm({
     defaultValues: {
+      avatar: '',
       name: '',
       description: '',
       introMessage: '',
@@ -111,6 +114,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
   };
 
   const handleCreateAgent = async (data: {
+    avatar: string;
     name: string;
     description: string;
     introMessage: string;
@@ -122,13 +126,13 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     try {
       const userId = accountAddress;
       const agentData = {
+        avatar: avatar || '/logo_aptos.png',
         name: data.name,
         description: data.description,
         introMessage: data.introMessage,
         tool_ids: data.tools,
         widget_ids: data.widget,
         prompt: data.prompt,
-        avatar: '/logo_aptos.png',
         messenge_template: chatTemplateForm.getValues('templates'),
         user_id: userId
       };
@@ -159,6 +163,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     chatTemplateForm.reset(); // Reset chat template form
     setWidgetPrompt('');
     setChatTemplates([]); // Clear chat templates state
+    setAvatar('');
   }, [agentForm, chatTemplateForm]);
 
   const isValid = useCallback(() => {
@@ -213,6 +218,17 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     chatTemplateForm.setValue('templates', updatedTemplates);
   };
 
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        setAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   //console.log('chatTemplates', chatTemplateForm.getValues());
 
   return (
@@ -245,6 +261,20 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         )}
         <AugmentedPopup visible={isOpenCreateAgent} onClose={handleCloseCreateAgent} textHeading={'Create Agent'}>
           <form className="flex max-h-[80vh] flex-col gap-2 overflow-y-auto p-8">
+            <div className="mb-4 flex flex-col gap-3">
+              <label className="text-xs text-white lg:text-[18px]">Upload Avatar</label>
+              <div onClick={() => document.getElementById('avatar-input')?.click()}>
+                <DashboardAvatar imageUrl={avatar || '/logo_aptos.png'} />
+              </div>
+              <input
+                type="file"
+                id="avatar-input"
+                name="avatar"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                style={{ display: 'none' }} // Hide the file input
+              />
+            </div>
             <FormTextField form={agentForm} name="name" label="Name" />
             <FormTextField form={agentForm} name="description" label="Description" />
             <FormTextField form={agentForm} name="introMessage" label="Intro Message" />

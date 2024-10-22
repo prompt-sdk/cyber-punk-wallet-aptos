@@ -1,26 +1,28 @@
-'use client'
+'use client';
 
-import { clearChats, getChats } from '@/libs/chat/chat.actions'
-import { ClearHistory } from './clear-history'
-import { SidebarItems } from './sidebar-items'
-import SelectPage from './select-page'
-import { redirect } from 'next/navigation'
-import { cache } from 'react'
+import { clearChats, getChats } from '@/libs/chat/chat.actions';
+import { ClearHistory } from './clear-history';
+import { SidebarItems } from './sidebar-items';
+import SelectPage from './select-page';
+import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
 interface SidebarListProps {
-  userId?: string
-  children?: React.ReactNode
+  userId?: string;
+  children?: React.ReactNode;
 }
 
 const loadChats = cache(async (userId?: string) => {
-  return await getChats(userId)
-})
+  return await getChats(userId);
+});
 
 export async function SidebarList({ userId }: SidebarListProps) {
-  const chats = await loadChats(userId)
+  const chats = await loadChats(userId);
+
+  //console.log(chats, 'chats');
 
   if (!chats || 'error' in chats) {
-    redirect('/')
+    redirect('/');
   } else {
     return (
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -40,6 +42,6 @@ export async function SidebarList({ userId }: SidebarListProps) {
           <ClearHistory clearChats={clearChats} isEnabled={chats?.length > 0} />
         </div>
       </div>
-    )
+    );
   }
 }

@@ -45,7 +45,7 @@ const MultiSelectTools: React.FC<MultiSelectToolsProps> = ({
   return (
     <div className="relative">
       <CustomButton
-        className="flex max-h-[52px] cursor-pointer items-center justify-between rounded-md p-2 text-white"
+        className="flex min-h-[52px] cursor-pointer items-center justify-between rounded-md p-2 text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex flex-wrap gap-1">

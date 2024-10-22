@@ -269,7 +269,12 @@ const DashboardWidget: FC<any> = ({ className, session }) => {
         </div>
       </div>
       {selectedAgent && (
-        <ChatPopup visible={isOpenModal} onClose={() => setIsOpenModal(false)} inforAgent={selectedAgent} />
+        <ChatPopup
+          visible={isOpenModal}
+          refetch={fetchAgents}
+          onClose={() => setIsOpenModal(false)}
+          inforAgent={selectedAgent}
+        />
       )}
     </BoderImage>
   );
