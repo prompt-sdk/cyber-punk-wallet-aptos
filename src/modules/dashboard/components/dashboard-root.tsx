@@ -19,19 +19,21 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className, session }) => {
   const { connected: hasConnected, account } = useWallet();
   const [isConnected, setIsConnected] = useState(false);
 
-  const handle = async (handleAccount: AccountInfo) => {
+  const handle = async (handleAccount: AccountInfo | null) => {
     if (handleAccount?.address == session?.user.username) {
       setIsConnected(true);
     } else {
       await signOut();
     }
   };
-  const disconnect = async () => {
-    await signOut();
-  }
+
+  // const disconnect = async () => {
+  //   await signOut();
+  // };
+
   useEffect(() => {
     if (hasConnected) {
-      handle(account as any);
+      handle(account);
     }
   }, [hasConnected]);
 
