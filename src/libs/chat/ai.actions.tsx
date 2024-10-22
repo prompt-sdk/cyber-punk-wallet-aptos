@@ -131,7 +131,9 @@ async function submitUserMessage(content: string) {
               </BotCard>
             )
           }
+          console.log(item.tool)
           if (item.tool.type == 'view') {
+            console.log('testtest')
             yield (
               <BotCard name={agent.name}>
                 <SmartActionSkeleton />
@@ -183,8 +185,12 @@ async function submitUserMessage(content: string) {
                 }
               ]
             })
-
-            return
+            console.log('12312')
+            return (
+              <BotCard name={agent.name}>
+                <SmartView props={data} />
+              </BotCard>
+            )
           }
         }
       };
@@ -195,7 +201,7 @@ async function submitUserMessage(content: string) {
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
-    system: `You are  ${agent?.name || 'Helpful assistant '}` + '\n\n' + agent?.prompt || '',
+    system: `You name is  ${agent?.name || "Smart AI"}` + '\n\n' + agent?.prompt || '',
     messages: [
       ...aiState.get().messages.map((message: any) => ({
         role: message.role,

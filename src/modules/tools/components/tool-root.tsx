@@ -295,7 +295,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
           }, {}),
           generic_type_params: sourceData[funcName].generic_type_params || [],
           return: sourceData[funcName].return || [],
-          type: selectedFunction?.is_entry ? 'entry' : sourceData[funcName].type || '',
+          type: selectedFunction?.is_entry ? 'entry' : selectedFunction?.is_view ? 'view' : '',
           functions: funcName,
           address: form.getValues('address')
         },

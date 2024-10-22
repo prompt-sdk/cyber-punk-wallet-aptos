@@ -60,9 +60,9 @@ export const SmartAction = ({ props: data }: { props: any }) => {
 export const SmartView = async ({ props: data }: { props: any }) => {
   const aptosClient = getAptosClient();
 
-  aptosClient.view(data);
+  console.log(data)
   const res = (await aptosClient.view(data))[0];
-
+  console.log(res);
   console.log(res);
   const { text } = await generateText({
     model: openai('gpt-4o'),
