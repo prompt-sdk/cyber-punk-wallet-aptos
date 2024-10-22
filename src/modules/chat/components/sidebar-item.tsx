@@ -55,14 +55,13 @@ export function SidebarItem({ index, chat }: SidebarItemProps) {
 
       setIsOpen(false);
       router.refresh();
-      router.push('/');
       toast.success('Chat deleted');
     });
   };
 
   return (
     <Link href={chat.path} className={'flex h-20 w-full items-center'}>
-      <div className=" h-30 left-2 top-1 flex size-6 items-center justify-center">
+      {/* <div className=" h-30 left-2 top-1 flex size-6 items-center justify-center">
         {chat.sharePath ? (
           <Tooltip delayDuration={1000}>
             <TooltipTrigger tabIndex={-1} className="focus:bg-muted focus:ring-1 focus:ring-ring">
@@ -73,7 +72,7 @@ export function SidebarItem({ index, chat }: SidebarItemProps) {
         ) : (
           <IconMessage className="mr-2 mt-1 text-zinc-500" />
         )}
-      </div>
+      </div> */}
       <div className="relative max-h-5 flex-1 select-none overflow-hidden text-ellipsis break-all" title={chat.title}>
         <span className="whitespace-nowrap">
           {shouldAnimate ? (
