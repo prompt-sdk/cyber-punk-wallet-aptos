@@ -67,6 +67,7 @@ async function submitUserMessage(content: string) {
     return z.string().describe(describe)
   }
 
+  console.log(content)
   const tools = dataTools.reduce((tool: any, item: any) => {
 
     if (item.type == 'contractTool') {
@@ -152,11 +153,11 @@ async function submitUserMessage(content: string) {
             const res = await aptosClient.view({ payload: data });
 
             item.tool.return = res;
-            console.log(item);
+
             const { text } = await generateText({
               model: openai('gpt-4o'),
               system: `
-        When I give data below:    
+        When User ask : balance of address and you have data below:    
             {
         _id: {id_tool},
   "name": "{data_name}",
@@ -179,25 +180,10 @@ async function submitUserMessage(content: string) {
     "address": "{contract_address}"
   }
 }
-Explanation:
-_id :The unique identifier for the tool
-name: The unique identifier for the tool or contract function.
-type: The category of tool, e.g., contractTool.
-tool:
-name: The function's name within the contract or tool.
-description: A detailed explanation of the function's behavior.
-params: Specifies parameters such as owner (or any other required input).
-type: Type of the parameter (e.g., address, integer).
-description: Explains what the parameter represents.
-generic_type_params: Optional; lists specific types like coin types if applicable.
-return: Describes the return value (for example, a balance).
-type: The type of function (view, transaction, etc.).
-functions: The exact function name.
-address: The contract address.
 
 Answear will like:  balance is 0
 `,
-              prompt: JSON.stringify(item.tool)
+              prompt: ` ${content}  ${JSON.stringify(item.tool)}`
             });
 
             const toolCallId = nanoid()
