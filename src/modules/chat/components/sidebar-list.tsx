@@ -19,6 +19,8 @@ const loadChats = cache(async (userId?: string) => {
 export async function SidebarList({ userId }: SidebarListProps) {
   const chats = await loadChats(userId);
 
+  //console.log(chats, 'chats');
+
   if (!chats || 'error' in chats) {
     redirect('/');
   } else {

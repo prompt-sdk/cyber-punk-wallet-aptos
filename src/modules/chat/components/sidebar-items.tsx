@@ -27,12 +27,11 @@ export function SidebarItems({ chats }: SidebarItemsProps) {
                 height: 0
               }}
             >
-              <SidebarItem index={index} chat={chat}>
-                <SidebarActions chat={chat} removeChat={removeChat} shareChat={shareChat} />
-              </SidebarItem>
+              <SidebarItem index={index} chat={chat} />
             </motion.div>
           )
       )}
     </AnimatePresence>
   );
 }
+//<SidebarActions chat={chat} removeChat={removeChat} shareChat={shareChat} />

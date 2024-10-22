@@ -75,7 +75,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             moveNote={moveNote}
             size={widget.size || 'medium'}
             isSelected={selectedWidgetId === widget._id}
-            onClick={() => handleWidgetClick(widget._id, widget.tool?.code)}
+            onClick={() => handleWidgetClick(widget._id)}
             onDelete={handleClickDelete}
           >
             {widget.type === 'image' ? (

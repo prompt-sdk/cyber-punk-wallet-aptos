@@ -22,6 +22,7 @@ import {
 } from '@aptos-labs/wallet-adapter-react';
 import { ArrowLeft, ArrowRight, ChevronDown, Copy, LogOut, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
 
 export function WalletSelector() {
   const router = useRouter();
@@ -83,7 +84,7 @@ export function WalletSelector() {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>{isLoading ? 'Loading' : 'Connect a Wallet'}</Button>
+        <CustomButton>{isLoading ? 'Loading' : 'Connect a Wallet'}</CustomButton>
       </DialogTrigger>
       <ConnectWalletDialog close={closeDialog} />
     </Dialog>

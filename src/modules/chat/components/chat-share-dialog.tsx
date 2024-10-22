@@ -6,16 +6,12 @@ import { toast } from 'sonner';
 
 import { ServerActionResult, type Chat } from 'types/chat';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog';
 import { IconSpinner } from '@/components/ui/icons';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
+import CustomButton from '@/libs/svg-icons/input/custom-button';
+import BorderImage from '@/components/common/border-image';
+import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 
 interface ChatShareDialogProps extends DialogProps {
   chat: Pick<Chat, 'id' | 'title' | 'messages'>;
@@ -43,18 +39,17 @@ export function ChatShareDialog({ chat, shareChat, onCopy, ...props }: ChatShare
   );
 
   return (
-    <Dialog {...props}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Share link to chat</DialogTitle>
-          <DialogDescription>Anyone with the URL will be able to view the shared chat.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-1 rounded-md border p-4 text-sm">
+    // @ts-ignore
+    <AugmentedPopup visible={props.open} textHeading="Share link to chat" onClose={props.onOpenChange}>
+      <div className="flex flex-col gap-4 p-6">
+        <h2 className="text-lg font-bold">Share link to chat</h2>
+        <p>Anyone with the URL will be able to view the shared chat.</p>
+        <BorderImage imageBoder={WidgetFrame2.src} className="space-y-1 p-4 text-sm">
           <div className="font-medium">{chat.title}</div>
           <div className="text-muted-foreground">{chat.messages.length} messages</div>
-        </div>
-        <DialogFooter className="items-center">
-          <Button
+        </BorderImage>
+        <div className="flex items-center justify-end">
+          <CustomButton
             disabled={isSharePending}
             onClick={() => {
               // @ts-ignore
@@ -78,9 +73,9 @@ export function ChatShareDialog({ chat, shareChat, onCopy, ...props }: ChatShare
             ) : (
               <>Copy link</>
             )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </CustomButton>
+        </div>
+      </div>
+    </AugmentedPopup>
   );
 }

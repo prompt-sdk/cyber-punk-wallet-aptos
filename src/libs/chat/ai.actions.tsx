@@ -94,11 +94,13 @@ async function submitUserMessage(content: string) {
             aiState.done({
               ...aiState.get(),
               messages: [
+                //@ts-ignore
                 ...aiState.get().messages,
                 {
                   id: nanoid(),
                   role: 'assistant',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
@@ -111,6 +113,7 @@ async function submitUserMessage(content: string) {
                   id: nanoid(),
                   role: 'tool',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-result',
                       toolName: item.type + '_' + item.tool.type,
@@ -150,11 +153,13 @@ async function submitUserMessage(content: string) {
             aiState.done({
               ...aiState.get(),
               messages: [
+                //@ts-ignore
                 ...aiState.get().messages,
                 {
                   id: nanoid(),
                   role: 'assistant',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
@@ -167,6 +172,7 @@ async function submitUserMessage(content: string) {
                   id: nanoid(),
                   role: 'tool',
                   content: [
+                    //@ts-ignore
                     {
                       type: 'tool-result',
                       toolName: item.type + item.tool.type,
