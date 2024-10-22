@@ -26,10 +26,14 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className, session }) => {
       await signOut();
     }
   };
-
+  const disconnect = async () => {
+    await signOut();
+  }
   useEffect(() => {
     if (hasConnected && account) {
       handle(account);
+    } else {
+      disconnect()
     }
   }, [account, hasConnected]);
 

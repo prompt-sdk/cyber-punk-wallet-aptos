@@ -67,7 +67,6 @@ async function submitUserMessage(content: string) {
     return z.string().describe(describe)
   }
 
-  console.log(content)
   const tools = dataTools.reduce((tool: any, item: any) => {
 
     if (item.type == 'contractTool') {
@@ -228,6 +227,12 @@ Answear will like:  balance is 0
           }
         }
       };
+    }
+    if (item.type == 'widgetTool') {
+      console.log(item)
+      return <BotCard name={agent.name}>
+        <SmartView props={'123'} />
+      </BotCard>
     }
     return tool;
   }, {});
