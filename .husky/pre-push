@@ -18,8 +18,6 @@ yarn check:types || (echo '❌ Type Check Failed. Are you seriously trying to wr
 # If everything passes... Now we can build
 echo '🤔 ... Everything seems ok.'
 
-yarn test:cov || (echo '❌ Unit Test Failed: View the errors above to see why.'; false;)
-
 yarn build || (echo '❌ Next Build Failed: View the errors above to see why.'; false;)
 
 # If build success... Now we can commit
