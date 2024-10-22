@@ -157,7 +157,7 @@ async function submitUserMessage(content: string) {
             const { text } = await generateText({
               model: openai('gpt-4o'),
               system: `
-        When User ask : balance of address and you have data below:    
+        When User ask like this :" what is balance of address 0xd610d0aa100010f0819ea3b1071eda0524b60fb625580fa2d1398f2aad76f04c " and you have data below:    
             {
         _id: {id_tool},
   "name": "{data_name}",
