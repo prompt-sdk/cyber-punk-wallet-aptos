@@ -350,6 +350,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
                     name={`templates.${index}.description`} // Updated to use dynamic field names
                     label="Description chat template"
                     value={chatTemplateForm.getValues(`templates.${index}.description`)} // Get value from form state
+                    //@ts-ignore
                     onChange={e => chatTemplateForm.setValue(`templates.${index}.description`, e.target.value)} // Update value on change
                   />
                   <FormTextField
