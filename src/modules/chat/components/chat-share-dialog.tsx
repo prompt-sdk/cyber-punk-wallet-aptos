@@ -40,7 +40,7 @@ export function ChatShareDialog({ chat, shareChat, onCopy, ...props }: ChatShare
 
   return (
     // @ts-ignore
-    <AugmentedPopup visible={props.open} textHeading="Share link to chat" onClose={props.onOpenChange}>
+    <AugmentedPopup visible={props.open} textHeading="Share link to chat" onClose={() => props.onOpenChange(false)}>
       <div className="flex flex-col gap-4 p-6">
         <h2 className="text-lg font-bold">Share link to chat</h2>
         <p>Anyone with the URL will be able to view the shared chat.</p>

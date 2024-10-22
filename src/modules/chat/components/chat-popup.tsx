@@ -153,7 +153,7 @@ const ChatPopup: FC<ChatPopupProps> = ({ visible = false, onClose, inforAgent, r
           className="absolute bottom-4 left-3"
         />
         <div className="absolute left-6 top-2 flex flex-row items-center gap-2">
-        <DashboardAvatar imageUrl={avatar} />
+          <DashboardAvatar imageUrl={avatar || '/logo_aptos.png'} />
           <div className="flex flex-col gap-1">
             <p className="text-lg font-semibold text-white">{inforAgent?.name}</p>
             <p className="text-[#9CA3AF]">{inforAgent?.description}</p>

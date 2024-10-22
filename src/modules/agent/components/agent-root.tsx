@@ -127,7 +127,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
     tools: string[];
     widget: string[];
     prompt: string;
-    messenge_template: any[];
+    messenge_template: ChatTemplate[];
   }) => {
     try {
       const userId = accountAddress;
@@ -139,7 +139,9 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
         tool_ids: data.tools,
         widget_ids: data.widget,
         prompt: data.prompt,
-        messenge_template: chatTemplateForm.getValues('templates'),
+        messenge_template: chatTemplateForm.getValues('templates').some(template => template.title.length > 0)
+          ? chatTemplateForm.getValues('templates')
+          : [],
         user_id: userId
       };
       //@ts-ignore
