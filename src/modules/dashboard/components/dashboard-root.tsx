@@ -30,12 +30,10 @@ const DashboardRoot: FC<DashboardRootProps> = ({ className, session }) => {
     await signOut();
   }
   useEffect(() => {
-    if (hasConnected && account) {
-      handle(account);
-    } else {
-      disconnect()
+    if (hasConnected) {
+      handle(account as any);
     }
-  }, [account, hasConnected]);
+  }, [hasConnected]);
 
   return (
     <div className={classNames('flex w-full grow items-center justify-center py-4', className)}>
