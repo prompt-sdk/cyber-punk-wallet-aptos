@@ -17,14 +17,15 @@ import {
   sleep,
   nanoid
 } from '@/modules/chat/utils/utils'
-
+import { generateText } from 'ai';
 import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
 import { Chat, Message } from 'types/chat'
 import { auth } from '@/modules/auth/constants/auth.config';
 import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
+import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 
-
+const aptosClient = getAptosClient();
 
 async function submitUserMessage(content: string) {
   'use server'
@@ -50,6 +51,7 @@ async function submitUserMessage(content: string) {
   const tool_ids = agent.tool_ids
   const dataTools = await getTools(tool_ids);
   const zodExtract = (type: any, describe: any) => {
+
     if (type == 'u128') return z.number().describe(describe)
     if (type == 'u64') return z.number().describe(describe)
     if (type == 'u8') return z.number().describe(describe)
@@ -59,17 +61,22 @@ async function submitUserMessage(content: string) {
     if (type == 'vector<address>') return z.array(z.string()).describe(describe)
     if (type == 'vector<string::String>') return z.array(z.string()).describe(describe)
     if (type == '0x1::string::String') return z.array(z.string()).describe(describe)
-    if (type == 'generic') return null
+    if (type == 'generic') return
+    if (type == 'Type') return
+    if (type == 'TypeInfo') return
     return z.string().describe(describe)
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
 
     if (item.type == 'contractTool') {
-      const ParametersSchema = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
+      const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
         return acc;
       }, {})
+      const ParametersSchema: any = Object.fromEntries(
+        Object.entries(filteredObj).filter(([key, value]) => value !== undefined)
+      );
       type ParametersData = z.infer<typeof ParametersSchema>;
       tool[item._id.toString()] = {
         description: item.tool.description,
@@ -131,18 +138,9 @@ async function submitUserMessage(content: string) {
               </BotCard>
             )
           }
-          console.log(item.tool)
           if (item.tool.type == 'view') {
-            console.log('testtest')
-            yield (
-              <BotCard name={agent.name}>
-                <SmartActionSkeleton />
-              </BotCard>
-            )
 
-            await sleep(1000)
 
-            const toolCallId = nanoid()
             const data = {
               functionArguments: Object.values(ParametersData).map((item: any) =>
                 typeof item === 'number' ? BigInt(item * 10 ** 18) : item
@@ -151,6 +149,58 @@ async function submitUserMessage(content: string) {
               typeArguments: item.tool.generic_type_params
             }
 
+            const res = await aptosClient.view({ payload: data });
+
+            item.tool.return = res;
+            console.log(item);
+            const { text } = await generateText({
+              model: openai('gpt-4o'),
+              system: `
+        When I give data below:    
+            {
+        _id: {id_tool},
+  "name": "{data_name}",
+  "type": "{tool_type}",
+  "tool": {
+    "name": "{function_name}",
+    "description": "{function_description}",
+    "params": {
+      "{param_name}": {
+        "type": "{param_type}",
+        "description": "{param_description}"
+      }
+    },
+    "generic_type_params": [
+      "{generic_type_param}"
+    ],
+    "return": ["{return_value}"],
+    "type": "{type_of_call}",
+    "functions": "{function}",
+    "address": "{contract_address}"
+  }
+}
+Explanation:
+_id :The unique identifier for the tool
+name: The unique identifier for the tool or contract function.
+type: The category of tool, e.g., contractTool.
+tool:
+name: The function's name within the contract or tool.
+description: A detailed explanation of the function's behavior.
+params: Specifies parameters such as owner (or any other required input).
+type: Type of the parameter (e.g., address, integer).
+description: Explains what the parameter represents.
+generic_type_params: Optional; lists specific types like coin types if applicable.
+return: Describes the return value (for example, a balance).
+type: The type of function (view, transaction, etc.).
+functions: The exact function name.
+address: The contract address.
+
+Answear will like:  balance is 0
+`,
+              prompt: JSON.stringify(item.tool)
+            });
+
+            const toolCallId = nanoid()
 
             aiState.done({
               ...aiState.get(),
@@ -185,12 +235,10 @@ async function submitUserMessage(content: string) {
                 }
               ]
             })
-            console.log('12312')
-            return (
-              <BotCard name={agent.name}>
-                <SmartView props={data} />
-              </BotCard>
-            )
+
+            return <BotCard name={agent.name}>
+              <SmartView props={text} />
+            </BotCard>
           }
         }
       };

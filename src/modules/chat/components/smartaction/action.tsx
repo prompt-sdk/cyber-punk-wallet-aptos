@@ -8,6 +8,8 @@ import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 
 import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
+import react from '@mocks/next-auth/react';
+import React from 'react';
 
 export const SmartAction = ({ props: data }: { props: any }) => {
   const { account } = useWallet();
@@ -57,18 +59,23 @@ export const SmartAction = ({ props: data }: { props: any }) => {
     </>
   );
 };
-export const SmartView = async ({ props: data }: { props: any }) => {
-  const aptosClient = getAptosClient();
+export const SmartView = async ({ props: text }: { props: any }) => {
+  // const aptosClient = getAptosClient();
 
-  console.log(data)
-  const res = (await aptosClient.view(data))[0];
-  console.log(res);
-  console.log(res);
-  const { text } = await generateText({
-    model: openai('gpt-4o'),
-    system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
-    prompt: '0.4'
-  });
+  // React.useEffect(() => {
+  //   loadData()
+  // }, [])
+  // const loadData = async () => {
+  //   console.log("data", data)
+  //   const res = await aptosClient.view({ payload: data });
+  //   console.log(res);
+  // }
+
+  // // const { text } = await generateText({
+  // //   model: openai('gpt-4o'),
+  // //   system: `This function retrieves the balance of a specified owner for a given CoinType, including any paired fungible asset balance if it exists. It sums the balance of the coin and the balance of the fungible asset, providing a comprehensive view of the owner's total holdings`,
+  // //   prompt: '0.4'
+  // // });
 
   return (
     <>

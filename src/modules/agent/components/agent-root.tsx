@@ -299,6 +299,7 @@ const AgentRoot: FC<any> = ({ className, accountAddress }) => {
                 selectedTools={agentForm.watch('tools') || []}
                 isLoading={isLoading}
                 onChangeSelectedTools={(selectedTools: any) => {
+                  console.log(selectedTools);
                   agentForm.setValue('tools', selectedTools);
                 }}
               />
