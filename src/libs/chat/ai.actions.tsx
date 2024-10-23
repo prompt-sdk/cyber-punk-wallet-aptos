@@ -17,6 +17,8 @@ import {
   sleep,
   nanoid
 } from '@/modules/chat/utils/utils'
+import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
+
 import { generateText } from 'ai';
 import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
@@ -48,8 +50,10 @@ async function submitUserMessage(content: string) {
 
 
   const agent: any = await getAgentById(aiState.get().agentId)
-  const tool_ids = agent.tool_ids
+  const tool_ids = [...agent.tool_ids, ...agent.widget_ids]
+
   const dataTools = await getTools(tool_ids);
+
   const zodExtract = (type: any, describe: any) => {
 
     if (type == 'u128') return z.number().describe(describe)
@@ -225,18 +229,62 @@ Answear will like:  balance is 0
               <SmartView props={text} />
             </BotCard>
           }
+          console.log(item)
+
         }
       };
     }
+
     if (item.type == 'widgetTool') {
-      console.log(item)
-      return <BotCard name={agent.name}>
-        <SmartView props={'123'} />
-      </BotCard>
+      tool[item._id.toString()] = {
+        description: item.tool.description,
+        parameters: z.object({}),
+        generate: async function* () {
+          const toolCallId = nanoid()
+          aiState.done({
+            ...aiState.get(),
+            messages: [
+              //@ts-ignore
+              ...aiState.get().messages,
+              {
+                id: nanoid(),
+                role: 'assistant',
+                content: [
+                  //@ts-ignore
+                  {
+                    type: 'tool-call',
+                    toolName: item.type,
+                    toolCallId,
+                    args: {}
+                  }
+                ]
+              },
+              {
+                id: nanoid(),
+                role: 'tool',
+                content: [
+                  //@ts-ignore
+                  {
+                    type: 'tool-result',
+                    toolName: item.type,
+                    toolCallId,
+                    result: item.tool.code
+                  }
+                ]
+              }
+            ]
+          })
+          return <BotCard name={agent.name}>
+            <ViewFrame code={item.tool.code} />
+          </BotCard>
+        }
+      }
+      console.log(item.tool.code)
+
     }
     return tool;
   }, {});
-
+  console.log(tools)
   const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
@@ -357,6 +405,11 @@ export const getUIStateFromAIState = (aiState: Chat, agent: any) => {
               <BotCard name={agent.name}>
                 {/* TODO: Infer types based on the tool result*/}
                 <SmartView props={tool.result} />
+              </BotCard>
+            ) : tool.toolName === 'widgetTool' ? (
+              <BotCard name={agent.name}>
+                {/* TODO: Infer types based on the tool result*/}
+                <ViewFrame code={tool.result as string} />
               </BotCard>
             ) : null
           })
