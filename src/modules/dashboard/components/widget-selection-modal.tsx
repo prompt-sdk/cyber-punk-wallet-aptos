@@ -67,6 +67,7 @@ export const WidgetSelectionModal: FC<any> = ({ className, session }) => {
         const sizes = ['small', 'medium', 'large'];
         const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
         const widgetWithSize = { ...widgetToAdd, size: 'fit', index: widgetOptions?.length };
+
         //@ts-ignore
         addWidget(widgetWithSize);
         closeWidgetModal();

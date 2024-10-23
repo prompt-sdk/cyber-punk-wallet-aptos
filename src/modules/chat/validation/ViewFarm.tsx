@@ -1,8 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import StringToReactComponent from 'string-to-react-component';
 import { Aptos, AptosConfig, Network } from '@aptos-labs/ts-sdk';
-import { ErrorBoundary } from 'react-error-boundary';
 
 export const ViewFrame = ({ code }: { code: string }) => {
   const config = new AptosConfig({ network: Network.MAINNET });
@@ -10,12 +11,14 @@ export const ViewFrame = ({ code }: { code: string }) => {
 
   const truncateAddress = (address: string, startLength: number = 6, endLength: number = 4) => {
     if (address.length <= startLength + endLength) return address;
+
     return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
   };
 
   const truncateAddressesInCode = (code: string) => {
     // Regular expression to match Aptos-style addresses (0x followed by 64 hexadecimal characters)
     const addressRegex = /0x[a-fA-F0-9]{64}/g;
+
     return code.replace(addressRegex, match => truncateAddress(match));
   };
 
@@ -34,6 +37,7 @@ export const ViewFrame = ({ code }: { code: string }) => {
           return value;
         }
       };
+
       return getLastChildValue(data);
     }
   };
@@ -56,12 +60,14 @@ export const ViewFrameDashboard = ({ code, id }: { code: string; id: string }) =
 
   const truncateAddress = (address: string, startLength: number = 6, endLength: number = 4) => {
     if (address.length <= startLength + endLength) return address;
+
     return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
   };
 
   const truncateAddressesInCode = (code: string) => {
     // Regular expression to match Aptos-style addresses (0x followed by 64 hexadecimal characters)
     const addressRegex = /0x[a-fA-F0-9]{64}/g;
+
     return code.replace(addressRegex, match => truncateAddress(match));
   };
 
@@ -80,6 +86,7 @@ export const ViewFrameDashboard = ({ code, id }: { code: string; id: string }) =
           return value;
         }
       };
+
       return getLastChildValue(data);
     }
   };

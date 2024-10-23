@@ -11,17 +11,30 @@ interface IWidgetModalStore {
   closeWidgetModal: () => void;
   addWidget: (widget: Widget) => void;
   removeWidget: (widgetId: string) => void;
+  updateWidget: (widgetId: string, widget: Partial<Widget>) => void;
   moveWidget: (widgetId: number, newIndex: number) => void;
   addImageWidget: (imageData: string) => void;
 }
 
 export const useWidgetModal = create(
   persist<IWidgetModalStore>(
-    (set, get) => ({
+    set => ({
       isOpen: false,
       widgets: [],
       openWidgetModal: () => set({ isOpen: true }),
       closeWidgetModal: () => set({ isOpen: false }),
+      updateWidget: (widgetId, widget) =>
+        set(state => {
+          const updatedWidgets = state.widgets.map(w => {
+            if (w._id === widgetId) {
+              return { ...w, ...widget };
+            }
+
+            return w;
+          });
+
+          return { widgets: updatedWidgets };
+        }),
       addWidget: (widget: Widget) =>
         set((state: any) => {
           if (!state.widgets.some((w: any) => w._id === widget._id)) {
