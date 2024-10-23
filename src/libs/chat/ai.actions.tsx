@@ -8,6 +8,7 @@ import {
   createStreamableValue,
 
 } from 'ai/rsc'
+import { streamUIV2 } from './steamV2'
 import { openai } from '@ai-sdk/openai'
 import { getTools, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
@@ -19,7 +20,7 @@ import {
 } from '@/modules/chat/utils/utils'
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 
-import { generateText } from 'ai';
+import { generateText, tool, streamText } from 'ai';
 import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
 import { Chat, Message } from 'types/chat'
@@ -28,6 +29,8 @@ import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/ac
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 
 const aptosClient = getAptosClient();
+
+
 
 async function submitUserMessage(content: string) {
   'use server'
@@ -72,7 +75,19 @@ async function submitUserMessage(content: string) {
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
+    if (item.type == 'apiTool') {
+      tool[item._id.toString()] = {
+        description: "get address of token",
+        parameters: z.object({ nametoken: z.string().describe('name of token ') }),
+        generate: async function* ({ nametoken }: any) {
 
+          return {
+            data: "0x1::aptos_coin::AptosCoin"
+          }
+
+        }
+      }
+    }
     if (item.type == 'contractTool') {
       const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
@@ -84,8 +99,8 @@ async function submitUserMessage(content: string) {
       type ParametersData = z.infer<typeof ParametersSchema>;
       tool[item._id.toString()] = {
         description: item.tool.description,
-        parameters: z.object(ParametersSchema),
-        generate: async function* (ParametersData: ParametersData) {
+        parameters: z.object({ addressToken: z.string().describe('address of token format like 0x1::abc::de') }),
+        generate: async function* ({ addressToken }: any) {
           if (item.tool.type == 'entry') {
             yield (
               <BotCard name={agent.name}>
@@ -95,11 +110,9 @@ async function submitUserMessage(content: string) {
 
             await sleep(1000)
             const data = {
-              functionArguments: Object.values(ParametersData).map((item: any) =>
-                typeof item === 'number' ? BigInt(item * 10 ** 18) : item
-              ),
+              functionArguments: [],
               function: item.name,
-              typeArguments: item.tool.generic_type_params
+              typeArguments: [addressToken]
             }
             const toolCallId = nanoid()
             aiState.done({
@@ -116,7 +129,7 @@ async function submitUserMessage(content: string) {
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
                       toolCallId,
-                      args: ParametersData
+                      args: { addressToken }
                     }
                   ]
                 },
@@ -146,12 +159,11 @@ async function submitUserMessage(content: string) {
 
 
             const data = {
-              functionArguments: Object.values(ParametersData).map((item: any) =>
-                typeof item === 'number' ? BigInt(item * 10 ** 18) : item
-              ),
+              functionArguments: [],
               function: item.name,
-              typeArguments: item.tool.generic_type_params
+              typeArguments: [addressToken]
             }
+            console.log(data);
 
             const res = await aptosClient.view({ payload: data });
 
@@ -205,7 +217,7 @@ Answear will like:  balance is 0
                       type: 'tool-call',
                       toolName: item.type + item.tool.type,
                       toolCallId,
-                      args: ParametersData
+                      args: { addressToken }
                     }
                   ]
                 },
@@ -225,11 +237,13 @@ Answear will like:  balance is 0
               ]
             })
 
-            return <BotCard name={agent.name}>
-              <SmartView props={text} />
-            </BotCard>
+            return {
+              node:
+                <BotCard name={agent.name}>
+                  <SmartView props={text} />
+                </BotCard>
+            }
           }
-          console.log(item)
 
         }
       };
@@ -279,13 +293,11 @@ Answear will like:  balance is 0
           </BotCard>
         }
       }
-      console.log(item.tool.code)
-
     }
     return tool;
   }, {});
-  console.log(tools)
-  const result = await streamUI({
+
+  const result = await streamUIV2({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
     system: `You name is  ${agent?.name || "Smart AI"}` + '\n\n' + agent?.prompt || '',
@@ -296,7 +308,7 @@ Answear will like:  balance is 0
         name: message.name
       }))
     ],
-    text: ({ content, done, delta }) => {
+    text: ({ content, done, delta }: any) => {
 
       if (!textStream) {
         textStream = createStreamableValue('')
