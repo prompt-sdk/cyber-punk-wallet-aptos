@@ -66,14 +66,61 @@ async function submitUserMessage(content: string) {
     if (type == 'vector<address>') return z.array(z.string()).describe(describe)
     if (type == 'vector<string::String>') return z.array(z.string()).describe(describe)
     if (type == '0x1::string::String') return z.array(z.string()).describe(describe)
-    if (type == 'generic') return
-    if (type == 'Type') return
-    if (type == 'TypeInfo') return
+    if (type == 'generic') return z.string().describe(" address type like 0x1::ABC::XYZ")
+    if (type == 'Type') return z.string().describe(" address type like 0x1::ABC::XYZ")
+    if (type == 'TypeInfo') return z.string().describe(" address type like 0x1::ABC::XYZ")
     return z.string().describe(describe)
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
 
+    if (item.type == 'apiTool') {
+      // tool[item._id.toString()] = {
+      //   description: "get token address APT",
+      //   parameters: z.object({}),
+      //   generate: async function* () {
+      //     const toolCallId = nanoid()
+      //     aiState.done({
+      //       ...aiState.get(),
+      //       messages: [
+      //         //@ts-ignore
+      //         ...aiState.get().messages,
+      //         {
+      //           id: nanoid(),
+      //           role: 'assistant',
+      //           content: [
+      //             //@ts-ignore
+      //             {
+      //               type: 'tool-call',
+      //               toolName: item.type + item.tool.type,
+      //               toolCallId,
+      //               args: {}
+      //             }
+      //           ]
+      //         },
+      //         {
+      //           id: nanoid(),
+      //           role: 'tool',
+      //           content: [
+      //             //@ts-ignore
+      //             {
+      //               type: 'tool-result',
+      //               toolName: item.type + '_' + item.tool.type,
+      //               toolCallId,
+      //               result: "0x1::aptos_coin::AptosCoin"
+      //             }
+      //           ]
+      //         }
+      //       ]
+      //     })
+
+      //     return {
+      //       data: "0x1::aptos_coin::AptosCoin",
+      //       node: "hello"
+      //     }
+      //   }
+      // }
+    }
     if (item.type == 'contractTool') {
       const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
@@ -88,6 +135,9 @@ async function submitUserMessage(content: string) {
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
           if (item.tool.type == 'entry') {
+            // if has type '0x1::aptos_coin::AptosCoin'
+            // add to paramaeter
+            // 
             yield (
               <BotCard name={agent.name}>
                 <SmartActionSkeleton />
@@ -147,20 +197,58 @@ async function submitUserMessage(content: string) {
 
           }
           if (item.tool.type == 'view') {
+            const filteredObj = Object.entries(ParametersData)
+              .filter(([key, value]) => key !== "CoinType")
+              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
 
-            const data = {
-              functionArguments: Object.values(ParametersData).map((item: any) =>
+            const filteredObjCointype = Object.keys(ParametersData)
+              .filter(key => key === "CoinType")
+              .reduce((acc, key) => ({ ...acc, [key]: ParametersData[key] }), {});
+
+            const data: any = {
+              functionArguments: Object.values(filteredObj).map((item: any) =>
                 typeof item === 'number' ? BigInt(item * 10 ** 18) : item
               ),
               function: item.name,
-              typeArguments: item.tool.generic_type_params
+              typeArguments: Object.values(filteredObjCointype)
             }
 
             const res = await aptosClient.view({ payload: data });
 
             item.tool.return = res;
 
+            const { text } = await generateText({
+              model: openai('gpt-4o'),
+              system: `
+        When User ask like this :" what is balance of address 0xd610d0aa100010f0819ea3b1071eda0524b60fb625580fa2d1398f2aad76f04c " and you have data below:    
+            {
+        _id: {id_tool},
+  "name": "{data_name}",
+  "type": "{tool_type}",
+  "tool": {
+    "name": "{function_name}",
+    "description": "{function_description}",
+    "params": {
+      "{param_name}": {
+        "type": "{param_type}",
+        "description": "{param_description}"
+      }
+    },
+    "generic_type_params": [
+      "{generic_type_param}"
+    ],
+    "return": ["{return_value}"],
+    "type": "{type_of_call}",
+    "functions": "{function}",
+    "address": "{contract_address}"
+  }
+}
+
+Answear will like:  balance is 0
+`,
+              prompt: ` ${content}  ${JSON.stringify(item.tool)}`
+            });
 
             const toolCallId = nanoid()
 
@@ -191,15 +279,19 @@ async function submitUserMessage(content: string) {
                       type: 'tool-result',
                       toolName: item.type + item.tool.type,
                       toolCallId,
-                      result: '0'
+                      result: text
                     }
                   ]
                 }
               ]
             })
-
             return {
-              data: '0'
+              data: JSON.stringify(res),
+              node: (
+                <BotCard name={agent.name}>
+                  <SmartView props={text} />
+                </BotCard>
+              )
             }
           }
         }
