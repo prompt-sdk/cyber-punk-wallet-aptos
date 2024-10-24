@@ -8,6 +8,7 @@ import {
   createStreamableValue,
 
 } from 'ai/rsc'
+import { streamUIV2 } from './steamUIv2';
 import { openai } from '@ai-sdk/openai'
 import { getTools, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
@@ -65,14 +66,61 @@ async function submitUserMessage(content: string) {
     if (type == 'vector<address>') return z.array(z.string()).describe(describe)
     if (type == 'vector<string::String>') return z.array(z.string()).describe(describe)
     if (type == '0x1::string::String') return z.array(z.string()).describe(describe)
-    if (type == 'generic') return
-    if (type == 'Type') return
-    if (type == 'TypeInfo') return
+    if (type == 'generic') return z.string().describe(" address type like 0x1::ABC::XYZ")
+    if (type == 'Type') return z.string().describe(" address type like 0x1::ABC::XYZ")
+    if (type == 'TypeInfo') return z.string().describe(" address type like 0x1::ABC::XYZ")
     return z.string().describe(describe)
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
 
+    if (item.type == 'apiTool') {
+      // tool[item._id.toString()] = {
+      //   description: "get token address APT",
+      //   parameters: z.object({}),
+      //   generate: async function* () {
+      //     const toolCallId = nanoid()
+      //     aiState.done({
+      //       ...aiState.get(),
+      //       messages: [
+      //         //@ts-ignore
+      //         ...aiState.get().messages,
+      //         {
+      //           id: nanoid(),
+      //           role: 'assistant',
+      //           content: [
+      //             //@ts-ignore
+      //             {
+      //               type: 'tool-call',
+      //               toolName: item.type + item.tool.type,
+      //               toolCallId,
+      //               args: {}
+      //             }
+      //           ]
+      //         },
+      //         {
+      //           id: nanoid(),
+      //           role: 'tool',
+      //           content: [
+      //             //@ts-ignore
+      //             {
+      //               type: 'tool-result',
+      //               toolName: item.type + '_' + item.tool.type,
+      //               toolCallId,
+      //               result: "0x1::aptos_coin::AptosCoin"
+      //             }
+      //           ]
+      //         }
+      //       ]
+      //     })
+
+      //     return {
+      //       data: "0x1::aptos_coin::AptosCoin",
+      //       node: "hello"
+      //     }
+      //   }
+      // }
+    }
     if (item.type == 'contractTool') {
       const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
@@ -87,6 +135,9 @@ async function submitUserMessage(content: string) {
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
           if (item.tool.type == 'entry') {
+            // if has type '0x1::aptos_coin::AptosCoin'
+            // add to paramaeter
+            // 
             yield (
               <BotCard name={agent.name}>
                 <SmartActionSkeleton />
@@ -136,21 +187,31 @@ async function submitUserMessage(content: string) {
               ]
             })
 
-            return (
-              <BotCard name={agent.name}>
-                <SmartAction props={data} />
-              </BotCard>
-            )
+            return {
+              node: (
+                <BotCard name={agent.name}>
+                  <SmartAction props={data} />
+                </BotCard>
+              )
+            }
+
           }
           if (item.tool.type == 'view') {
+            const filteredObj = Object.entries(ParametersData)
+              .filter(([key, value]) => key !== "CoinType")
+              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
 
-            const data = {
-              functionArguments: Object.values(ParametersData).map((item: any) =>
+            const filteredObjCointype = Object.keys(ParametersData)
+              .filter(key => key === "CoinType")
+              .reduce((acc, key) => ({ ...acc, [key]: ParametersData[key] }), {});
+
+            const data: any = {
+              functionArguments: Object.values(filteredObj).map((item: any) =>
                 typeof item === 'number' ? BigInt(item * 10 ** 18) : item
               ),
               function: item.name,
-              typeArguments: item.tool.generic_type_params
+              typeArguments: Object.values(filteredObjCointype)
             }
 
             const res = await aptosClient.view({ payload: data });
@@ -218,19 +279,21 @@ Answear will like:  balance is 0
                       type: 'tool-result',
                       toolName: item.type + item.tool.type,
                       toolCallId,
-                      result: data
+                      result: text
                     }
                   ]
                 }
               ]
             })
-
-            return <BotCard name={agent.name}>
-              <SmartView props={text} />
-            </BotCard>
+            return {
+              data: JSON.stringify(res),
+              node: (
+                <BotCard name={agent.name}>
+                  <SmartView props={text} />
+                </BotCard>
+              )
+            }
           }
-          console.log(item)
-
         }
       };
     }
@@ -274,18 +337,20 @@ Answear will like:  balance is 0
               }
             ]
           })
-          return <BotCard name={agent.name}>
-            <ViewFrame code={item.tool.code} />
-          </BotCard>
+          return {
+            node: (
+              <BotCard name={agent.name}>
+                <ViewFrame code={item.tool.code} />
+              </BotCard>
+            )
+          }
         }
       }
-      console.log(item.tool.code)
 
     }
     return tool;
   }, {});
-  console.log(tools)
-  const result = await streamUI({
+  const result = await streamUIV2({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
     system: `You name is  ${agent?.name || "Smart AI"}` + '\n\n' + agent?.prompt || '',
