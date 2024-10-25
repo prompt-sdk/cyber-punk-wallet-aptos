@@ -72,7 +72,15 @@ async function submitUserMessage(content: string) {
   }
 
   const tools = dataTools.reduce((tool: any, item: any) => {
+    if (item.type == 'apiTool') {
+      tool[item._id.toString()] = {
+        description: item.tool.description,
 
+        generate: async function* () {
+          return submitUserMessage('0x1::aptos_coin::AptosCoin')
+        }
+      }
+    }
     if (item.type == 'contractTool') {
       const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
         acc[key] = key = zodExtract(item.tool.params[key].type, item.tool.params[key].description);
