@@ -178,7 +178,7 @@ async function submitUserMessage(content: string) {
 
           }
 
-          tool[tool.type + '_' + generateId()] = {
+          tool[item.type + '_' + generateId()] = {
             description: "get token address of APT",
             parameters,
             generate: async function* (payloadGeneratedByModel: any) {
@@ -339,6 +339,7 @@ Answear will like:  balance is 0
       return <BotMessage name={agent?.name} content={content as any}></BotMessage>
     },
     onSegment: (segment: any) => {
+      console.log(segment)
       if (segment.type === "tool-call") {
         // should Call twice ? , yeah
         const { args, toolName } = segment.toolCall;
