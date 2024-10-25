@@ -29,7 +29,7 @@ import { auth } from '@/modules/auth/constants/auth.config';
 import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 import { makeToolApiRequest } from '../tools/apiTool';
-import { ObjectId } from 'mongodb';
+
 const aptosClient = getAptosClient();
 
 async function submitUserMessage(content: string) {
@@ -145,9 +145,6 @@ async function submitUserMessage(content: string) {
               schemaRef = methodSchema.requestBody?.$ref
               parameters = {}
             }
-
-
-
           } else {
             parameters = methodSchema.parameters
             if (parameters) {
@@ -180,10 +177,9 @@ async function submitUserMessage(content: string) {
             }
 
           }
-          const tool_id = nanoid()
 
-          tool[tool_id] = {
-            description: description || "get pet by Id",
+          tool[item.type + '_' + generateId()] = {
+            description: "get token address of APT",
             parameters,
             generate: async function* (payloadGeneratedByModel: any) {
 
@@ -192,17 +188,11 @@ async function submitUserMessage(content: string) {
                   <SmartActionSkeleton />
                 </BotCard>
               )
+              sleep(1000)
               const accessToken = item.tool.accessToken
               const response = await makeToolApiRequest(accessToken, endpoint, payloadGeneratedByModel, method, typeRequest)
 
-              console.log('response', response)
-              const toolCallId = nanoid()
-
-
-              return {
-                data: JSON.stringify(response),
-                node: <SmartView props={JSON.stringify(response)} />
-              }
+              return <BotCard name={agent?.name}><SmartView props={JSON.stringify(response)} /></BotCard>
             }
           }
         }
@@ -221,7 +211,7 @@ async function submitUserMessage(content: string) {
         Object.entries(filteredObj).filter(([key, value]) => value !== undefined)
       );
       type ParametersData = z.infer<typeof ParametersSchema>;
-      tool[item._id.toString()] = {
+      tool[item.type + '_' + generateId()] = {
         description: item.tool.description,
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
@@ -241,7 +231,6 @@ async function submitUserMessage(content: string) {
               function: item.name,
               typeArguments: item.tool.generic_type_params
             }
-
 
             return <BotCard name={agent.name}>
               <SmartAction props={data} />
@@ -270,14 +259,14 @@ async function submitUserMessage(content: string) {
               function: item.name,
               typeArguments: Object.values(filteredObjCointype)
             }
+            try {
+              const res = await aptosClient.view({ payload: data });
 
-            const res = await aptosClient.view({ payload: data });
+              item.tool.return = res;
 
-            item.tool.return = res;
-
-            const { text } = await generateText({
-              model: openai('gpt-4o'),
-              system: `
+              const { text } = await generateText({
+                model: openai('gpt-4o'),
+                system: `
         When User ask like this :" what is balance of address 0xd610d0aa100010f0819ea3b1071eda0524b60fb625580fa2d1398f2aad76f04c " and you have data below:    
             {
         _id: {id_tool},
@@ -304,11 +293,16 @@ async function submitUserMessage(content: string) {
 
 Answear will like:  balance is 0
 `,
-              prompt: ` ${content}  ${JSON.stringify(item.tool)}`
-            });
-            return <BotCard name={agent.name}>
-              <SmartView props={text} />
-            </BotCard>
+                prompt: ` ${content}  ${JSON.stringify(item.tool)}`
+              });
+              return <BotCard name={agent.name}>
+                <SmartView props={text} />
+              </BotCard>
+            } catch (error: any) {
+              return <BotCard name={agent.name}>
+                <SmartView props={error.message} />
+              </BotCard>
+            }
 
           }
         }
@@ -316,18 +310,14 @@ Answear will like:  balance is 0
     }
 
     if (item.type == 'widgetTool') {
-      tool[item._id.toString()] = {
+      tool[item.type + '_' + generateId()] = {
         description: item.tool.description,
         parameters: z.object({}),
         generate: async function* () {
 
-          return {
-            node: (
-              <BotCard name={agent.name}>
-                <ViewFrame code={item.tool.code} />
-              </BotCard>
-            )
-          }
+          return <BotCard name={agent.name}>
+            <ViewFrame code={item.tool.code} />
+          </BotCard>
         }
       }
 
@@ -349,42 +339,47 @@ Answear will like:  balance is 0
       return <BotMessage name={agent?.name} content={content as any}></BotMessage>
     },
     onSegment: (segment: any) => {
+      console.log(segment)
       if (segment.type === "tool-call") {
+        // should Call twice ? , yeah
         const { args, toolName } = segment.toolCall;
+        console.log(segment.toolCall)
+        if (toolName.split("_")[0] == "apiTool") {
+          const toolCallId = generateId();
 
-        const toolCallId = generateId();
+          const toolCall = {
+            id: generateId(),
+            role: "assistant",
+            content: [
+              {
+                type: "tool-call",
+                toolName,
+                toolCallId,
+                args,
+              },
+            ],
+          } as ClientMessage;
 
-        const toolCall = {
-          id: generateId(),
-          role: "assistant",
-          content: [
-            {
-              type: "tool-call",
-              toolName,
-              toolCallId,
-              args,
-            },
-          ],
-        } as ClientMessage;
+          const toolResult = {
+            id: generateId(),
+            role: "tool",
+            content: [
+              {
+                type: "tool-result",
+                toolName,
+                toolCallId,
+                result: "0x1::aptos_coin::AptosCoin",
+              },
+            ],
+          } as ClientMessage;
+          aiState.update({
+            ...aiState.get(),
+            //@ts-ignore
+            messages: [...aiState.get().messages, toolCall, toolResult],
+          });
+        }
 
-        const toolResult = {
-          id: generateId(),
-          role: "tool",
-          content: [
-            {
-              type: "tool-result",
-              toolName,
-              toolCallId,
-              result: args,
-            },
-          ],
-        } as ClientMessage;
 
-        aiState.update({
-          ...aiState.get(),
-          //@ts-ignore
-          messages: [...aiState.get().messages, toolCall, toolResult],
-        });
       } else if (segment.type === "text") {
         const text = segment.text;
 
