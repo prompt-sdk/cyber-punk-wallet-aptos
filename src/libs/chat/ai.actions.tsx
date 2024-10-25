@@ -180,7 +180,7 @@ async function submitUserMessage(content: string) {
           const tool_id = nanoid()
 
           tool[tool_id] = {
-            description: description || "get pet by Id",
+            description: description || "",
             parameters,
             generate: async function* (payloadGeneratedByModel: any) {
 
@@ -192,12 +192,7 @@ async function submitUserMessage(content: string) {
               const accessToken = item.tool.accessToken
               const response = await makeToolApiRequest(accessToken, endpoint, payloadGeneratedByModel, method, typeRequest)
 
-
-
-              return {
-                data: JSON.stringify(response),
-                node: <SmartView props={JSON.stringify(response)} />
-              }
+              return <SmartView props={JSON.stringify(response)} />
             }
           }
         }
@@ -236,7 +231,6 @@ async function submitUserMessage(content: string) {
               function: item.name,
               typeArguments: item.tool.generic_type_params
             }
-
 
             return <BotCard name={agent.name}>
               <SmartAction props={data} />
@@ -346,9 +340,9 @@ Answear will like:  balance is 0
     },
     onSegment: (segment: any) => {
       if (segment.type === "tool-call") {
-        // process tool here
+        // should Call twice ? , yeah
         const { args, toolName } = segment.toolCall;
-        console.log(toolName)
+        console.log(segment.toolCall)
         if (toolName == "") {
 
         }
