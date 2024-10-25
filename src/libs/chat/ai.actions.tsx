@@ -321,13 +321,9 @@ Answear will like:  balance is 0
         parameters: z.object({}),
         generate: async function* () {
 
-          return {
-            node: (
-              <BotCard name={agent.name}>
-                <ViewFrame code={item.tool.code} />
-              </BotCard>
-            )
-          }
+          return <BotCard name={agent.name}>
+            <ViewFrame code={item.tool.code} />
+          </BotCard>
         }
       }
 
