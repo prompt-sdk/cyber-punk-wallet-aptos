@@ -350,7 +350,7 @@ Answear will like:  balance is 0
     }
     return tool;
   }, {});
-  const result = await streamUIV2({
+  const result = await streamUI({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
     system: `You name is  ${agent?.name || "Smart AI"}` + '\n\n' + agent?.prompt || '',
