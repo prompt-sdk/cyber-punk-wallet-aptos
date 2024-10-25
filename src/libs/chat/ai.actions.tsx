@@ -29,7 +29,7 @@ import { auth } from '@/modules/auth/constants/auth.config';
 import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
 import { makeToolApiRequest } from '../tools/apiTool';
-import { ObjectId } from 'mongodb';
+
 const aptosClient = getAptosClient();
 
 async function submitUserMessage(content: string) {
@@ -145,9 +145,6 @@ async function submitUserMessage(content: string) {
               schemaRef = methodSchema.requestBody?.$ref
               parameters = {}
             }
-
-
-
           } else {
             parameters = methodSchema.parameters
             if (parameters) {
@@ -195,8 +192,6 @@ async function submitUserMessage(content: string) {
               const accessToken = item.tool.accessToken
               const response = await makeToolApiRequest(accessToken, endpoint, payloadGeneratedByModel, method, typeRequest)
 
-              console.log('response', response)
-              const toolCallId = nanoid()
 
 
               return {
@@ -221,7 +216,7 @@ async function submitUserMessage(content: string) {
         Object.entries(filteredObj).filter(([key, value]) => value !== undefined)
       );
       type ParametersData = z.infer<typeof ParametersSchema>;
-      tool[item._id.toString()] = {
+      tool[item.type + generateId()] = {
         description: item.tool.description,
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
@@ -270,14 +265,14 @@ async function submitUserMessage(content: string) {
               function: item.name,
               typeArguments: Object.values(filteredObjCointype)
             }
+            try {
+              const res = await aptosClient.view({ payload: data });
 
-            const res = await aptosClient.view({ payload: data });
+              item.tool.return = res;
 
-            item.tool.return = res;
-
-            const { text } = await generateText({
-              model: openai('gpt-4o'),
-              system: `
+              const { text } = await generateText({
+                model: openai('gpt-4o'),
+                system: `
         When User ask like this :" what is balance of address 0xd610d0aa100010f0819ea3b1071eda0524b60fb625580fa2d1398f2aad76f04c " and you have data below:    
             {
         _id: {id_tool},
@@ -304,11 +299,16 @@ async function submitUserMessage(content: string) {
 
 Answear will like:  balance is 0
 `,
-              prompt: ` ${content}  ${JSON.stringify(item.tool)}`
-            });
-            return <BotCard name={agent.name}>
-              <SmartView props={text} />
-            </BotCard>
+                prompt: ` ${content}  ${JSON.stringify(item.tool)}`
+              });
+              return <BotCard name={agent.name}>
+                <SmartView props={text} />
+              </BotCard>
+            } catch (error: any) {
+              return <BotCard name={agent.name}>
+                <SmartView props={error.message} />
+              </BotCard>
+            }
 
           }
         }
@@ -316,7 +316,7 @@ Answear will like:  balance is 0
     }
 
     if (item.type == 'widgetTool') {
-      tool[item._id.toString()] = {
+      tool[item.type + generateId()] = {
         description: item.tool.description,
         parameters: z.object({}),
         generate: async function* () {
@@ -350,8 +350,12 @@ Answear will like:  balance is 0
     },
     onSegment: (segment: any) => {
       if (segment.type === "tool-call") {
+        // process tool here
         const { args, toolName } = segment.toolCall;
+        console.log(toolName)
+        if (toolName == "") {
 
+        }
         const toolCallId = generateId();
 
         const toolCall = {
