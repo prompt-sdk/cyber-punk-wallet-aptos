@@ -188,11 +188,10 @@ async function submitUserMessage(content: string) {
             })
 
             return {
-              node: (
                 <BotCard name={agent.name}>
                   <SmartAction props={data} />
                 </BotCard>
-              )
+              
             }
 
           }
@@ -287,11 +286,11 @@ Answear will like:  balance is 0
             })
             return {
               data: JSON.stringify(res),
-              node: (
+              
                 <BotCard name={agent.name}>
                   <SmartView props={text} />
                 </BotCard>
-              )
+              
             }
           }
         }
@@ -338,11 +337,11 @@ Answear will like:  balance is 0
             ]
           })
           return {
-            node: (
+            
               <BotCard name={agent.name}>
                 <ViewFrame code={item.tool.code} />
               </BotCard>
-            )
+            
           }
         }
       }
