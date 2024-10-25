@@ -177,10 +177,9 @@ async function submitUserMessage(content: string) {
             }
 
           }
-          const tool_id = nanoid()
 
-          tool[tool_id] = {
-            description: description || "",
+          tool[tool.type + '_' + generateId()] = {
+            description: "get token address of APT",
             parameters,
             generate: async function* (payloadGeneratedByModel: any) {
 
@@ -189,10 +188,11 @@ async function submitUserMessage(content: string) {
                   <SmartActionSkeleton />
                 </BotCard>
               )
+              sleep(1000)
               const accessToken = item.tool.accessToken
               const response = await makeToolApiRequest(accessToken, endpoint, payloadGeneratedByModel, method, typeRequest)
 
-              return <SmartView props={JSON.stringify(response)} />
+              return <BotCard name={agent?.name}><SmartView props={JSON.stringify(response)} /></BotCard>
             }
           }
         }
@@ -211,7 +211,7 @@ async function submitUserMessage(content: string) {
         Object.entries(filteredObj).filter(([key, value]) => value !== undefined)
       );
       type ParametersData = z.infer<typeof ParametersSchema>;
-      tool[item.type + generateId()] = {
+      tool[item.type + '_' + generateId()] = {
         description: item.tool.description,
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
@@ -310,7 +310,7 @@ Answear will like:  balance is 0
     }
 
     if (item.type == 'widgetTool') {
-      tool[item.type + generateId()] = {
+      tool[item.type + '_' + generateId()] = {
         description: item.tool.description,
         parameters: z.object({}),
         generate: async function* () {
@@ -343,42 +343,42 @@ Answear will like:  balance is 0
         // should Call twice ? , yeah
         const { args, toolName } = segment.toolCall;
         console.log(segment.toolCall)
-        if (toolName == "") {
+        if (toolName.split("_")[0] == "apiTool") {
+          const toolCallId = generateId();
 
+          const toolCall = {
+            id: generateId(),
+            role: "assistant",
+            content: [
+              {
+                type: "tool-call",
+                toolName,
+                toolCallId,
+                args,
+              },
+            ],
+          } as ClientMessage;
+
+          const toolResult = {
+            id: generateId(),
+            role: "tool",
+            content: [
+              {
+                type: "tool-result",
+                toolName,
+                toolCallId,
+                result: "0x1::aptos_coin::AptosCoin",
+              },
+            ],
+          } as ClientMessage;
+          aiState.update({
+            ...aiState.get(),
+            //@ts-ignore
+            messages: [...aiState.get().messages, toolCall, toolResult],
+          });
         }
-        const toolCallId = generateId();
 
-        const toolCall = {
-          id: generateId(),
-          role: "assistant",
-          content: [
-            {
-              type: "tool-call",
-              toolName,
-              toolCallId,
-              args,
-            },
-          ],
-        } as ClientMessage;
 
-        const toolResult = {
-          id: generateId(),
-          role: "tool",
-          content: [
-            {
-              type: "tool-result",
-              toolName,
-              toolCallId,
-              result: args,
-            },
-          ],
-        } as ClientMessage;
-
-        aiState.update({
-          ...aiState.get(),
-          //@ts-ignore
-          messages: [...aiState.get().messages, toolCall, toolResult],
-        });
       } else if (segment.type === "text") {
         const text = segment.text;
 
