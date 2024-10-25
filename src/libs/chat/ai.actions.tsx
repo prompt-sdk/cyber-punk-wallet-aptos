@@ -8,11 +8,12 @@ import {
   createStreamableValue,
 
 } from 'ai/rsc'
-import { streamUIV2 } from './steamUIv2';
+import { streamMulti } from "ai-stream-multi";
+
 import { openai } from '@ai-sdk/openai'
 import { getTools, getAgentById } from '../db/store-mongodb';
 import { BotCard, BotMessage } from '@/modules/chat/components/chat-card';
-import { z } from 'zod'
+import { any, z } from 'zod'
 import { SmartActionSkeleton } from '@/modules/chat/components/smartaction/action-skeleton'
 import {
   sleep,
@@ -20,14 +21,15 @@ import {
 } from '@/modules/chat/utils/utils'
 import { ViewFrame } from '@/modules/chat/validation/ViewFarm';
 
-import { generateText } from 'ai';
+import { generateText, generateId, CoreMessage } from 'ai';
 import { saveChat } from '@/libs/chat/chat.actions'
 import { SpinnerMessage, UserMessage } from '@/modules/chat/components/chat-card';
 import { Chat, Message } from 'types/chat'
 import { auth } from '@/modules/auth/constants/auth.config';
 import { SmartAction, SmartView } from '@/modules/chat/components/smartaction/action'
 import { getAptosClient } from '@/modules/chat/utils/aptos-client';
-
+import { makeToolApiRequest } from '../tools/apiTool';
+import { ObjectId } from 'mongodb';
 const aptosClient = getAptosClient();
 
 async function submitUserMessage(content: string) {
@@ -75,51 +77,140 @@ async function submitUserMessage(content: string) {
   const tools = dataTools.reduce((tool: any, item: any) => {
 
     if (item.type == 'apiTool') {
-      // tool[item._id.toString()] = {
-      //   description: "get token address APT",
-      //   parameters: z.object({}),
-      //   generate: async function* () {
-      //     const toolCallId = nanoid()
-      //     aiState.done({
-      //       ...aiState.get(),
-      //       messages: [
-      //         //@ts-ignore
-      //         ...aiState.get().messages,
-      //         {
-      //           id: nanoid(),
-      //           role: 'assistant',
-      //           content: [
-      //             //@ts-ignore
-      //             {
-      //               type: 'tool-call',
-      //               toolName: item.type + item.tool.type,
-      //               toolCallId,
-      //               args: {}
-      //             }
-      //           ]
-      //         },
-      //         {
-      //           id: nanoid(),
-      //           role: 'tool',
-      //           content: [
-      //             //@ts-ignore
-      //             {
-      //               type: 'tool-result',
-      //               toolName: item.type + '_' + item.tool.type,
-      //               toolCallId,
-      //               result: "0x1::aptos_coin::AptosCoin"
-      //             }
-      //           ]
-      //         }
-      //       ]
-      //     })
+      const itemTool = JSON.parse(item.tool.data)
 
-      //     return {
-      //       data: "0x1::aptos_coin::AptosCoin",
-      //       node: "hello"
-      //     }
-      //   }
-      // }
+      const apiHost = itemTool.servers[0].url
+      for (const path in itemTool.paths) {
+        const endpoint = apiHost + path
+
+        for (const method in itemTool.paths[path]) {
+          // get the parameters for this method
+          const methodSchema = itemTool.paths[path][method]
+          const description = methodSchema.summary
+
+          const convertSchemaToParams: any = (param: any) => {
+            console.log('converting schema to params', param)
+            if (!param.type) { // if there is no type, it means thereis more than one parameter in params.
+              const objectWithMultipleParams: any = {}
+              for (const key in param) {
+                objectWithMultipleParams[key] = convertSchemaToParams(param[key])
+              }
+              return objectWithMultipleParams
+            }
+
+            switch (param.type) {
+              case 'string':
+                return z.string().describe(param.description)
+              case 'integer':
+                return z.number().describe(param.description)
+              case 'boolean':
+                return z.boolean().describe(param.description)
+              case 'array':
+                return z.array(convertSchemaToParams(param.items))
+              case 'object':
+                return z.object(convertSchemaToParams(param.properties))
+              default:
+                console.log("unsupported type", param.type)
+                return z.string().describe('unknown description')
+            }
+          }
+          let parameters //TODO: add some typecript types here
+          let typeRequest: any = ""
+          if (methodSchema.requestBody) {
+            let schemaRef: any = "";
+            if (methodSchema.requestBody?.content) {
+              if (methodSchema.requestBody?.content['application/json']) {
+                typeRequest = 'application/json'
+                schemaRef = methodSchema.requestBody?.content['application/json'].schema['$ref']
+                const schema = schemaRef.split('/').pop()
+
+                parameters = itemTool.components.schemas[schema]
+
+                parameters = convertSchemaToParams(parameters)
+              }
+              if (methodSchema.requestBody?.content['application/octet-stream']) {
+                parameters = methodSchema.requestBody?.content['application/octet-stream'].schema
+                typeRequest = 'application/octet-stream'
+                parameters = convertSchemaToParams(parameters)
+              }
+              if (methodSchema.requestBody?.content['application/x-www-form-urlencoded']) {
+                typeRequest = 'application/x-www-form-urlencoded'
+                parameters = methodSchema.requestBody?.content['application/x-www-form-urlencoded'].schema
+                parameters = convertSchemaToParams(parameters)
+              }
+            }
+
+
+            if (methodSchema.requestBody?.$ref) {
+              schemaRef = methodSchema.requestBody?.$ref
+              parameters = {}
+            }
+
+
+
+          } else {
+            parameters = methodSchema.parameters
+            if (parameters) {
+              parameters = z.object(parameters.reduce((acc: any, param: any) => {
+                switch (param.schema.type) {
+                  case 'string':
+                    return acc[param.name] = z.string().describe(param.description)
+                  default: // this may work for other types, but it is untested. 
+                    console.log('unsupported type', param.schema.type)
+                    if (param.schema) {
+                      return acc[param.name] = convertSchemaToParams(param.schema)
+                    } else {
+                      return acc[param.name] = convertSchemaToParams(param)
+                    }
+
+                }
+              }, {}))
+            }
+            else {
+              parameters = z.object({})
+            }
+            if (method == 'parameters') {
+              // convert array to object parameters : {type:} then convert 
+              parameters = methodSchema.reduce((acc: any, item: any) => {
+                acc[item.name] = item.schema.type == 'string' ? z.string() : z.number();
+                return acc;
+              }, {});
+              parameters = z.object(parameters)
+
+            }
+
+          }
+          const tool_id = nanoid()
+
+          tool[tool_id] = {
+            description: description || "get pet by Id",
+            parameters,
+            generate: async function* (payloadGeneratedByModel: any) {
+
+              yield (
+                <BotCard name={agent.name}>
+                  <SmartActionSkeleton />
+                </BotCard>
+              )
+              const accessToken = item.tool.accessToken
+              const response = await makeToolApiRequest(accessToken, endpoint, payloadGeneratedByModel, method, typeRequest)
+
+              console.log('response', response)
+              const toolCallId = nanoid()
+
+
+              return {
+                data: JSON.stringify(response),
+                node: <SmartView props={JSON.stringify(response)} />
+              }
+            }
+          }
+        }
+
+
+
+      }
+
     }
     if (item.type == 'contractTool') {
       const filteredObj = Object.keys(item.tool.params).reduce((acc: any, key: any) => {
@@ -135,9 +226,7 @@ async function submitUserMessage(content: string) {
         parameters: z.object(ParametersSchema),
         generate: async function* (ParametersData: ParametersData) {
           if (item.tool.type == 'entry') {
-            // if has type '0x1::aptos_coin::AptosCoin'
-            // add to paramaeter
-            // 
+
             yield (
               <BotCard name={agent.name}>
                 <SmartActionSkeleton />
@@ -152,51 +241,19 @@ async function submitUserMessage(content: string) {
               function: item.name,
               typeArguments: item.tool.generic_type_params
             }
-            const toolCallId = nanoid()
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                //@ts-ignore
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'assistant',
-                  content: [
-                    //@ts-ignore
-                    {
-                      type: 'tool-call',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      args: ParametersData
-                    }
-                  ]
-                },
-                {
-                  id: nanoid(),
-                  role: 'tool',
-                  content: [
-                    //@ts-ignore
-                    {
-                      type: 'tool-result',
-                      toolName: item.type + '_' + item.tool.type,
-                      toolCallId,
-                      result: data
-                    }
-                  ]
-                }
-              ]
-            })
 
-            return {
-              node: (
-                <BotCard name={agent.name}>
-                  <SmartAction props={data} />
-                </BotCard>
-              )
-            }
+
+            return <BotCard name={agent.name}>
+              <SmartAction props={data} />
+            </BotCard>
 
           }
           if (item.tool.type == 'view') {
+            yield (
+              <BotCard name={agent.name}>
+                <SmartActionSkeleton />
+              </BotCard>
+            )
             const filteredObj = Object.entries(ParametersData)
               .filter(([key, value]) => key !== "CoinType")
               .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
@@ -249,50 +306,10 @@ Answear will like:  balance is 0
 `,
               prompt: ` ${content}  ${JSON.stringify(item.tool)}`
             });
+            return <BotCard name={agent.name}>
+              <SmartView props={text} />
+            </BotCard>
 
-            const toolCallId = nanoid()
-
-            aiState.done({
-              ...aiState.get(),
-              messages: [
-                //@ts-ignore
-                ...aiState.get().messages,
-                {
-                  id: nanoid(),
-                  role: 'assistant',
-                  content: [
-                    //@ts-ignore
-                    {
-                      type: 'tool-call',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      args: ParametersData
-                    }
-                  ]
-                },
-                {
-                  id: nanoid(),
-                  role: 'tool',
-                  content: [
-                    //@ts-ignore
-                    {
-                      type: 'tool-result',
-                      toolName: item.type + item.tool.type,
-                      toolCallId,
-                      result: text
-                    }
-                  ]
-                }
-              ]
-            })
-            return {
-              data: JSON.stringify(res),
-              node: (
-                <BotCard name={agent.name}>
-                  <SmartView props={text} />
-                </BotCard>
-              )
-            }
           }
         }
       };
@@ -303,40 +320,7 @@ Answear will like:  balance is 0
         description: item.tool.description,
         parameters: z.object({}),
         generate: async function* () {
-          const toolCallId = nanoid()
-          aiState.done({
-            ...aiState.get(),
-            messages: [
-              //@ts-ignore
-              ...aiState.get().messages,
-              {
-                id: nanoid(),
-                role: 'assistant',
-                content: [
-                  //@ts-ignore
-                  {
-                    type: 'tool-call',
-                    toolName: item.type,
-                    toolCallId,
-                    args: {}
-                  }
-                ]
-              },
-              {
-                id: nanoid(),
-                role: 'tool',
-                content: [
-                  //@ts-ignore
-                  {
-                    type: 'tool-result',
-                    toolName: item.type,
-                    toolCallId,
-                    result: item.tool.code
-                  }
-                ]
-              }
-            ]
-          })
+
           return {
             node: (
               <BotCard name={agent.name}>
@@ -350,7 +334,7 @@ Answear will like:  balance is 0
     }
     return tool;
   }, {});
-  const result = await streamUIV2({
+  const result = await streamMulti({
     model: openai('gpt-4o'),
     initial: <BotCard name={agent?.name}><SmartActionSkeleton /></BotCard>,
     system: `You name is  ${agent?.name || "Smart AI"}` + '\n\n' + agent?.prompt || '',
@@ -361,36 +345,70 @@ Answear will like:  balance is 0
         name: message.name
       }))
     ],
-    text: ({ content, done, delta }) => {
+    textComponent({ content }) {
+      return <BotMessage name={agent?.name} content={content as any}></BotMessage>
+    },
+    onSegment: (segment: any) => {
+      if (segment.type === "tool-call") {
+        const { args, toolName } = segment.toolCall;
 
-      if (!textStream) {
-        textStream = createStreamableValue('')
-        textNode = <BotMessage name={agent?.name} content={textStream.value} />
-      }
-      if (done) {
-        textStream.done()
-        aiState.done({
-          ...aiState.get(),
-          messages: [
-            ...aiState.get().messages,
+        const toolCallId = generateId();
+
+        const toolCall = {
+          id: generateId(),
+          role: "assistant",
+          content: [
             {
-              id: nanoid(),
-              role: 'assistant',
-              content
-            }
-          ]
-        })
-      } else {
-        textStream.update(delta)
-      }
+              type: "tool-call",
+              toolName,
+              toolCallId,
+              args,
+            },
+          ],
+        } as ClientMessage;
 
-      return textNode
+        const toolResult = {
+          id: generateId(),
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolName,
+              toolCallId,
+              result: args,
+            },
+          ],
+        } as ClientMessage;
+
+        aiState.update({
+          ...aiState.get(),
+          //@ts-ignore
+          messages: [...aiState.get().messages, toolCall, toolResult],
+        });
+      } else if (segment.type === "text") {
+        const text = segment.text;
+
+        const textMessage = {
+          id: generateId(),
+          role: "assistant",
+          content: text,
+        } as ClientMessage;
+
+        aiState.update({
+          ...aiState.get(),
+          //@ts-ignore
+          messages: [...aiState.get().messages, textMessage],
+        });
+      }
+    },
+    onFinish: () => {
+      aiState.done(aiState.get());
     },
     tools: tools,
   })
   return {
     id: nanoid(),
-    display: result.value
+    display: result.ui.value
   }
 }
 
@@ -486,3 +504,6 @@ export const getUIStateFromAIState = (aiState: Chat, agent: any) => {
         ) : null
     }))
 }
+export type ClientMessage = CoreMessage & {
+  id: string;
+};
