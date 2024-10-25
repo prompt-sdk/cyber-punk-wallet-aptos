@@ -179,7 +179,7 @@ async function submitUserMessage(content: string) {
           }
 
           tool[item.type + '_' + generateId()] = {
-            description: "get token address of APT",
+            description,
             parameters,
             generate: async function* (payloadGeneratedByModel: any) {
 
@@ -343,42 +343,42 @@ Answear will like:  balance is 0
       if (segment.type === "tool-call") {
         // should Call twice ? , yeah
         const { args, toolName } = segment.toolCall;
-        console.log(segment.toolCall)
+        let result = args;
         if (toolName.split("_")[0] == "apiTool") {
-          const toolCallId = generateId();
 
-          const toolCall = {
-            id: generateId(),
-            role: "assistant",
-            content: [
-              {
-                type: "tool-call",
-                toolName,
-                toolCallId,
-                args,
-              },
-            ],
-          } as ClientMessage;
-
-          const toolResult = {
-            id: generateId(),
-            role: "tool",
-            content: [
-              {
-                type: "tool-result",
-                toolName,
-                toolCallId,
-                result: "0x1::aptos_coin::AptosCoin",
-              },
-            ],
-          } as ClientMessage;
-          aiState.update({
-            ...aiState.get(),
-            //@ts-ignore
-            messages: [...aiState.get().messages, toolCall, toolResult],
-          });
         }
+        const toolCallId = generateId();
 
+        const toolCall = {
+          id: generateId(),
+          role: "assistant",
+          content: [
+            {
+              type: "tool-call",
+              toolName,
+              toolCallId,
+              args,
+            },
+          ],
+        } as ClientMessage;
+
+        const toolResult = {
+          id: generateId(),
+          role: "tool",
+          content: [
+            {
+              type: "tool-result",
+              toolName,
+              toolCallId,
+              result,
+            },
+          ],
+        } as ClientMessage;
+        aiState.update({
+          ...aiState.get(),
+          //@ts-ignore
+          messages: [...aiState.get().messages, toolCall, toolResult],
+        });
 
       } else if (segment.type === "text") {
         const text = segment.text;
