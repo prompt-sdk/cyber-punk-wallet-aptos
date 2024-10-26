@@ -35,7 +35,7 @@ export const DUMMY_WIDGET_LIST: Widget[] = [
     _id: '3',
     index: 2,
     type: WIDGET_TYPES.IMAGE,
-    tool: { code: 'background.jpg', description: 'Prompt Wallet' },
+    tool: { code: '/background.jpg', description: 'Prompt Wallet' },
     size: WIDGET_SIZE.LARGE,
     user_id: ''
   }

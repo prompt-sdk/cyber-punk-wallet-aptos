@@ -94,7 +94,7 @@ const DashboardNotesBoard: React.FC<DashboardNotesBoardProps> = ({ address }) =>
             onChangeSize={handleChangeSize}
           >
             {widget.type === 'image' ? (
-              <Image
+              <img
                 src={widget.tool?.code || ''}
                 width={400}
                 height={400}

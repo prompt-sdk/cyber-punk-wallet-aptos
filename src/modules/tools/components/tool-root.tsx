@@ -8,7 +8,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { ComponentBaseProps } from '@/common/interfaces';
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import CustomButton from '@/libs/svg-icons/input/custom-button';
-
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 import BoderImage from '@/components/common/border-image';
@@ -16,7 +16,7 @@ import DropdownSelect from '@/components/common/dropdown-select-button';
 
 import AugmentedPopup from '@/modules/augmented/components/augmented-popup';
 import FormTextField from '@/modules/form/components/form-text-field';
-
+import ProfileBtnFrame from '@/assets/svgs/profile-btn-frame.svg';
 import WidgetFrame2 from '@/assets/svgs/widget-frame-2.svg';
 
 type ToolRootProps = ComponentBaseProps & {
@@ -34,7 +34,7 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
   const [moduleData, setModuleData] = useState<any>(null);
   const [functions, setFunctions] = useState<any>(null);
   const [sourceData, setSourceData] = useState<Record<string, any>>({});
-  // const [isOpenSelectTool, setIsOpenSelectTool] = useState<boolean>(false);
+  const [isOpenCreateAPITool, setIsOpenCreateAPITool] = useState<boolean>(false);
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
 
   console.log('🚀 ~ setSelectedTools:', setSelectedTools);
@@ -45,6 +45,8 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
   const [isLoadingPackages, setIsLoadingPackages] = useState(false);
+  const [widgetCode, setWidgetCode] = useState<string>(''); // Add state for widgetCode
+  const [uploadedJsonData, setUploadedJsonData] = useState<any>(null); // Add state for uploaded JSON data
 
   const form = useForm({
     mode: 'onChange',
@@ -65,6 +67,32 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
     formState: { errors, isValid },
     watch
   } = form;
+
+  const onSubmitCreateToolAPI = async () => {
+    // Add this function to handle form submission
+    try {
+      const jsonData = JSON.parse(widgetCode); // Convert widgetCode to JSON string
+
+      // Remove data _id from jsonData if it exists
+      delete jsonData._id; // Remove _id field
+
+      // Convert tool.data to JSON.parse if it exists
+      if (jsonData.tool && jsonData.tool.data) {
+        jsonData.tool.data = JSON.parse(jsonData.tool.data); // Parse tool.data to JSON
+      }
+
+      await uploadDataToApi(jsonData); // Use the uploadAPI function to send the JSON data
+      toast({
+        title: 'Tool created successfully!',
+        description: 'Your tool has been created successfully.'
+      });
+      setIsOpenCreateAPITool(false);
+      setUploadedJsonData(null);
+      setWidgetCode('');
+    } catch (error) {
+      console.error('Error uploading data:', error);
+    }
+  };
 
   const loadSourceData = async (
     loadSourceDataAccount: string,
@@ -399,9 +427,12 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
     <div className={classNames('scrollbar flex w-full grow overflow-hidden py-4', className)}>
       <div className="container flex flex-col items-center gap-6">
         <h1 className="mt-5 text-h5 font-bold">Tools</h1>
-        <div className="flex w-full justify-end">
+        <div className="flex w-full justify-end gap-4">
           <CustomButton className="w-full md:w-auto" onClick={() => setIsOpenCreateTool(true)}>
-            <span className="font-semibold">Create Tool</span>
+            <span className="text-xs font-semibold">Create Tool</span>
+          </CustomButton>
+          <CustomButton className="w-full md:w-auto" onClick={() => setIsOpenCreateAPITool(true)}>
+            <span className="text-xs font-semibold">Create API Tool</span>
           </CustomButton>
         </div>
         {isLoading ? (
@@ -550,6 +581,65 @@ const ToolRoot: FC<ToolRootProps> = ({ className, session }) => {
               </div>
             )}
             <CustomButton className="w-full md:w-auto" disabled={!isFormValid()} onClick={handleSubmit(onSubmit)}>
+              <span className="font-semibold">Create</span>
+            </CustomButton>
+          </form>
+        </AugmentedPopup>
+        <AugmentedPopup
+          visible={isOpenCreateAPITool}
+          textHeading={'Create Tool from File JSON'}
+          onClose={() => {
+            setIsOpenCreateAPITool(false);
+            setUploadedJsonData(null);
+            setWidgetCode('');
+          }}
+        >
+          <form className="flex max-h-[80vh] flex-col gap-3 overflow-y-auto p-8">
+            <div className="mb-4">
+              <p className="mb-2 text-xl text-white">Upload JSON File</p>
+              {!uploadedJsonData && (
+                <BoderImage
+                  imageBoder={ProfileBtnFrame.src} // Use your desired border image URL
+                  className="flex flex-col items-start justify-between gap-2 rounded-lg border p-4 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <input
+                    id="file-input" // Add an ID to the input for reference
+                    type="file"
+                    accept=".json"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = event => {
+                          const jsonString = event.target?.result as string;
+                          setWidgetCode(jsonString); // Update state with the JSON content
+                          try {
+                            const jsonData = JSON.parse(jsonString); // Parse the JSON string
+                            setUploadedJsonData(jsonData); // Store the parsed JSON data
+                          } catch (error) {
+                            console.error('Error parsing JSON:', error);
+                            setUploadedJsonData(null); // Reset if parsing fails
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    }} // Update state on file change
+                  />
+                </BoderImage>
+              )}
+              {uploadedJsonData && ( // Display the uploaded JSON data if available
+                <Textarea
+                  rows={14}
+                  value={JSON.stringify(uploadedJsonData, null, 2)}
+                  className="font-mono min-h-[150px]"
+                />
+              )}
+            </div>
+            <CustomButton
+              className="w-full md:w-auto"
+              disabled={!isFormValid()}
+              onClick={handleSubmit(onSubmitCreateToolAPI)} // Use the new submit function
+            >
               <span className="font-semibold">Create</span>
             </CustomButton>
           </form>
