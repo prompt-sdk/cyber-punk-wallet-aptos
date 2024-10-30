@@ -10,7 +10,9 @@ const nextConfig = async () => {
       remotePatterns: [
         { protocol: 'https', hostname: 's3.ap-southeast-1.amazonaws.com' },
         { protocol: 'http', hostname: 'localhost' }
-      ]
+      ],
+      path: '/_next/image',
+      loader: 'default'
     },
     env: {
       KV_URL: process.env.KV_URL,
