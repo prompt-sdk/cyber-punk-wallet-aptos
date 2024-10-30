@@ -1,0 +1,1491 @@
+@import 'augmented-ui/augmented-ui.css';
+/* Import the base Augmented UI styles */
+/* Base augmented button styles */
+ .augmented-btn {
+	 --aug-clip-tl1: initial;
+	 --aug-round-tr1: initial;
+	 --aug-clip-br1: initial;
+	 --aug-round-bl1: initial;
+	 --aug-border: initial;
+	 --aug-inlay: initial;
+	 --aug-border-all: 4px;
+	 --aug-inlay-all: 2px;
+	 --aug-border-bg: gold;
+	 --aug-inlay-bg: black;
+	 --aug-inlay-opacity: 0.95;
+	 --aug-tl1: 40px;
+	 --aug-br1: 40px;
+	 --aug-tr1: 10px;
+	 --aug-bl1: 10px;
+	 color: #ccc;
+	 text-align: center;
+	 padding: 30px;
+	 width: 50%;
+	 margin: 0.25rem auto;
+	 font-size: 0.75rem;
+}
+/***************************************************************** AUGMENGED UI *****************************************************************/
+/* Generate utility classes for clip corners */
+ .aug-border {
+	 --aug-border: initial;
+}
+ .aug-inlay {
+	 --aug-inlay: initial;
+}
+ .aug-clip-tl {
+	 --aug-clip-tl1: initial;
+	 --aug-clip-tl2: initial;
+}
+ .aug-clip-tr {
+	 --aug-clip-tr1: initial;
+	 --aug-clip-tr2: initial;
+}
+ .aug-clip-bl {
+	 --aug-clip-bl1: initial;
+	 --aug-clip-bl2: initial;
+}
+ .aug-clip-br {
+	 --aug-clip-br1: initial;
+	 --aug-clip-br2: initial;
+}
+ .aug-clip-tl2 {
+	 --aug-clip-tl2: initial;
+}
+ .aug-clip-tr2 {
+	 --aug-clip-tr2: initial;
+}
+ .aug-clip-bl2 {
+	 --aug-clip-tr2: initial;
+}
+ .aug-clip-br2 {
+	 --aug-clip-tr2: initial;
+}
+ .aug-clip-tl1 {
+	 --aug-clip-tl1: initial;
+}
+ .aug-clip-tr1 {
+	 --aug-clip-tr1: initial;
+}
+ .aug-clip-bl1 {
+	 --aug-clip-bl1: initial;
+}
+ .aug-clip-br1 {
+	 --aug-clip-br1: initial;
+}
+ .aug-round-tl1 {
+	 --aug-round-tl1: initial;
+}
+ .aug-round-tr1 {
+	 --aug-round-tr1: initial;
+}
+ .aug-round-bl1 {
+	 --aug-round-bl1: initial;
+}
+ .aug-round-br1 {
+	 --aug-round-br1: initial;
+}
+ .aug-round-tl2 {
+	 --aug-round-tl2: initial;
+}
+ .aug-round-tr2 {
+	 --aug-round-tr2: initial;
+}
+ .aug-round-bl2 {
+	 --aug-round-bl2: initial;
+}
+ .aug-round-br2 {
+	 --aug-round-br2: initial;
+}
+ .aug-round {
+	 --aug-round-tl1: initial;
+	 --aug-round-tr1: initial;
+	 --aug-round-bl1: initial;
+	 --aug-round-br1: initial;
+	 --aug-round-tl2: initial;
+	 --aug-round-tr2: initial;
+	 --aug-round-bl2: initial;
+	 --aug-round-br2: initial;
+}
+ .aug-round-1 {
+	 --aug-round-tl1: initial;
+	 --aug-round-tr1: initial;
+	 --aug-round-bl1: initial;
+	 --aug-round-br1: initial;
+}
+ .aug-round-r1 {
+	 --aug-round-tr1: initial;
+	 --aug-round-br1: initial;
+}
+ .aug-round-l1 {
+	 --aug-round-tl1: initial;
+	 --aug-round-bl1: initial;
+}
+ .aug-round-2 {
+	 --aug-round-tl2: initial;
+	 --aug-round-tr2: initial;
+	 --aug-round-bl2: initial;
+	 --aug-round-br2: initial;
+}
+/* Generate utility classes for corner sizes */
+ .aug-tl1-0 {
+	 --aug-tl1: 0px;
+}
+ .aug-tr1-0 {
+	 --aug-tr1: 0px;
+}
+ .aug-bl1-0 {
+	 --aug-bl1: 0px;
+}
+ .aug-br1-0 {
+	 --aug-br1: 0px;
+}
+ .aug-tl1-1 {
+	 --aug-tl1: 1px;
+}
+ .aug-tr1-1 {
+	 --aug-tr1: 1px;
+}
+ .aug-bl1-1 {
+	 --aug-bl1: 1px;
+}
+ .aug-br1-1 {
+	 --aug-br1: 1px;
+}
+ .aug-tl1-2 {
+	 --aug-tl1: 2px;
+}
+ .aug-tr1-2 {
+	 --aug-tr1: 2px;
+}
+ .aug-bl1-2 {
+	 --aug-bl1: 2px;
+}
+ .aug-br1-2 {
+	 --aug-br1: 2px;
+}
+ .aug-tl1-3 {
+	 --aug-tl1: 3px;
+}
+ .aug-tr1-3 {
+	 --aug-tr1: 3px;
+}
+ .aug-bl1-3 {
+	 --aug-bl1: 3px;
+}
+ .aug-br1-3 {
+	 --aug-br1: 3px;
+}
+ .aug-tl1-4 {
+	 --aug-tl1: 4px;
+}
+ .aug-tr1-4 {
+	 --aug-tr1: 4px;
+}
+ .aug-bl1-4 {
+	 --aug-bl1: 4px;
+}
+ .aug-br1-4 {
+	 --aug-br1: 4px;
+}
+ .aug-tl1-5 {
+	 --aug-tl1: 5px;
+}
+ .aug-tr1-5 {
+	 --aug-tr1: 5px;
+}
+ .aug-bl1-5 {
+	 --aug-bl1: 5px;
+}
+ .aug-br1-5 {
+	 --aug-br1: 5px;
+}
+ .aug-tl1-6 {
+	 --aug-tl1: 6px;
+}
+ .aug-tr1-6 {
+	 --aug-tr1: 6px;
+}
+ .aug-bl1-6 {
+	 --aug-bl1: 6px;
+}
+ .aug-br1-6 {
+	 --aug-br1: 6px;
+}
+ .aug-tl1-7 {
+	 --aug-tl1: 7px;
+}
+ .aug-tr1-7 {
+	 --aug-tr1: 7px;
+}
+ .aug-bl1-7 {
+	 --aug-bl1: 7px;
+}
+ .aug-br1-7 {
+	 --aug-br1: 7px;
+}
+ .aug-tl1-8 {
+	 --aug-tl1: 8px;
+}
+ .aug-tr1-8 {
+	 --aug-tr1: 8px;
+}
+ .aug-bl1-8 {
+	 --aug-bl1: 8px;
+}
+ .aug-br1-8 {
+	 --aug-br1: 8px;
+}
+ .aug-tl1-9 {
+	 --aug-tl1: 9px;
+}
+ .aug-tr1-9 {
+	 --aug-tr1: 9px;
+}
+ .aug-bl1-9 {
+	 --aug-bl1: 9px;
+}
+ .aug-br1-9 {
+	 --aug-br1: 9px;
+}
+ .aug-tl1-10 {
+	 --aug-tl1: 10px;
+}
+ .aug-tr1-10 {
+	 --aug-tr1: 10px;
+}
+ .aug-bl1-10 {
+	 --aug-bl1: 10px;
+}
+ .aug-br1-10 {
+	 --aug-br1: 10px;
+}
+ .aug-tl1-11 {
+	 --aug-tl1: 11px;
+}
+ .aug-tr1-11 {
+	 --aug-tr1: 11px;
+}
+ .aug-bl1-11 {
+	 --aug-bl1: 11px;
+}
+ .aug-br1-11 {
+	 --aug-br1: 11px;
+}
+ .aug-tl1-12 {
+	 --aug-tl1: 12px;
+}
+ .aug-tr1-12 {
+	 --aug-tr1: 12px;
+}
+ .aug-bl1-12 {
+	 --aug-bl1: 12px;
+}
+ .aug-br1-12 {
+	 --aug-br1: 12px;
+}
+ .aug-tl1-13 {
+	 --aug-tl1: 13px;
+}
+ .aug-tr1-13 {
+	 --aug-tr1: 13px;
+}
+ .aug-bl1-13 {
+	 --aug-bl1: 13px;
+}
+ .aug-br1-13 {
+	 --aug-br1: 13px;
+}
+ .aug-tl1-14 {
+	 --aug-tl1: 14px;
+}
+ .aug-tr1-14 {
+	 --aug-tr1: 14px;
+}
+ .aug-bl1-14 {
+	 --aug-bl1: 14px;
+}
+ .aug-br1-14 {
+	 --aug-br1: 14px;
+}
+ .aug-tl1-15 {
+	 --aug-tl1: 15px;
+}
+ .aug-tr1-15 {
+	 --aug-tr1: 15px;
+}
+ .aug-bl1-15 {
+	 --aug-bl1: 15px;
+}
+ .aug-br1-15 {
+	 --aug-br1: 15px;
+}
+ .aug-tl1-16 {
+	 --aug-tl1: 16px;
+}
+ .aug-tr1-16 {
+	 --aug-tr1: 16px;
+}
+ .aug-bl1-16 {
+	 --aug-bl1: 16px;
+}
+ .aug-br1-16 {
+	 --aug-br1: 16px;
+}
+ .aug-tl1-17 {
+	 --aug-tl1: 17px;
+}
+ .aug-tr1-17 {
+	 --aug-tr1: 17px;
+}
+ .aug-bl1-17 {
+	 --aug-bl1: 17px;
+}
+ .aug-br1-17 {
+	 --aug-br1: 17px;
+}
+ .aug-tl1-18 {
+	 --aug-tl1: 18px;
+}
+ .aug-tr1-18 {
+	 --aug-tr1: 18px;
+}
+ .aug-bl1-18 {
+	 --aug-bl1: 18px;
+}
+ .aug-br1-18 {
+	 --aug-br1: 18px;
+}
+ .aug-tl1-19 {
+	 --aug-tl1: 19px;
+}
+ .aug-tr1-19 {
+	 --aug-tr1: 19px;
+}
+ .aug-bl1-19 {
+	 --aug-bl1: 19px;
+}
+ .aug-br1-19 {
+	 --aug-br1: 19px;
+}
+ .aug-tl1-20 {
+	 --aug-tl1: 20px;
+}
+ .aug-tr1-20 {
+	 --aug-tr1: 20px;
+}
+ .aug-bl1-20 {
+	 --aug-bl1: 20px;
+}
+ .aug-br1-20 {
+	 --aug-br1: 20px;
+}
+ .aug-tl1-21 {
+	 --aug-tl1: 21px;
+}
+ .aug-tr1-21 {
+	 --aug-tr1: 21px;
+}
+ .aug-bl1-21 {
+	 --aug-bl1: 21px;
+}
+ .aug-br1-21 {
+	 --aug-br1: 21px;
+}
+ .aug-tl1-22 {
+	 --aug-tl1: 22px;
+}
+ .aug-tr1-22 {
+	 --aug-tr1: 22px;
+}
+ .aug-bl1-22 {
+	 --aug-bl1: 22px;
+}
+ .aug-br1-22 {
+	 --aug-br1: 22px;
+}
+ .aug-tl1-23 {
+	 --aug-tl1: 23px;
+}
+ .aug-tr1-23 {
+	 --aug-tr1: 23px;
+}
+ .aug-bl1-23 {
+	 --aug-bl1: 23px;
+}
+ .aug-br1-23 {
+	 --aug-br1: 23px;
+}
+ .aug-tl1-24 {
+	 --aug-tl1: 24px;
+}
+ .aug-tr1-24 {
+	 --aug-tr1: 24px;
+}
+ .aug-bl1-24 {
+	 --aug-bl1: 24px;
+}
+ .aug-br1-24 {
+	 --aug-br1: 24px;
+}
+ .aug-tl1-25 {
+	 --aug-tl1: 25px;
+}
+ .aug-tr1-25 {
+	 --aug-tr1: 25px;
+}
+ .aug-bl1-25 {
+	 --aug-bl1: 25px;
+}
+ .aug-br1-25 {
+	 --aug-br1: 25px;
+}
+ .aug-tl1-26 {
+	 --aug-tl1: 26px;
+}
+ .aug-tr1-26 {
+	 --aug-tr1: 26px;
+}
+ .aug-bl1-26 {
+	 --aug-bl1: 26px;
+}
+ .aug-br1-26 {
+	 --aug-br1: 26px;
+}
+ .aug-tl1-27 {
+	 --aug-tl1: 27px;
+}
+ .aug-tr1-27 {
+	 --aug-tr1: 27px;
+}
+ .aug-bl1-27 {
+	 --aug-bl1: 27px;
+}
+ .aug-br1-27 {
+	 --aug-br1: 27px;
+}
+ .aug-tl1-28 {
+	 --aug-tl1: 28px;
+}
+ .aug-tr1-28 {
+	 --aug-tr1: 28px;
+}
+ .aug-bl1-28 {
+	 --aug-bl1: 28px;
+}
+ .aug-br1-28 {
+	 --aug-br1: 28px;
+}
+ .aug-tl1-29 {
+	 --aug-tl1: 29px;
+}
+ .aug-tr1-29 {
+	 --aug-tr1: 29px;
+}
+ .aug-bl1-29 {
+	 --aug-bl1: 29px;
+}
+ .aug-br1-29 {
+	 --aug-br1: 29px;
+}
+ .aug-tl1-30 {
+	 --aug-tl1: 30px;
+}
+ .aug-tr1-30 {
+	 --aug-tr1: 30px;
+}
+ .aug-bl1-30 {
+	 --aug-bl1: 30px;
+}
+ .aug-br1-30 {
+	 --aug-br1: 30px;
+}
+ .aug-tl-0 {
+	 --aug-tl1: 0px;
+	 --aug-tl2: 0px;
+}
+ .aug-tr-0 {
+	 --aug-tr1: 0px;
+	 --aug-tr2: 0px;
+}
+ .aug-bl-0 {
+	 --aug-bl1: 0px;
+	 --aug-bl2: 0px;
+}
+ .aug-br-0 {
+	 --aug-br1: 0px;
+	 --aug-br2: 0px;
+}
+ .aug-tl-1 {
+	 --aug-tl1: 1px;
+	 --aug-tl2: 1px;
+}
+ .aug-tr-1 {
+	 --aug-tr1: 1px;
+	 --aug-tr2: 1px;
+}
+ .aug-bl-1 {
+	 --aug-bl1: 1px;
+	 --aug-bl2: 1px;
+}
+ .aug-br-1 {
+	 --aug-br1: 1px;
+	 --aug-br2: 1px;
+}
+ .aug-tl-2 {
+	 --aug-tl1: 2px;
+	 --aug-tl2: 2px;
+}
+ .aug-tr-2 {
+	 --aug-tr1: 2px;
+	 --aug-tr2: 2px;
+}
+ .aug-bl-2 {
+	 --aug-bl1: 2px;
+	 --aug-bl2: 2px;
+}
+ .aug-br-2 {
+	 --aug-br1: 2px;
+	 --aug-br2: 2px;
+}
+ .aug-tl-3 {
+	 --aug-tl1: 3px;
+	 --aug-tl2: 3px;
+}
+ .aug-tr-3 {
+	 --aug-tr1: 3px;
+	 --aug-tr2: 3px;
+}
+ .aug-bl-3 {
+	 --aug-bl1: 3px;
+	 --aug-bl2: 3px;
+}
+ .aug-br-3 {
+	 --aug-br1: 3px;
+	 --aug-br2: 3px;
+}
+ .aug-tl-4 {
+	 --aug-tl1: 4px;
+	 --aug-tl2: 4px;
+}
+ .aug-tr-4 {
+	 --aug-tr1: 4px;
+	 --aug-tr2: 4px;
+}
+ .aug-bl-4 {
+	 --aug-bl1: 4px;
+	 --aug-bl2: 4px;
+}
+ .aug-br-4 {
+	 --aug-br1: 4px;
+	 --aug-br2: 4px;
+}
+ .aug-tl-5 {
+	 --aug-tl1: 5px;
+	 --aug-tl2: 5px;
+}
+ .aug-tr-5 {
+	 --aug-tr1: 5px;
+	 --aug-tr2: 5px;
+}
+ .aug-bl-5 {
+	 --aug-bl1: 5px;
+	 --aug-bl2: 5px;
+}
+ .aug-br-5 {
+	 --aug-br1: 5px;
+	 --aug-br2: 5px;
+}
+ .aug-tl-6 {
+	 --aug-tl1: 6px;
+	 --aug-tl2: 6px;
+}
+ .aug-tr-6 {
+	 --aug-tr1: 6px;
+	 --aug-tr2: 6px;
+}
+ .aug-bl-6 {
+	 --aug-bl1: 6px;
+	 --aug-bl2: 6px;
+}
+ .aug-br-6 {
+	 --aug-br1: 6px;
+	 --aug-br2: 6px;
+}
+ .aug-tl-7 {
+	 --aug-tl1: 7px;
+	 --aug-tl2: 7px;
+}
+ .aug-tr-7 {
+	 --aug-tr1: 7px;
+	 --aug-tr2: 7px;
+}
+ .aug-bl-7 {
+	 --aug-bl1: 7px;
+	 --aug-bl2: 7px;
+}
+ .aug-br-7 {
+	 --aug-br1: 7px;
+	 --aug-br2: 7px;
+}
+ .aug-tl-8 {
+	 --aug-tl1: 8px;
+	 --aug-tl2: 8px;
+}
+ .aug-tr-8 {
+	 --aug-tr1: 8px;
+	 --aug-tr2: 8px;
+}
+ .aug-bl-8 {
+	 --aug-bl1: 8px;
+	 --aug-bl2: 8px;
+}
+ .aug-br-8 {
+	 --aug-br1: 8px;
+	 --aug-br2: 8px;
+}
+ .aug-tl-9 {
+	 --aug-tl1: 9px;
+	 --aug-tl2: 9px;
+}
+ .aug-tr-9 {
+	 --aug-tr1: 9px;
+	 --aug-tr2: 9px;
+}
+ .aug-bl-9 {
+	 --aug-bl1: 9px;
+	 --aug-bl2: 9px;
+}
+ .aug-br-9 {
+	 --aug-br1: 9px;
+	 --aug-br2: 9px;
+}
+ .aug-tl-10 {
+	 --aug-tl1: 10px;
+	 --aug-tl2: 10px;
+}
+ .aug-tr-10 {
+	 --aug-tr1: 10px;
+	 --aug-tr2: 10px;
+}
+ .aug-bl-10 {
+	 --aug-bl1: 10px;
+	 --aug-bl2: 10px;
+}
+ .aug-br-10 {
+	 --aug-br1: 10px;
+	 --aug-br2: 10px;
+}
+ .aug-tl-11 {
+	 --aug-tl1: 11px;
+	 --aug-tl2: 11px;
+}
+ .aug-tr-11 {
+	 --aug-tr1: 11px;
+	 --aug-tr2: 11px;
+}
+ .aug-bl-11 {
+	 --aug-bl1: 11px;
+	 --aug-bl2: 11px;
+}
+ .aug-br-11 {
+	 --aug-br1: 11px;
+	 --aug-br2: 11px;
+}
+ .aug-tl-12 {
+	 --aug-tl1: 12px;
+	 --aug-tl2: 12px;
+}
+ .aug-tr-12 {
+	 --aug-tr1: 12px;
+	 --aug-tr2: 12px;
+}
+ .aug-bl-12 {
+	 --aug-bl1: 12px;
+	 --aug-bl2: 12px;
+}
+ .aug-br-12 {
+	 --aug-br1: 12px;
+	 --aug-br2: 12px;
+}
+ .aug-tl-13 {
+	 --aug-tl1: 13px;
+	 --aug-tl2: 13px;
+}
+ .aug-tr-13 {
+	 --aug-tr1: 13px;
+	 --aug-tr2: 13px;
+}
+ .aug-bl-13 {
+	 --aug-bl1: 13px;
+	 --aug-bl2: 13px;
+}
+ .aug-br-13 {
+	 --aug-br1: 13px;
+	 --aug-br2: 13px;
+}
+ .aug-tl-14 {
+	 --aug-tl1: 14px;
+	 --aug-tl2: 14px;
+}
+ .aug-tr-14 {
+	 --aug-tr1: 14px;
+	 --aug-tr2: 14px;
+}
+ .aug-bl-14 {
+	 --aug-bl1: 14px;
+	 --aug-bl2: 14px;
+}
+ .aug-br-14 {
+	 --aug-br1: 14px;
+	 --aug-br2: 14px;
+}
+ .aug-tl-15 {
+	 --aug-tl1: 15px;
+	 --aug-tl2: 15px;
+}
+ .aug-tr-15 {
+	 --aug-tr1: 15px;
+	 --aug-tr2: 15px;
+}
+ .aug-bl-15 {
+	 --aug-bl1: 15px;
+	 --aug-bl2: 15px;
+}
+ .aug-br-15 {
+	 --aug-br1: 15px;
+	 --aug-br2: 15px;
+}
+ .aug-tl-16 {
+	 --aug-tl1: 16px;
+	 --aug-tl2: 16px;
+}
+ .aug-tr-16 {
+	 --aug-tr1: 16px;
+	 --aug-tr2: 16px;
+}
+ .aug-bl-16 {
+	 --aug-bl1: 16px;
+	 --aug-bl2: 16px;
+}
+ .aug-br-16 {
+	 --aug-br1: 16px;
+	 --aug-br2: 16px;
+}
+ .aug-tl-17 {
+	 --aug-tl1: 17px;
+	 --aug-tl2: 17px;
+}
+ .aug-tr-17 {
+	 --aug-tr1: 17px;
+	 --aug-tr2: 17px;
+}
+ .aug-bl-17 {
+	 --aug-bl1: 17px;
+	 --aug-bl2: 17px;
+}
+ .aug-br-17 {
+	 --aug-br1: 17px;
+	 --aug-br2: 17px;
+}
+ .aug-tl-18 {
+	 --aug-tl1: 18px;
+	 --aug-tl2: 18px;
+}
+ .aug-tr-18 {
+	 --aug-tr1: 18px;
+	 --aug-tr2: 18px;
+}
+ .aug-bl-18 {
+	 --aug-bl1: 18px;
+	 --aug-bl2: 18px;
+}
+ .aug-br-18 {
+	 --aug-br1: 18px;
+	 --aug-br2: 18px;
+}
+ .aug-tl-19 {
+	 --aug-tl1: 19px;
+	 --aug-tl2: 19px;
+}
+ .aug-tr-19 {
+	 --aug-tr1: 19px;
+	 --aug-tr2: 19px;
+}
+ .aug-bl-19 {
+	 --aug-bl1: 19px;
+	 --aug-bl2: 19px;
+}
+ .aug-br-19 {
+	 --aug-br1: 19px;
+	 --aug-br2: 19px;
+}
+ .aug-tl-20 {
+	 --aug-tl1: 20px;
+	 --aug-tl2: 20px;
+}
+ .aug-tr-20 {
+	 --aug-tr1: 20px;
+	 --aug-tr2: 20px;
+}
+ .aug-bl-20 {
+	 --aug-bl1: 20px;
+	 --aug-bl2: 20px;
+}
+ .aug-br-20 {
+	 --aug-br1: 20px;
+	 --aug-br2: 20px;
+}
+ .aug-tl-21 {
+	 --aug-tl1: 21px;
+	 --aug-tl2: 21px;
+}
+ .aug-tr-21 {
+	 --aug-tr1: 21px;
+	 --aug-tr2: 21px;
+}
+ .aug-bl-21 {
+	 --aug-bl1: 21px;
+	 --aug-bl2: 21px;
+}
+ .aug-br-21 {
+	 --aug-br1: 21px;
+	 --aug-br2: 21px;
+}
+ .aug-tl-22 {
+	 --aug-tl1: 22px;
+	 --aug-tl2: 22px;
+}
+ .aug-tr-22 {
+	 --aug-tr1: 22px;
+	 --aug-tr2: 22px;
+}
+ .aug-bl-22 {
+	 --aug-bl1: 22px;
+	 --aug-bl2: 22px;
+}
+ .aug-br-22 {
+	 --aug-br1: 22px;
+	 --aug-br2: 22px;
+}
+ .aug-tl-23 {
+	 --aug-tl1: 23px;
+	 --aug-tl2: 23px;
+}
+ .aug-tr-23 {
+	 --aug-tr1: 23px;
+	 --aug-tr2: 23px;
+}
+ .aug-bl-23 {
+	 --aug-bl1: 23px;
+	 --aug-bl2: 23px;
+}
+ .aug-br-23 {
+	 --aug-br1: 23px;
+	 --aug-br2: 23px;
+}
+ .aug-tl-24 {
+	 --aug-tl1: 24px;
+	 --aug-tl2: 24px;
+}
+ .aug-tr-24 {
+	 --aug-tr1: 24px;
+	 --aug-tr2: 24px;
+}
+ .aug-bl-24 {
+	 --aug-bl1: 24px;
+	 --aug-bl2: 24px;
+}
+ .aug-br-24 {
+	 --aug-br1: 24px;
+	 --aug-br2: 24px;
+}
+ .aug-tl-25 {
+	 --aug-tl1: 25px;
+	 --aug-tl2: 25px;
+}
+ .aug-tr-25 {
+	 --aug-tr1: 25px;
+	 --aug-tr2: 25px;
+}
+ .aug-bl-25 {
+	 --aug-bl1: 25px;
+	 --aug-bl2: 25px;
+}
+ .aug-br-25 {
+	 --aug-br1: 25px;
+	 --aug-br2: 25px;
+}
+ .aug-tl-26 {
+	 --aug-tl1: 26px;
+	 --aug-tl2: 26px;
+}
+ .aug-tr-26 {
+	 --aug-tr1: 26px;
+	 --aug-tr2: 26px;
+}
+ .aug-bl-26 {
+	 --aug-bl1: 26px;
+	 --aug-bl2: 26px;
+}
+ .aug-br-26 {
+	 --aug-br1: 26px;
+	 --aug-br2: 26px;
+}
+ .aug-tl-27 {
+	 --aug-tl1: 27px;
+	 --aug-tl2: 27px;
+}
+ .aug-tr-27 {
+	 --aug-tr1: 27px;
+	 --aug-tr2: 27px;
+}
+ .aug-bl-27 {
+	 --aug-bl1: 27px;
+	 --aug-bl2: 27px;
+}
+ .aug-br-27 {
+	 --aug-br1: 27px;
+	 --aug-br2: 27px;
+}
+ .aug-tl-28 {
+	 --aug-tl1: 28px;
+	 --aug-tl2: 28px;
+}
+ .aug-tr-28 {
+	 --aug-tr1: 28px;
+	 --aug-tr2: 28px;
+}
+ .aug-bl-28 {
+	 --aug-bl1: 28px;
+	 --aug-bl2: 28px;
+}
+ .aug-br-28 {
+	 --aug-br1: 28px;
+	 --aug-br2: 28px;
+}
+ .aug-tl-29 {
+	 --aug-tl1: 29px;
+	 --aug-tl2: 29px;
+}
+ .aug-tr-29 {
+	 --aug-tr1: 29px;
+	 --aug-tr2: 29px;
+}
+ .aug-bl-29 {
+	 --aug-bl1: 29px;
+	 --aug-bl2: 29px;
+}
+ .aug-br-29 {
+	 --aug-br1: 29px;
+	 --aug-br2: 29px;
+}
+ .aug-tl-30 {
+	 --aug-tl1: 30px;
+	 --aug-tl2: 30px;
+}
+ .aug-tr-30 {
+	 --aug-tr1: 30px;
+	 --aug-tr2: 30px;
+}
+ .aug-bl-30 {
+	 --aug-bl1: 30px;
+	 --aug-bl2: 30px;
+}
+ .aug-br-30 {
+	 --aug-br1: 30px;
+	 --aug-br2: 30px;
+}
+ .aug-tl2-0 {
+	 --aug-tl2: 0px;
+}
+ .aug-tr2-0 {
+	 --aug-tr2: 0px;
+}
+ .aug-bl2-0 {
+	 --aug-bl2: 0px;
+}
+ .aug-br2-0 {
+	 --aug-br2: 0px;
+}
+ .aug-tl2-1 {
+	 --aug-tl2: 1px;
+}
+ .aug-tr2-1 {
+	 --aug-tr2: 1px;
+}
+ .aug-bl2-1 {
+	 --aug-bl2: 1px;
+}
+ .aug-br2-1 {
+	 --aug-br2: 1px;
+}
+ .aug-tl2-2 {
+	 --aug-tl2: 2px;
+}
+ .aug-tr2-2 {
+	 --aug-tr2: 2px;
+}
+ .aug-bl2-2 {
+	 --aug-bl2: 2px;
+}
+ .aug-br2-2 {
+	 --aug-br2: 2px;
+}
+ .aug-tl2-3 {
+	 --aug-tl2: 3px;
+}
+ .aug-tr2-3 {
+	 --aug-tr2: 3px;
+}
+ .aug-bl2-3 {
+	 --aug-bl2: 3px;
+}
+ .aug-br2-3 {
+	 --aug-br2: 3px;
+}
+ .aug-tl2-4 {
+	 --aug-tl2: 4px;
+}
+ .aug-tr2-4 {
+	 --aug-tr2: 4px;
+}
+ .aug-bl2-4 {
+	 --aug-bl2: 4px;
+}
+ .aug-br2-4 {
+	 --aug-br2: 4px;
+}
+ .aug-tl2-5 {
+	 --aug-tl2: 5px;
+}
+ .aug-tr2-5 {
+	 --aug-tr2: 5px;
+}
+ .aug-bl2-5 {
+	 --aug-bl2: 5px;
+}
+ .aug-br2-5 {
+	 --aug-br2: 5px;
+}
+ .aug-tl2-6 {
+	 --aug-tl2: 6px;
+}
+ .aug-tr2-6 {
+	 --aug-tr2: 6px;
+}
+ .aug-bl2-6 {
+	 --aug-bl2: 6px;
+}
+ .aug-br2-6 {
+	 --aug-br2: 6px;
+}
+ .aug-tl2-7 {
+	 --aug-tl2: 7px;
+}
+ .aug-tr2-7 {
+	 --aug-tr2: 7px;
+}
+ .aug-bl2-7 {
+	 --aug-bl2: 7px;
+}
+ .aug-br2-7 {
+	 --aug-br2: 7px;
+}
+ .aug-tl2-8 {
+	 --aug-tl2: 8px;
+}
+ .aug-tr2-8 {
+	 --aug-tr2: 8px;
+}
+ .aug-bl2-8 {
+	 --aug-bl2: 8px;
+}
+ .aug-br2-8 {
+	 --aug-br2: 8px;
+}
+ .aug-tl2-9 {
+	 --aug-tl2: 9px;
+}
+ .aug-tr2-9 {
+	 --aug-tr2: 9px;
+}
+ .aug-bl2-9 {
+	 --aug-bl2: 9px;
+}
+ .aug-br2-9 {
+	 --aug-br2: 9px;
+}
+ .aug-tl2-10 {
+	 --aug-tl2: 10px;
+}
+ .aug-tr2-10 {
+	 --aug-tr2: 10px;
+}
+ .aug-bl2-10 {
+	 --aug-bl2: 10px;
+}
+ .aug-br2-10 {
+	 --aug-br2: 10px;
+}
+ .aug-tl2-11 {
+	 --aug-tl2: 11px;
+}
+ .aug-tr2-11 {
+	 --aug-tr2: 11px;
+}
+ .aug-bl2-11 {
+	 --aug-bl2: 11px;
+}
+ .aug-br2-11 {
+	 --aug-br2: 11px;
+}
+ .aug-tl2-12 {
+	 --aug-tl2: 12px;
+}
+ .aug-tr2-12 {
+	 --aug-tr2: 12px;
+}
+ .aug-bl2-12 {
+	 --aug-bl2: 12px;
+}
+ .aug-br2-12 {
+	 --aug-br2: 12px;
+}
+ .aug-tl2-13 {
+	 --aug-tl2: 13px;
+}
+ .aug-tr2-13 {
+	 --aug-tr2: 13px;
+}
+ .aug-bl2-13 {
+	 --aug-bl2: 13px;
+}
+ .aug-br2-13 {
+	 --aug-br2: 13px;
+}
+ .aug-tl2-14 {
+	 --aug-tl2: 14px;
+}
+ .aug-tr2-14 {
+	 --aug-tr2: 14px;
+}
+ .aug-bl2-14 {
+	 --aug-bl2: 14px;
+}
+ .aug-br2-14 {
+	 --aug-br2: 14px;
+}
+ .aug-tl2-15 {
+	 --aug-tl2: 15px;
+}
+ .aug-tr2-15 {
+	 --aug-tr2: 15px;
+}
+ .aug-bl2-15 {
+	 --aug-bl2: 15px;
+}
+ .aug-br2-15 {
+	 --aug-br2: 15px;
+}
+ .aug-tl2-16 {
+	 --aug-tl2: 16px;
+}
+ .aug-tr2-16 {
+	 --aug-tr2: 16px;
+}
+ .aug-bl2-16 {
+	 --aug-bl2: 16px;
+}
+ .aug-br2-16 {
+	 --aug-br2: 16px;
+}
+ .aug-tl2-17 {
+	 --aug-tl2: 17px;
+}
+ .aug-tr2-17 {
+	 --aug-tr2: 17px;
+}
+ .aug-bl2-17 {
+	 --aug-bl2: 17px;
+}
+ .aug-br2-17 {
+	 --aug-br2: 17px;
+}
+ .aug-tl2-18 {
+	 --aug-tl2: 18px;
+}
+ .aug-tr2-18 {
+	 --aug-tr2: 18px;
+}
+ .aug-bl2-18 {
+	 --aug-bl2: 18px;
+}
+ .aug-br2-18 {
+	 --aug-br2: 18px;
+}
+ .aug-tl2-19 {
+	 --aug-tl2: 19px;
+}
+ .aug-tr2-19 {
+	 --aug-tr2: 19px;
+}
+ .aug-bl2-19 {
+	 --aug-bl2: 19px;
+}
+ .aug-br2-19 {
+	 --aug-br2: 19px;
+}
+ .aug-tl2-20 {
+	 --aug-tl2: 20px;
+}
+ .aug-tr2-20 {
+	 --aug-tr2: 20px;
+}
+ .aug-bl2-20 {
+	 --aug-bl2: 20px;
+}
+ .aug-br2-20 {
+	 --aug-br2: 20px;
+}
+ .aug-tl2-21 {
+	 --aug-tl2: 21px;
+}
+ .aug-tr2-21 {
+	 --aug-tr2: 21px;
+}
+ .aug-bl2-21 {
+	 --aug-bl2: 21px;
+}
+ .aug-br2-21 {
+	 --aug-br2: 21px;
+}
+ .aug-tl2-22 {
+	 --aug-tl2: 22px;
+}
+ .aug-tr2-22 {
+	 --aug-tr2: 22px;
+}
+ .aug-bl2-22 {
+	 --aug-bl2: 22px;
+}
+ .aug-br2-22 {
+	 --aug-br2: 22px;
+}
+ .aug-tl2-23 {
+	 --aug-tl2: 23px;
+}
+ .aug-tr2-23 {
+	 --aug-tr2: 23px;
+}
+ .aug-bl2-23 {
+	 --aug-bl2: 23px;
+}
+ .aug-br2-23 {
+	 --aug-br2: 23px;
+}
+ .aug-tl2-24 {
+	 --aug-tl2: 24px;
+}
+ .aug-tr2-24 {
+	 --aug-tr2: 24px;
+}
+ .aug-bl2-24 {
+	 --aug-bl2: 24px;
+}
+ .aug-br2-24 {
+	 --aug-br2: 24px;
+}
+ .aug-tl2-25 {
+	 --aug-tl2: 25px;
+}
+ .aug-tr2-25 {
+	 --aug-tr2: 25px;
+}
+ .aug-bl2-25 {
+	 --aug-bl2: 25px;
+}
+ .aug-br2-25 {
+	 --aug-br2: 25px;
+}
+ .aug-tl2-26 {
+	 --aug-tl2: 26px;
+}
+ .aug-tr2-26 {
+	 --aug-tr2: 26px;
+}
+ .aug-bl2-26 {
+	 --aug-bl2: 26px;
+}
+ .aug-br2-26 {
+	 --aug-br2: 26px;
+}
+ .aug-tl2-27 {
+	 --aug-tl2: 27px;
+}
+ .aug-tr2-27 {
+	 --aug-tr2: 27px;
+}
+ .aug-bl2-27 {
+	 --aug-bl2: 27px;
+}
+ .aug-br2-27 {
+	 --aug-br2: 27px;
+}
+ .aug-tl2-28 {
+	 --aug-tl2: 28px;
+}
+ .aug-tr2-28 {
+	 --aug-tr2: 28px;
+}
+ .aug-bl2-28 {
+	 --aug-bl2: 28px;
+}
+ .aug-br2-28 {
+	 --aug-br2: 28px;
+}
+ .aug-tl2-29 {
+	 --aug-tl2: 29px;
+}
+ .aug-tr2-29 {
+	 --aug-tr2: 29px;
+}
+ .aug-bl2-29 {
+	 --aug-bl2: 29px;
+}
+ .aug-br2-29 {
+	 --aug-br2: 29px;
+}
+ .aug-tl2-30 {
+	 --aug-tl2: 30px;
+}
+ .aug-tr2-30 {
+	 --aug-tr2: 30px;
+}
+ .aug-bl2-30 {
+	 --aug-bl2: 30px;
+}
+ .aug-br2-30 {
+	 --aug-br2: 30px;
+}
+/* Generate utility classes for border and inlay sizes */
+ .aug-border-0 {
+	 --aug-border-all: 0px;
+}
+ .aug-inlay-0 {
+	 --aug-inlay-all: 0px;
+}
+ .aug-border-1 {
+	 --aug-border-all: 1px;
+}
+ .aug-inlay-1 {
+	 --aug-inlay-all: 1px;
+}
+ .aug-border-2 {
+	 --aug-border-all: 2px;
+}
+ .aug-inlay-2 {
+	 --aug-inlay-all: 2px;
+}
+ .aug-border-3 {
+	 --aug-border-all: 3px;
+}
+ .aug-inlay-3 {
+	 --aug-inlay-all: 3px;
+}
+ .aug-border-4 {
+	 --aug-border-all: 4px;
+}
+ .aug-inlay-4 {
+	 --aug-inlay-all: 4px;
+}
+ .aug-border-5 {
+	 --aug-border-all: 5px;
+}
+ .aug-inlay-5 {
+	 --aug-inlay-all: 5px;
+}
+ .aug-border-6 {
+	 --aug-border-all: 6px;
+}
+ .aug-inlay-6 {
+	 --aug-inlay-all: 6px;
+}
+ .aug-border-7 {
+	 --aug-border-all: 7px;
+}
+ .aug-inlay-7 {
+	 --aug-inlay-all: 7px;
+}
+ .aug-border-8 {
+	 --aug-border-all: 8px;
+}
+ .aug-inlay-8 {
+	 --aug-inlay-all: 8px;
+}
+ .aug-border-9 {
+	 --aug-border-all: 9px;
+}
+ .aug-inlay-9 {
+	 --aug-inlay-all: 9px;
+}
+ .aug-border-10 {
+	 --aug-border-all: 10px;
+}
+ .aug-inlay-10 {
+	 --aug-inlay-all: 10px;
+}
+/* Generate utility classes for inlay background colors */
+ .aug-inlay-bg-black {
+	 --aug-inlay-bg: black;
+}
+ .aug-inlay-bg-white {
+	 --aug-inlay-bg: white;
+}
+ .aug-inlay-bg-gray {
+	 --aug-inlay-bg: gray;
+}
+ .aug-border-bg-black {
+	 --aug-border-bg: black;
+}
+ .aug-border-bg-white {
+	 --aug-border-bg: white;
+}
+ .aug-border-bg-gray {
+	 --aug-border-bg: gray;
+}
+/* Add more colors as needed */
+ .aug-border-bg-primary {
+	 --aug-border-bg: #141a20;
+}
+ .aug-border-bg-secondary {
+	 --aug-border-bg: #5f5c64;
+}
+/* Generate utility classes for inlay opacity */
+ .aug-inlay-opacity-1 {
+	 --aug-inlay-opacity: 0.1;
+}
+ .aug-inlay-opacity-2 {
+	 --aug-inlay-opacity: 0.2;
+}
+ .aug-inlay-opacity-3 {
+	 --aug-inlay-opacity: 0.3;
+}
+ .aug-inlay-opacity-4 {
+	 --aug-inlay-opacity: 0.4;
+}
+ .aug-inlay-opacity-5 {
+	 --aug-inlay-opacity: 0.5;
+}
+ .aug-inlay-opacity-6 {
+	 --aug-inlay-opacity: 0.6;
+}
+ .aug-inlay-opacity-7 {
+	 --aug-inlay-opacity: 0.7;
+}
+ .aug-inlay-opacity-8 {
+	 --aug-inlay-opacity: 0.8;
+}
+ .aug-inlay-opacity-9 {
+	 --aug-inlay-opacity: 0.9;
+}
+ 
