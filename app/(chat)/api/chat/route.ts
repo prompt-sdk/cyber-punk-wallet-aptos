@@ -51,6 +51,7 @@ export async function POST(request: Request) {
   if (!models.find((m) => m.name === model)) {
     return new Response('Model not found', { status: 404 });
   }
+  console.log("tools",tools);
 
   const toolData = tools.reduce((tool: any, item: any) => {
     if (item.typeName == 'contractTool') {
@@ -114,12 +115,13 @@ export async function POST(request: Request) {
     if (item.typeName == 'widgetTool') {
       const filteredObj: any = item.params
         ? convertParamsToZod(item.params)
-        : z.object({});
+        : {};
       const ParametersSchema: any = Object.fromEntries(
         Object.entries(filteredObj).filter(
           ([key, value]) => value !== undefined
         )
       );
+      
       tool[item.typeName + '_' + item.typeFunction + '_' + generateId()] = {
         description: item.description,
         parameters: z.object(ParametersSchema),
